@@ -14,7 +14,6 @@ export const login = ({
     params: data,
     method: 'get'
   })
-
 }
 
 export const getUserInfo = (token) => {
