@@ -14,10 +14,7 @@ export const login = ({
     params: data,
     method: 'get'
   })
-<<<<<<< HEAD
 
-=======
->>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
 }
 
 export const getUserInfo = (token) => {

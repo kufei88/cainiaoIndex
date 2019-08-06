@@ -22,11 +22,7 @@ module.exports = {
   // https://www.foobar.com/my-app/
   // then change this to '/my-app/'
   baseUrl: BASE_URL,
-<<<<<<< HEAD
   
-=======
-
->>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
   // tweak internal webpack configuration.
   // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
   // 如果你不需要使用eslint，把lintOnSave设为false即可
@@ -42,19 +38,10 @@ module.exports = {
   // 这里写你调用接口的基础路径，来解决跨域，如果设置了代理，那你本地开发环境的axios的baseUrl要写为 '' ，即空字符串
   devServer: {
     proxy: {
-<<<<<<< HEAD
       "/api": {
         target: "http://localhost:8080/",
         pathRewrite: {
           "^/api": ""
-=======
-      '/api': {
-        target: 'http://localhost:8080',
-        ws: true,
-        changOrigin: true,
-        pathRewrite: {
-          '^/api': ''
->>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
         }
       }
     }
