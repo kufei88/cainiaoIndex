@@ -1,6 +1,10 @@
 <!--  -->
 <template>
   <div>
+<<<<<<< HEAD
+    <Button>新增</Button>
+    <Table :columns="buildingColumns" :data="buildingData"></Table>
+=======
     <Button icon="md-add" @click="isAddNewBuilding = true" style="float:left;">新增</Button>
     <Button icon="md-download" @click="exportData()" style="float:left;">导出</Button>
     <Upload action :before-upload="beforeUpload" style="float:left;">
@@ -81,10 +85,23 @@
         </FormItem>
       </Form>
     </Modal>
+>>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
+import axios from "@/libs/api.request";
+export default {
+  data() {
+    return {
+      buildingColumns: [
+        { title: "楼号", key: "buildingNumber" },
+        { title: "名称", key: "buildingName" }
+      ],
+      buildingData: []
+    };
+=======
 import axios from '@/libs/api.request'
 import { getArrayFromFile, getTableDataFromArray } from '@/libs/util'
 export default {
@@ -190,12 +207,33 @@ export default {
       ],
       buildingData: []
     }
+>>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
   },
 
   components: {},
 
   computed: {},
 
+<<<<<<< HEAD
+  mounted() {
+    this.getBuildingData();
+  },
+
+  methods: {
+    getBuildingData() {
+      let _this = this;
+      axios
+        .request({
+          url: "/building/getBuildingList",
+          method: "get"
+        })
+        .then(function(response) {
+          _this.buildingData = response.data;
+        });
+    }
+  }
+};
+=======
   mounted () {
     this.getBuildingData()
   },
@@ -347,6 +385,7 @@ export default {
     }
   }
 }
+>>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
 </script>
 <style lang='scss' scoped>
 </style>

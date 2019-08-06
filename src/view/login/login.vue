@@ -44,12 +44,20 @@ export default {
             name: "home"
           });
         }
+<<<<<<< HEAD
+        // this.getUserInfo().then(res => {
+        //   this.$router.push({
+        //     name: "home"
+        //   });
+        // }); 
+=======
         /*
         this.getUserInfo().then(res => {
           this.$router.push({
             name: "home"
           });
         }); */
+>>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
       });
     }
   }

@@ -70,6 +70,18 @@ export default [{
       },
       component: () =>
         import('@/view/lease/lease.vue')
+<<<<<<< HEAD
+    },{
+      path: 'payment',
+      name: '缴费管理',
+      meta: {
+        icon: 'md-arrow-dropdown-circle',
+        title: '缴费管理'
+      },
+      component: () =>
+        import('@/view/lease/payment.vue')
+=======
+>>>>>>> 07ca980a457ca035edd06c0ac871d22c1ff4677d
     }]
   },
   
