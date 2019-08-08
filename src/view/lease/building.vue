@@ -1,5 +1,6 @@
 <template>
   <div>
+<<<<<<< HEAD
     <!-- 新增办公楼按钮 -->
     <Button icon="md-add" @click="isAddNewBuilding = true">新增</Button>
     <!-- 新增办公楼弹窗 -->
@@ -42,14 +43,23 @@
         </div>
       </template>
     </Table>
+=======
+    <Button>新增</Button>
+    <Table :columns="buildingColumns" :data="buildingData"></Table>
+>>>>>>> a39b4bf88181bdc85c6b972e0f441f86826388ca
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
 import axios from '@/libs/api.request'
+=======
+import axios from "@/libs/api.request";
+>>>>>>> a39b4bf88181bdc85c6b972e0f441f86826388ca
 export default {
-  data () {
+  data() {
     return {
+<<<<<<< HEAD
       isDeleteBuilding: false,
       editIndex: -1, // 当前聚焦的输入框的行数
       editBuildingNumber: '', // 第一列输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
@@ -99,8 +109,25 @@ export default {
   },
   mounted () {
     this.getBuildingData()
+=======
+      buildingColumns: [
+        { title: "楼号", key: "buildingNumber" },
+        { title: "名称", key: "buildingName" }
+      ],
+      buildingData: []
+    };
+  },
+
+  components: {},
+
+  computed: {},
+
+  mounted() {
+    this.getBuildingData();
+>>>>>>> a39b4bf88181bdc85c6b972e0f441f86826388ca
   },
   methods: {
+<<<<<<< HEAD
     handleDelete (index) {
       this.$Modal.confirm({
         title: '删除提示',
@@ -212,10 +239,21 @@ export default {
         })
         .then(function (response) {
           _this.buildingData = response.data
+=======
+    getBuildingData() {
+      let _this = this;
+      axios
+        .request({
+          url: "/building/getBuildingList",
+          method: "get"
+>>>>>>> a39b4bf88181bdc85c6b972e0f441f86826388ca
         })
+        .then(function(response) {
+          _this.buildingData = response.data;
+        });
     }
   }
-}
+};
 </script>
 <style lang='scss' scoped>
 </style>

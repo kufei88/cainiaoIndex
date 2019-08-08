@@ -184,7 +184,7 @@ export default {
           // 验证是否有重复的数据
           this.roomData.forEach(element => {
             if (element.roomNumber == this.formValidate.roomNumber && element.buildingNumber == this.formValidate.buildingNumber) {
-              this.isFormData = true;
+              this.isFormData = true
             }
           })
           if (this.isFormData == false) {

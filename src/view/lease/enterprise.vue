@@ -138,7 +138,7 @@ export default {
           // 验证是否有重复的数据
           this.enterpriseData.forEach(element => {
             if (element.enterpriseName == this.formValidate.enterpriseName) {
-              this.isFormData = true;
+              this.isFormData = true
             }
           })
           if (this.isFormData == false) {
