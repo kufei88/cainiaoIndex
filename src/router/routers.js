@@ -104,7 +104,6 @@ export default [{
             }
         ]
     },
-<<<<<<< HEAD
 
 
     {
@@ -115,55 +114,6 @@ export default [{
         },
         component: () =>
             import ('@/view/error-page/401.vue')
-=======
-    component: Main,
-    children: [{
-      path: 'building',
-      name: '办公楼管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '办公楼管理'
-      },
-      component: () =>
-        import('@/view/lease/building.vue')
-    }, {
-      path: 'lease',
-      name: '租赁管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '租赁管理'
-      },
-      component: () =>
-        import('@/view/lease/lease.vue')
-    },
-    {
-      path: 'account',
-      name: '台账管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '台账管理'
-      },
-      component: () =>
-        import('@/view/lease/account.vue')
-    }]
-  },
-  
-  
-  {
-    path: '/401',
-    name: 'error_401',
-    meta: {
-      hideInMenu: true
-    },
-    component: () =>
-      import('@/view/error-page/401.vue')
-  },
-  {
-    path: '/500',
-    name: 'error_500',
-    meta: {
-      hideInMenu: true
->>>>>>> a39b4bf88181bdc85c6b972e0f441f86826388ca
     },
     {
         path: '/500',
