@@ -107,7 +107,8 @@ export default {
       showRemoveFile: false,
       file: null,
       tableLoading: false,
-      exportLoading: false
+      exportLoading: false,
+      showData:[]
     };
   },
   mounted() {
@@ -123,15 +124,20 @@ export default {
       this.data[index].waterNumber = this.editWaterNumber;
       this.data[index].electricityNumber = this.editElectricityNumber;
       this.editIndex = -1;
-      axios.request({
-        url: "/payment/setPaymentData",
-        method: "post",
-        params: {
-          id: this.data[index].id,
-          waterNumber: this.data[index].waterNumber,
-          electricityNumber: this.data[index].electricityNumber
-        }
-      });
+      if(this.data[index].waterNumber!="" &&  this.data[index].electricityNumber!=""){
+        axios.request({
+          url: "/payment/setPaymentData",
+          method: "post",
+          params: {
+            id: this.data[index].id,
+            waterNumber: this.data[index].waterNumber,
+            electricityNumber: this.data[index].electricityNumber
+          }
+        });
+      }else{
+        this.$Message.error("存在空数据！请输入数据！");
+      }
+      
     },
     getPaymentData() {
       let _this = this;
@@ -145,14 +151,19 @@ export default {
         });
     },
     remove(index) {
-      axios.request({
-        url: "/payment/deletePaymentData",
-        method: "post",
-        params: {
-          id: this.data[index].id
-        }
-      });
-      this.data.splice(index, 1);
+      if(this.data[index].waterNumber != "" &&  this.data[index].electricityNumber != ""){
+        axios.request({
+          url: "/payment/deletePaymentData",
+          method: "post",
+          params: {
+            id: this.data[index].id
+          }
+        });
+        this.data.splice(index, 1);
+      }else{
+        this.data.splice(index, 1);
+      }
+      
     },
     add() {
       this.data.push({ waterNumber: "", electricityNumber: "" });
@@ -178,8 +189,8 @@ export default {
       this.file = null;
       this.showProgress = false;
       this.loadingProgress = 0;
-      this.data = [];
-      this.columns = [];
+      // this.data = [];
+      // this.columns = [];
     },
     handleUploadFile() {
       this.initUpload();
@@ -224,25 +235,37 @@ export default {
       };
       reader.onload = e => {
         let i;
-        let j;
         this.$Message.info("文件读取成功");
         const readerData = e.target.result;
         const { header, results } = excel.read(readerData, "array");
         const tableTitle = header.map(item => { return { title: item, key: item } })
-        this.data = results
-        this.columns = tableTitle
-        // for(i = 0;i<results.length;i++){
-        //   // console.log(results[i][header[0]])
-        //   // console.log(results[i][header[1]])
-        //   // console.log("-------------------")
-          
-        //   this.data.push({ waterNumber: results[i][header[0]], electricityNumber: results[i][header[1]]});
-        // }
+        for(i = 0;i<results.length;i++){ 
+          this.showData[i]={ waterNumber: results[i][header[0]], electricityNumber: results[i][header[1]]};
+          // this.show();
+          this.data.push({ waterNumber: results[i][header[0]], electricityNumber: results[i][header[1]] });
+          this.editIndex = this.data.length;
+          if(results[i][header[0]]!="" &&  results[i][header[1]]!=""){
+            axios.request({
+              url: "/payment/setPaymentData",
+              method: "post",
+              params: {
+                waterNumber: results[i][header[0]],
+                electricityNumber: results[i][header[1]]
+              }
+            });
+          }else{
+            this.$Message.error("存在空数据！请输入数据！");
+          }
+        }
         
         this.uploadLoading = false;
         this.tableLoading = false;
         this.showRemoveFile = true;
       };
+    },
+    show(){
+      console.log(this.data)
+      this.data = this.showData;
     }
   }
 };
