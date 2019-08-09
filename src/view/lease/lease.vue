@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <template>
   <div>
     <Button type="primary" @click="showadd()" ghost>新增</Button>
@@ -130,3 +131,5 @@ export default {
   }
 };
 </script>
+=======
+>>>>>>> 77337226bc2380bc6bd8e6da069487b9f8fed7a9

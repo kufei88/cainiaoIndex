@@ -70,6 +70,7 @@ export default [{
       },
       component: () =>
         import('@/view/lease/lease.vue')
+<<<<<<< HEAD
     }]
     
   },
@@ -84,12 +85,21 @@ export default [{
     children:[{
       path: 'account',
       name: '台账管理',
+=======
+    },{
+      path: 'payment',
+      name: '缴费管理',
+>>>>>>> 77337226bc2380bc6bd8e6da069487b9f8fed7a9
       meta: {
         icon: 'md-arrow-dropdown-circle',
-        title: '台账管理'
+        title: '缴费管理'
       },
       component: () =>
+<<<<<<< HEAD
         import('@/view/account/account.vue')
+=======
+        import('@/view/lease/payment.vue')
+>>>>>>> 77337226bc2380bc6bd8e6da069487b9f8fed7a9
     }]
 
   },
