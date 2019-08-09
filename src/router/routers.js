@@ -70,8 +70,18 @@ export default [{
       },
       component: () =>
         import('@/view/lease/lease.vue')
+    }]
+    
+  },
+  {
+    path: '/account',
+    name: 'account',
+    meta: {
+      icon: 'logo-buffer',
+      title: '台账管理'
     },
-    {
+    component: Main,
+    children:[{
       path: 'account',
       name: '台账管理',
       meta: {
@@ -79,8 +89,9 @@ export default [{
         title: '台账管理'
       },
       component: () =>
-        import('@/view/lease/account.vue')
+        import('@/view/account/account.vue')
     }]
+
   },
   
   
