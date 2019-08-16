@@ -13,110 +13,124 @@ import parentView from '@/components/parent-view'
  */
 
 export default [{
-    path: '/login',
-    name: 'login',
-    meta: {
-      title: 'Login - 登录',
-      hideInMenu: true
-    },
-    component: () =>
-      import('@/view/login/login.vue')
+  path: '/login',
+  name: 'login',
+  meta: {
+    title: 'Login - 登录',
+    hideInMenu: true
   },
-  {
-    path: '/',
-    name: '_home',
-    redirect: '/home',
-    component: Main,
+  component: () =>
+    import('@/view/login/login.vue')
+},
+{
+  path: '/',
+  name: '_home',
+  redirect: '/home',
+  component: Main,
+  meta: {
+    hideInMenu: true,
+    notCache: true
+  },
+  children: [{
+    path: '/home',
+    name: 'home',
     meta: {
       hideInMenu: true,
+      title: '首页',
       notCache: true
     },
-    children: [{
-      path: '/home',
-      name: 'home',
-      meta: {
-        hideInMenu: true,
-        title: '首页',
-        notCache: true
-      },
-      component: () =>
-        import('@/view/single-page/home')
-    }]
-  },
+    component: () =>
+      import('@/view/single-page/home')
+  }]
+},
 
-  {
-    path: '/lease',
-    name: 'lease',
+{
+  path: '/lease',
+  name: 'lease',
+  meta: {
+    icon: 'logo-buffer',
+    title: '租赁管理'
+  },
+  component: Main,
+  children: [{
+    path: 'building',
+    name: '办公楼管理',
     meta: {
-      icon: 'logo-buffer',
+      icon: 'md-arrow-dropdown-circle',
+      title: '办公楼管理'
+    },
+    component: () =>
+      import('@/view/lease/building.vue')
+  }, {
+    path: 'lease',
+    name: '租赁管理',
+    meta: {
+      icon: 'md-arrow-dropdown-circle',
       title: '租赁管理'
     },
-    component: Main,
-    children: [{
-      path: 'building',
-      name: '办公楼管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '办公楼管理'
-      },
-      component: () =>
-        import('@/view/lease/building.vue')
-    }, {
-      path: 'lease',
-      name: '租赁管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '租赁管理'
-      },
-      component: () =>
-        import('@/view/lease/lease.vue')
-    }]
+    component: () =>
+      import('@/view/lease/lease.vue')
+  }]
+
+},
+{
+  path: '/dormitorymanage',
+  name: 'dormitorymanage',
+  meta: {
+    icon: 'logo-buffer',
+    title: '宿舍管理'
   },
-  {
-    path: '/payment',
-    name: 'payment',
+  component: Main,
+  children: [{
+    path: 'dormitorymanage',
+    name: '宿舍管理',
     meta: {
-      icon: 'logo-buffer',
-      title: '缴费管理'
-    },
-    component: Main,
-    children: [{
-      path: 'payment',
-      name: '缴费管理',
-      meta: {
-        icon: 'md-arrow-dropdown-circle',
-        title: '缴费管理'
-      },
-      component: () =>
-        import('@/view/payment/payment.vue')
-    }]
-  },
-  
-  {
-    path: '/401',
-    name: 'error_401',
-    meta: {
-      hideInMenu: true
+      icon: 'md-arrow-dropdown-circle',
+      title: '宿舍管理'
     },
     component: () =>
-      import('@/view/error-page/401.vue')
-  },
-  {
-    path: '/500',
-    name: 'error_500',
-    meta: {
-      hideInMenu: true
-    },
-    component: () =>
-      import('@/view/error-page/500.vue')
-  },
-  {
-    path: '*',
-    name: 'error_404',
-    meta: {
-      hideInMenu: true
-    },
-    component: () =>
-      import('@/view/error-page/404.vue')
+      import('@/view/dormitorymanage/dormitorymanage.vue')
   }
+    ,
+  {
+    path: 'dormitory',
+    name: '宿舍',
+    meta: {
+      icon: 'md-arrow-dropdown-circle',
+      title: '宿舍'
+    },
+    component: () =>
+      import('@/view/dormitorymanage/dormitory.vue')
+  }]
+
+},
+
+
+{
+  path: '/401',
+  name: 'error_401',
+  meta: {
+    hideInMenu: true
+  },
+  component: () =>
+    import('@/view/error-page/401.vue')
+},
+{
+  path: '/500',
+  name: 'error_500',
+  meta: {
+    hideInMenu: true
+  },
+  component: () =>
+    import('@/view/error-page/500.vue')
+},
+{
+  path: '*',
+  name: 'error_404',
+  meta: {
+    hideInMenu: true
+  },
+  component: () =>
+    import('@/view/error-page/404.vue')
+}
 ]
