@@ -1,19 +1,37 @@
 <template>
   <div>
-    <!-- 新增办公室按钮 -->
+    <!-- 自定义查询模块 -->
+    <Input
+      search
+      enter-button="查询"
+      placeholder="请输入查询内容"
+      style="width:300px;margin-bottom:10px;float:left;"
+      @on-search="searchData"
+      v-model="searchBuildingName"
+    />
+    
+    <!-- Excel模板下载按钮 -->
     <Button
-      icon="md-add"
-      @click="isAddNewData = true"
-      style="float:left"
-    >新增</Button>
+      icon="md-download"
+      :loading="exportLoading"
+      @click="exportExcelModel"
+      style="float:right"
+    >模板下载</Button>
+    
+    <!-- Excel导出按钮 -->
+    <Button
+      icon="md-download"
+      :loading="exportLoading"
+      @click="exportExcel"
+      style="float:right"
+    >导出文件</Button>
 
     <!-- Excel导入按钮 -->
-
     <Upload
       action=""
       :before-upload="handleBeforeUpload"
       accept=".xls, .xlsx"
-      style="float:left"
+      style="float:right"
     >
 
       <Button
@@ -24,32 +42,21 @@
 
     </Upload>
 
-    <!-- Excel导出按钮 -->
-
+    <!-- 新增办公室按钮 -->
     <Button
-      icon="md-download"
-      :loading="exportLoading"
-      @click="exportExcel"
-      style="float:left"
-    >导出文件</Button>
-
-    <!-- Excel模板下载按钮 -->
-
-    <Button
-      icon="md-download"
-      :loading="exportLoading"
-      @click="exportExcelModel"
-      style="float:left"
-    >模板下载</Button>
+      icon="md-add"
+      @click="isAddNewData = true"
+      style="float:right"
+    >新增</Button>
 
     <!-- 清除浮动 -->
-
     <div style="clear:both"></div>
 
     <!-- 新增办公室弹窗 -->
     <Modal
       :closable="false"
       v-model="isAddNewData"
+      :mask-closable="false"
       title="新增办公室信息填写"
     >
       <Form
@@ -129,24 +136,13 @@
       :columns="dataColumns"
       :data="pageData"
       ref="table"
+      height="522"
     >
       <template
         slot-scope="{ row }"
         slot="id"
       >
         <span>{{ row.id }}</span>
-      </template>
-
-      <template
-        slot-scope="{ row, index }"
-        slot="roomNumber"
-      >
-        <Input
-          type="text"
-          v-model="editRoomNumber"
-          v-if="editIndex === index"
-        />
-        <span v-else>{{ row.roomNumber }}</span>
       </template>
 
       <template
@@ -165,6 +161,18 @@
           >{{ item.buildingName }}</Option>
         </Select>
         <span v-else>{{ row.buildingName }}</span>
+      </template>
+
+      <template
+        slot-scope="{ row, index }"
+        slot="roomNumber"
+      >
+        <Input
+          type="text"
+          v-model="editRoomNumber"
+          v-if="editIndex === index"
+        />
+        <span v-else>{{ row.roomNumber }}</span>
       </template>
 
       <template
@@ -228,6 +236,7 @@
     </Table>
 
     <!-- 分页功能 -->
+    <span>记录总共 {{this.dataCount}} 条</span>
     <Page
       :total="dataCount"
       @on-change="changePage"
@@ -325,6 +334,9 @@ export default {
       }
     };
     return {
+      searchBuildingName: "", // 查询的办公楼名称
+      searchHistoryData: [], //搜索时备份的历史数据
+
       uploadLoading: false, // 上传时等待状态是否开启
       file: null, // 文件
       uploadTableData: [], // 上传的excel表格数据存储
@@ -333,6 +345,8 @@ export default {
       isChangeEdit: false, // 是否修改记录
 
       pageCurrent: 1, //当前页数
+      pageStart: 0,
+      pageEnd: 0,
       dataCount: 0, //后台数据的总记录
       pageSize: 10, //每页显示多少条
       pageData: [], //table绑定的数据
@@ -356,14 +370,14 @@ export default {
           slot: "id"
         },
         {
-          title: "房号",
-          key: "roomNumber",
-          slot: "roomNumber"
-        },
-        {
           title: "所属办公楼",
           key: "buildingName",
           slot: "buildingName"
+        },
+        {
+          title: "房号",
+          key: "roomNumber",
+          slot: "roomNumber"
         },
         {
           title: "计租面积(㎡)",
@@ -452,11 +466,17 @@ export default {
     };
   },
   mounted() {
-    this.getHistoryData();
+    this.getRequestData(this.pageCurrent);
     this.getBuildingData();
   },
   methods: {
-    // 上传数据到后台
+    // 查询数据***
+    searchData(value) {
+      this.searchBuildingName = value;
+      this.pageCurrent = 1;
+      this.getRequestData(this.pageCurrent);
+    },
+    // Excel导入数据
     uploadExcelData(excelData) {
       // 1.先进行数据的处理，转化成符合后台读取的格式
       for (var key in excelData) {
@@ -469,27 +489,26 @@ export default {
         delete excelData[key].计租面积;
         delete excelData[key].建筑面积;
       }
-      // 2.验证数据
-      let isDataSame = false; // 判断是否数据重复
-
-      for (var key1 in excelData) {
-        for (var key2 in this.historyData) {
-          if (
-            excelData[key1].roomNumber == this.historyData[key2].roomNumber &&
-            excelData[key1].buildingName == this.historyData[key2].buildingName
-          ) {
-            isDataSame = true;
-            break;
-          }
-        }
-        if (isDataSame == true) {
-          break;
-        }
+      // 验证空数据
+      let isDataEmpty = 0;
+      for (var key in excelData) {
+        excelData[key].roomNumber == "" ||
+        excelData[key].roomNumber == null ||
+        excelData[key].roomNumber == undefined ||
+        excelData[key].buildingName == "" ||
+        excelData[key].buildingName == null ||
+        excelData[key].buildingName == undefined ||
+        excelData[key].rentArea == "" ||
+        excelData[key].rentArea == null ||
+        excelData[key].rentArea == undefined ||
+        excelData[key].builtUpArea == "" ||
+        excelData[key].builtUpArea == null ||
+        excelData[key].builtUpArea == undefined
+          ? (isDataEmpty += 1)
+          : (isDataEmpty += 0);
       }
       // 2.1 验证成功，上传后台数据库
-      if (isDataSame == false) {
-        this.$Message.success("导入成功！");
-        console.log(excelData);
+      if (isDataEmpty == 0) {
         let _this = this;
         axios
           .request({
@@ -501,14 +520,18 @@ export default {
             data: excelData
           })
           .then(function(response) {
-            _this.historyData = response.data;
-            _this.changePage(_this.pageCurrent);
+            if (response.data != 0) {
+              _this.$Message.success("导入成功");
+              _this.getRequestData(_this.pageCurrent);
+            } else {
+              _this.$Message.error("表内无数据，导入失败");
+            }
           });
       }
       // 2.2 验证失败，提示信息
       else {
-        this.$Message.error("导入失败！");
-        isDataSame = false;
+        this.$Message.error("该表内有" + isDataEmpty + "行数据有空项");
+        isDataEmpty = 0;
       }
     },
 
@@ -601,19 +624,20 @@ export default {
         this.$Message.info("表格数据不能为空！");
       }
     },
-    // 改变每页条数
+    // 改变每页条数***
     changePageNumber(index) {
       this.pageSize = index;
       if (this.pageCurrent === 1) {
         this.changePage(this.pageCurrent);
       }
     },
-    //分页
+    // 分页***
     changePage(index) {
-      let _start = (index - 1) * this.pageSize;
-      let _end = index * this.pageSize;
-      this.pageData = this.historyData.slice(_start, _end);
+      // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
+      console.log("请求前历史数据:");
+      console.log(this.historyData);
+      this.getRequestData(index);
     },
     // 删除记录
     handleDelete(index) {
@@ -621,9 +645,8 @@ export default {
         title: "删除提示",
         content: "<p>是否确认删除该条记录？</p>",
         onOk: () => {
-          this.$Message.success("删除成功!");
           let _this = this;
-          let _data = this.historyData[index + (this.pageCurrent - 1) * 10];
+          let _data = this.historyData[index];
           axios
             .request({
               url: "/room/deleteRoomList",
@@ -634,17 +657,17 @@ export default {
               data: _data
             })
             .then(function(response) {
-              _this.historyData = response.data;
-              // 是否使页码总数减少
-              if (
-                _this.historyData.length / _this.pageSize <
-                _this.pageCurrent
-              ) {
-                _this.changePage(_this.pageCurrent - 1);
+              if (response.data == 1) {
+                _this.$Message.success("删除成功");
+                // 判断是否pageData的数据长度<=1,是则页数减1;
+                if (_this.pageData.length <= 1) {
+                  _this.getRequestData(_this.pageCurrent - 1);
+                } else {
+                  _this.getRequestData(_this.pageCurrent);
+                }
               } else {
-                _this.changePage(_this.pageCurrent);
+                _this.$Message.error("删除失败");
               }
-              _this.dataCount = _this.historyData.length;
             });
         },
         onCancel: () => {}
@@ -665,150 +688,60 @@ export default {
     // 取消修改记录
     handleCancel(index) {
       // 数据恢复
-      this.editBuildingNumber = this.historyData[
-        index + (this.pageCurrent - 1) * 10
-      ].buildingNumber;
-      this.editBuildingName = this.historyData[
-        index + (this.pageCurrent - 1) * 10
-      ].buildingName;
+      this.editBuildingNumber = this.historyData[index].buildingNumber;
+      this.editBuildingName = this.historyData[index].buildingName;
       this.editIndex = -1;
     },
 
     // 保存数据
     handleSave(index) {
-      // 标识数据重复的位置
-      const isWhereSame = [
-        {
-          title: "房号",
-          isDataSame: false // 数据重复标识
-        }
-      ];
-      let isDataEmpty = false; //是否有数据为空
-
-      // 暂存原数据
-      this.historyDataSave.roomNumber = this.editRoomNumber;
-      this.historyDataSave.buildingName = this.editBuildingName;
-      this.historyDataSave.rentArea = this.editRentArea;
-      this.historyDataSave.builtUpArea = this.editBuiltUpArea;
-
       let _this = this;
       let _data = this.historyDataSave;
-      // 验证数据是否合法
-      // 1.楼号、名称是否为空
-      if (
-        _data.roomNumber == null ||
-        _data.roomNumber == undefined ||
-        _data.roomNumber == "" ||
-        _data.rentArea == null ||
-        _data.rentArea == undefined ||
-        _data.rentArea == "" ||
-        _data.builtUpArea == null ||
-        _data.builtUpArea == undefined ||
-        _data.builtUpArea == ""
-      ) {
-        isDataEmpty = true;
-      }
 
-      // 2.数据为空处理
-      if (isDataEmpty == true) {
-        this.$Message.error("数据不能为空！");
-      } else {
-        // 3.判断数据是否含有特殊字符
-        if (
-          this.checkSpecialKey(_data.roomNumber) == false ||
-          this.checkSpecialKey(_data.rentArea) == false ||
-          this.checkSpecialKey(_data.builtUpArea) == false
-        ) {
-          this.$Message.error("不能有特殊字符！");
-        }
-        // 判断数据是否格式有误
-        else if (
-          this.checkNumberKey(_data.roomNumber) == false ||
-          this.checkNumberKey(_data.rentArea) == false ||
-          this.checkNumberKey(_data.builtUpArea) == false
-        ) {
-          this.$Message.error("输入的数据格式有误！");
-        } else {
-          // 4.判断数据是否重复
-          for (var i in this.historyData) {
-            if (i != index + (this.pageCurrent - 1) * 10) {
-              // 房间号是否重复
-              if (
-                this.historyData[i].roomNumber == _data.roomNumber &&
-                this.historyData[i].buildingName == _data.buildingName
-              ) {
-                isWhereSame[0].isDataSame = true;
-                break;
-              }
-            }
-          }
-          // 5.数据重复处理
-          let errorStr = ""; // 错误信息集合
-          for (var i in isWhereSame) {
-            if (isWhereSame[i].isDataSame == true) {
-              errorStr += isWhereSame[i].title;
-              errorStr += "、";
-            }
-          }
-          // 6.去除最后一个“、”号
-          errorStr = errorStr.substring(0, errorStr.lastIndexOf("、"));
-          // 7.是否修改成功处理
-          if (errorStr === "") {
-            // 修改成功
-            this.$Message.success("保存成功！");
-            // 向后台发送数据
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].id = this.editRoomId;
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].roomNumber = this.editRoomNumber;
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].buildingName = this.editBuildingName;
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].rentArea = this.editRentArea;
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].builtUpArea = this.editBuiltUpArea;
-            this.historyData[
-              index + (this.pageCurrent - 1) * 10
-            ].owner = this.editOwner;
+      // 向后台发送数据
+      this.historyData[index].id = this.editRoomId;
+      this.historyData[index].roomNumber = this.editRoomNumber;
+      this.historyData[index].buildingName = this.editBuildingName;
+      this.historyData[index].rentArea = this.editRentArea;
+      this.historyData[index].builtUpArea = this.editBuiltUpArea;
+      this.historyData[index].owner = this.editOwner;
+      _data = this.historyData[index];
 
-            _data = this.historyData[index + (this.pageCurrent - 1) * 10];
-
-            axios
-              .request({
-                url: "/room/updateRoomList",
-                method: "post",
-                headers: {
-                  "Content-Type": "application/json;charset=UTF-8"
-                },
-                data: _data
-              })
-              .then(function(response) {
-                _this.historyData = response.data;
-                _this.changePage(_this.pageCurrent);
-              });
-            this.editIndex = -1;
+      axios
+        .request({
+          url: "/room/updateRoomList",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+          },
+          data: _data
+        })
+        .then(function(response) {
+          if (response.data == 1) {
+            _this.$Message.success("保存成功");
+            _this.getRequestData(_this.pageCurrent);
+          } else if (response.data == -1) {
+            _this.$Message.error("该楼已有该房号");
+            _this.historyData[index].id = _this.editRoomId;
+            _this.historyData[index].roomNumber = _this.editRoomNumber;
+            _this.historyData[index].buildingName = _this.editBuildingName;
+            _this.historyData[index].rentArea = _this.editRentArea;
+            _this.historyData[index].builtUpArea = _this.editBuiltUpArea;
+            _this.historyData[index].owner = _this.editOwner;
+          } else {
+            _this.$Message.error("保存失败");
           }
-          // 修改失败,提示信息
-          else {
-            errorStr = "该楼已有该" + errorStr + "！";
-            this.$Message.error({
-              content: errorStr,
-              duration: 3
-            });
-          }
-        }
-      }
+        })
+        .then(function() {
+          console.log(_this.pageCurrent);
+          _this.changePage(_this.pageCurrent);
+        });
+      this.editIndex = -1;
     },
     // 确认提交新增数据
     handleSubmit(name) {
       this.$refs[name].validate(valid => {
         if (valid) {
-          this.$Message.success("操作成功!");
           // 开始向后台发送数据
           let _this = this;
           let _data = this.formValidate;
@@ -822,17 +755,14 @@ export default {
               data: _data
             })
             .then(function(response) {
-              _this.historyData = response.data;
-              // 是否使页码数新增
-              if (
-                _this.historyData.length / _this.pageSize >
-                _this.pageCurrent
-              ) {
-                _this.changePage(_this.pageCurrent + 1);
+              if (response.data == 1) {
+                _this.$Message.success("添加成功");
+                _this.getRequestData(_this.pageCurrent);
+              } else if (response.data == -1) {
+                _this.$Message.error("已有该办公室存在");
               } else {
-                _this.changePage(_this.pageCurrent);
+                _this.$Message.error("添加失败");
               }
-              _this.dataCount = _this.historyData.length;
             })
             .then(function() {
               _this.$refs[name].resetFields();
@@ -847,19 +777,26 @@ export default {
       this.isAddNewData = false;
     },
     // 从后台获取表格数据
-    getHistoryData() {
+    getRequestData(index) {
       let _this = this;
+      this.pageStart = (index - 1) * this.pageSize;
+      this.pageEnd = index * this.pageSize;
       axios
         .request({
-          url: "/room/getRoomList",
-          method: "get"
+          url: "/room/getSearchList",
+          method: "get",
+          params: {
+            search: this.searchBuildingName,
+            dataStart: this.pageStart,
+            dataEnd: this.pageEnd
+          }
         })
         .then(function(response) {
-          _this.historyData = response.data;
-        })
-        .then(function() {
-          _this.dataCount = _this.historyData.length;
-          _this.pageData = _this.historyData.slice(0, _this.pageSize);
+          _this.historyData = response.data.roomList;
+          _this.pageData = _this.historyData;
+          _this.dataCount = response.data.dataCount;
+          console.log("数据请求:");
+          console.log(_this.historyData);
         });
     },
     // 从后台获取办公楼数据

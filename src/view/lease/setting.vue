@@ -1,28 +1,42 @@
 <template>
-  <div>
-    <!-- 系统设置表格显示 -->
-    <Table size="large" border :columns="settingColumns" :data="settingData">
-      <template slot-scope="{ row, index }" slot="rentUnitPrice">
-        <Input type="text" v-model="editRentUnitPrice" v-if="editIndex === index" />
-        <span v-else>{{ row.rentUnitPrice }}</span>
-      </template>
+  <div class="settingBorder">
+    <div class="settingItem">
+      <div>
+        <span>管理单价(元/月/平米)：</span>
+        <input
+          v-model="historyData[0].manageExpense"
+          v-if="isSetState==true"
+          type="text"
+        />
+        <span v-else>{{historyData[0].manageExpense}}</span>
+        <span> 元</span>
+      </div>
 
-      <template slot-scope="{ row, index }" slot="manageExpense">
-        <Input type="text" v-model="editManageExpense" v-if="editIndex === index" />
-        <span v-else>{{ row.manageExpense }}</span>
-      </template>
+    </div>
+    <div class="footerButton">
+      <div v-if="isSetState==false">
+        <Button
+          type="primary"
+          size="large"
+          @click="isSetState=true"
+        >修改设置</Button>
+      </div>
+      <div v-else>
+        <Button
+          type="text"
+          size="large"
+          @click="isSetState=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="handleSubmit"
+        >确定</Button>
+      </div>
 
-      <template slot-scope="{ row, index }" slot="action">
-        <div v-if="editIndex === index">
-          <Button type="primary" style="margin-right: 5px" @click="handleSave(index)">保存</Button>
-          <Button type="error" @click="editIndex = -1">取消</Button>
-        </div>
-        <div v-else>
-          <Button type="primary" style="margin-right: 5px" @click="handleEdit(row, index)">修改</Button>
-        </div>
-      </template>
-    </Table>
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -30,45 +44,22 @@ import axios from "@/libs/api.request";
 export default {
   data() {
     return {
-      editIndex: -1, // 当前聚焦的输入框的行数
-      editRentUnitPrice: "",
-      editManageExpense: "",
-      settingColumns: [
+      isSetState: false, // 是否修改设置
+      historyData: [
         {
-          title: "租金单价(元/月*㎡)",
-          key: "rentUnitPrice",
-          slot: "rentUnitPrice",
-          align: "center"
-        },
-        {
-          title: "管理费(元/月*㎡)",
-          key: "manageExpense",
-          slot: "manageExpense",
-          align: "center"
-        },
-        {
-          title: "操作",
-          width: 200,
-          align: "center",
-          slot: "action"
+          manageExpense: 0
         }
-      ],
-      settingData: []
+      ] // 后台数据存储
     };
   },
+  mounted() {
+    this.getHistoryData();
+  },
   methods: {
-    handleEdit(row, index) {
-      this.editRentUnitPrice = row.rentUnitPrice;
-      this.editManageExpense = row.manageExpense;
-      this.editIndex = index;
-    },
-    handleSave(index) {
-      this.$Message.success("Success!");
-      this.settingData[index].rentUnitPrice = this.editRentUnitPrice;
-      this.settingData[index].manageExpense = this.editManageExpense;
-
+    handleSubmit() {
+      this.$Message.success("保存成功！");
       let _this = this;
-      let _data = this.settingData[index];
+      let _data = this.historyData[0];
       axios
         .request({
           url: "/setting/updateSettingList",
@@ -79,12 +70,12 @@ export default {
           data: _data
         })
         .then(function(response) {
-          console.log(response);
-          _this.settingData = response.data;
+          _this.historyData = response.data;
         });
-      this.editIndex = -1;
+      this.isSetState = false;
     },
-    getSettingData() {
+    // 从后台获取设置数据
+    getHistoryData() {
       let _this = this;
       axios
         .request({
@@ -92,14 +83,29 @@ export default {
           method: "get"
         })
         .then(function(response) {
-          _this.settingData = response.data;
+          _this.historyData = response.data;
         });
     }
-  },
-  mounted() {
-    this.getSettingData();
   }
 };
 </script>
 <style lang="scss" scoped>
+.settingBorder {
+  width: 100%;
+  height: 580px;
+  font-size: 24px;
+  .settingItem {
+    width: 70%;
+    margin: 0 auto;
+    text-align: left;
+  }
+  .footerButton {
+    width: 70%;
+    margin: 0 auto;
+    text-align: center;
+    button {
+      margin: 10px;
+    }
+  }
+}
 </style>

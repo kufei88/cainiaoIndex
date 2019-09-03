@@ -84,10 +84,10 @@ export default [{
             },
             {
                 path: 'lease',
-                name: '租赁管理',
+                name: '租赁信息管理',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
-                    title: '租赁管理'
+                    title: '租赁信息管理'
                 },
                 component: () =>
                     import ('@/view/lease/lease.vue')
