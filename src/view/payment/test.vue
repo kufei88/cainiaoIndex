@@ -280,8 +280,8 @@ export default {
       },
       timeText: "",
       value4: true,//时间数据状态
-      value5: true,//水数据状态
-      value6:true//电数据状态
+      value5: true,//水费数据状态
+      value6:true//电费数据状态
     };
   },
   mounted() {
