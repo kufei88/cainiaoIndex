@@ -9,7 +9,7 @@
       @on-search="searchData"
       v-model="searchBuildingName"
     />
-    
+
     <!-- Excel模板下载按钮 -->
     <Button
       icon="md-download"
@@ -17,7 +17,7 @@
       @click="exportExcelModel"
       style="float:right"
     >模板下载</Button>
-    
+
     <!-- Excel导出按钮 -->
     <Button
       icon="md-download"
@@ -432,9 +432,8 @@ export default {
         roomNumber: [
           {
             required: true,
-            // message: "房号不得为空",
+            message: "房号不得为空",
             trigger: "blur",
-            validator: roomNumberRule
           }
         ],
         buildingName: [
@@ -448,18 +447,16 @@ export default {
           {
             type: "number",
             required: true,
-            // message: "计租面积不得为空",
+            message: "计租面积不得为空",
             trigger: "blur",
-            validator: numDataRule
           }
         ],
         builtUpArea: [
           {
             type: "number",
             required: true,
-            // message: "建筑面积不得为空",
+            message: "建筑面积不得为空",
             trigger: "blur",
-            validator: numDataRule
           }
         ]
       }
@@ -520,11 +517,20 @@ export default {
             data: excelData
           })
           .then(function(response) {
-            if (response.data != 0) {
-              _this.$Message.success("导入成功");
-              _this.getRequestData(_this.pageCurrent);
+            if (response.data == 0) {
+              _this.$Message.error("未知原因，导入失败");
+            } else if (response.data == -1) {
+              _this.$Message.error("导入失败，表内无数据");
+            } else if (response.data == -2) {
+              _this.$Message.error("导入失败，数据全部存在");
             } else {
-              _this.$Message.error("表内无数据，导入失败");
+              if (response.data == excelData.length) {
+                _this.$Message.success("导入成功");
+              } else if (response.data < excelData.length) {
+                let num = excelData.length - response.data;
+                _this.$Message.info(num + "条数据因重复而未导入");
+              }
+              _this.getRequestData(_this.pageCurrent);
             }
           });
       }
@@ -635,8 +641,6 @@ export default {
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
-      console.log("请求前历史数据:");
-      console.log(this.historyData);
       this.getRequestData(index);
     },
     // 删除记录
@@ -705,38 +709,55 @@ export default {
       this.historyData[index].rentArea = this.editRentArea;
       this.historyData[index].builtUpArea = this.editBuiltUpArea;
       this.historyData[index].owner = this.editOwner;
-      _data = this.historyData[index];
+      // 判断是否为空，内容有空值就不发送
+      if (
+        this.historyData[index].roomNumber == "" ||
+        this.historyData[index].roomNumber == null ||
+        this.historyData[index].roomNumber == undefined ||
+        this.historyData[index].buildingName == "" ||
+        this.historyData[index].buildingName == null ||
+        this.historyData[index].buildingName == undefined ||
+        this.historyData[index].rentArea == "" ||
+        this.historyData[index].rentArea == null ||
+        this.historyData[index].rentArea == undefined ||
+        this.historyData[index].builtUpArea == "" ||
+        this.historyData[index].builtUpArea == null ||
+        this.historyData[index].builtUpArea == undefined
+      ) {
+        this.$Message.error("有内容未填写");
+      } else {
+        _data = this.historyData[index];
 
-      axios
-        .request({
-          url: "/room/updateRoomList",
-          method: "post",
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          data: _data
-        })
-        .then(function(response) {
-          if (response.data == 1) {
-            _this.$Message.success("保存成功");
-            _this.getRequestData(_this.pageCurrent);
-          } else if (response.data == -1) {
-            _this.$Message.error("该楼已有该房号");
-            _this.historyData[index].id = _this.editRoomId;
-            _this.historyData[index].roomNumber = _this.editRoomNumber;
-            _this.historyData[index].buildingName = _this.editBuildingName;
-            _this.historyData[index].rentArea = _this.editRentArea;
-            _this.historyData[index].builtUpArea = _this.editBuiltUpArea;
-            _this.historyData[index].owner = _this.editOwner;
-          } else {
-            _this.$Message.error("保存失败");
-          }
-        })
-        .then(function() {
-          console.log(_this.pageCurrent);
-          _this.changePage(_this.pageCurrent);
-        });
-      this.editIndex = -1;
+        axios
+          .request({
+            url: "/room/updateRoomList",
+            method: "post",
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8"
+            },
+            data: _data
+          })
+          .then(function(response) {
+            if (response.data == 1) {
+              _this.$Message.success("保存成功");
+              _this.getRequestData(_this.pageCurrent);
+            } else if (response.data == -1) {
+              _this.$Message.error("该楼已有该房号");
+              _this.historyData[index].id = _this.editRoomId;
+              _this.historyData[index].roomNumber = _this.editRoomNumber;
+              _this.historyData[index].buildingName = _this.editBuildingName;
+              _this.historyData[index].rentArea = _this.editRentArea;
+              _this.historyData[index].builtUpArea = _this.editBuiltUpArea;
+              _this.historyData[index].owner = _this.editOwner;
+            } else {
+              _this.$Message.error("保存失败");
+            }
+          })
+          .then(function() {
+            _this.changePage(_this.pageCurrent);
+          });
+        this.editIndex = -1;
+      }
     },
     // 确认提交新增数据
     handleSubmit(name) {
@@ -795,8 +816,6 @@ export default {
           _this.historyData = response.data.roomList;
           _this.pageData = _this.historyData;
           _this.dataCount = response.data.dataCount;
-          console.log("数据请求:");
-          console.log(_this.historyData);
         });
     },
     // 从后台获取办公楼数据

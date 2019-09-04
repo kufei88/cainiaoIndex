@@ -62,7 +62,7 @@
       v-model="isFirstRent"
       :mask-closable="false"
       :scrollable="true"
-      title="新增租赁信息填写"
+      title="首租租赁信息填写"
     >
       <Form
         ref="formValidate"
@@ -188,7 +188,7 @@
           label="首期租期应付总额:"
           prop="totalAmountOne"
         >
-          <p>{{getTotalAmount(formValidate.unitRentOne,formValidate.leasePeriodOne,1)}}元</p>
+          <p>{{getTotalAmount(formValidate.unitRentOne,formValidate.leasePeriodOne,formValidate,roomData)}}元</p>
 
         </FormItem>
 
@@ -197,7 +197,7 @@
           prop="propertyFeeOne"
         >
 
-          <p>{{getPropertyFee(formValidate.leasePeriodOne,1)}}元</p>
+          <p>{{getPropertyFee(formValidate.leasePeriodOne,formValidate,roomData)}}元</p>
 
         </FormItem>
 
@@ -215,7 +215,7 @@
           label="首期租费合计:"
           prop="totalRentOne"
         >
-          <p>{{getTotalRent(formValidate.totalAmountOne,formValidate.propertyFeeOne,formValidate.energySharingOne,1)}}元</p>
+          <p>{{getTotalRent(formValidate,formValidate.totalAmountOne,formValidate.propertyFeeOne,formValidate.energySharingOne)}}元</p>
 
         </FormItem>
         <!-- 其他 -->
@@ -302,6 +302,153 @@
           type="primary"
           size="large"
           @click="handleSubmitFirst('formValidate')"
+        >确定</Button>
+      </div>
+    </Modal>
+
+    <!-- 第n期租赁信息弹窗 -->
+    <Modal
+      :closable="false"
+      v-model="isContinueRent"
+      :mask-closable="false"
+      :scrollable="true"
+      title="续租租赁信息填写"
+    >
+      <Form
+        ref="formValidate2"
+        :model="formValidate2"
+        :rules="ruleValidate2"
+        :label-width="130"
+      >
+
+        <FormItem
+          label="所属办公楼:"
+          prop="buildingName"
+        >
+          <Select
+            v-model="formValidate2.buildingName"
+            style="width:200px"
+            transfer:true
+          >
+            <Option
+              v-for="item in buildingData"
+              :value="item.buildingName"
+              :key="item.buildingName"
+            >{{ item.buildingName }}</Option>
+          </Select>
+        </FormItem>
+
+        <FormItem
+          label="房号:"
+          prop="roomNumber"
+        >
+          <Select
+            v-model="formValidate2.roomNumber"
+            style="width:200px"
+            transfer:true
+          >
+            <Option
+              v-for="item in selectRoomNumberContinue(roomDataContinue)"
+              :value="item.roomNumber"
+              :key="item.roomNumber"
+            >{{ item.roomNumber }}</Option>
+          </Select>
+        </FormItem>
+
+        <FormItem
+          label="业主:"
+          prop="owner"
+        >
+          <Input
+            clearable
+            v-model="formValidate2.owner"
+          />
+        </FormItem>
+        <FormItem
+          label="租赁期数"
+          prop="rentNumber"
+        >
+          <Select
+            v-model="formValidate2.rentNumber"
+            style="width:200px"
+            transfer:true
+          >
+            <Option
+              v-for="item in rentNumber"
+              :value="item"
+              :key="item"
+            >{{ item }}</Option>
+          </Select>
+        </FormItem>
+
+        <!-- 首期 -->
+        <FormItem
+          label="租金单价(元/月/平米):"
+          prop="unitRentOne"
+        >
+          <Input
+            clearable
+            v-model="formValidate2.unitRentOne"
+          />
+        </FormItem>
+
+        <FormItem
+          label="租期周期(月):"
+          prop="leasePeriodOne"
+        >
+          <Input
+            clearable
+            v-model="formValidate2.leasePeriodOne"
+          />
+        </FormItem>
+
+        <FormItem
+          label="租期应付总额:"
+          prop="totalAmountOne"
+        >
+          <p>{{getTotalAmount(formValidate2.unitRentOne,formValidate2.leasePeriodOne,formValidate2,roomDataContinue)}}元</p>
+
+        </FormItem>
+
+        <FormItem
+          label="租期应付物业费:"
+          prop="propertyFeeOne"
+        >
+
+          <p>{{getPropertyFee(formValidate2.leasePeriodOne,formValidate2,roomDataContinue)}}元</p>
+
+        </FormItem>
+
+        <FormItem
+          label="能耗公摊(元):"
+          prop="energySharingOne"
+        >
+          <Input
+            clearable
+            v-model="formValidate2.energySharingOne"
+          />
+        </FormItem>
+
+        <FormItem
+          label="租费合计:"
+          prop="totalRentOne"
+        >
+          <p>{{getTotalRent(formValidate2,formValidate2.totalAmountOne,formValidate2.propertyFeeOne,formValidate2.energySharingOne)}}元</p>
+
+        </FormItem>
+
+      </Form>
+      <!-- 确定取消框 -->
+      <div slot="footer">
+        <Button
+          type="text"
+          size="large"
+          @click="handleResetContinue('formValidate2')"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="handleSubmitContinue('formValidate2')"
         >确定</Button>
       </div>
     </Modal>
@@ -966,6 +1113,7 @@
       :page-size-opts="[10,20,50,100]"
       align="center"
     />
+
   </div>
 </template>
 
@@ -974,87 +1122,8 @@ import axios from "@/libs/api.request";
 import excel from "@/libs/excel";
 export default {
   data() {
-    let thisVue = this;
-    // 是否有特殊字符
-    var checkSpecialKey = function(str) {
-      var specialKey =
-        "[`~!#$^&*()=|{}':;'\\[\\].<>/?~！#￥……&*（）——|{}【】‘；：”“'。，、？]‘'";
-      for (var i = 0; i < str.length; i++) {
-        if (specialKey.indexOf(str.substr(i, 1)) != -1) {
-          return false;
-        }
-      }
-      return true;
-    };
-    // 是否当前字段重复
-    var isCurrentDataSame = function(field, value) {
-      let isDataSame = false;
-      for (var key in thisVue._data.historyData) {
-        // 房间号是否重复
-        if (field == "roomNumber") {
-          if (
-            value == thisVue._data.historyData[key].roomNumber &&
-            thisVue._data.formValidate.buildingName ==
-              thisVue._data.historyData[key].buildingName
-          ) {
-            isDataSame = true;
-          }
-        }
-      }
-      return isDataSame;
-    };
-    // 房间号验证规则
-    var roomNumberRule = function(rule, value, callback) {
-      let isBuildingNumber = /^[0-9]+$/;
-      // 1.验证数据是否为空
-      if (value == null || value == undefined || value == "") {
-        return callback(new Error("房号不得为空"));
-      }
-      // 2.验证是否含有特殊字符
-      else if (!checkSpecialKey(value)) {
-        return callback(new Error("不得含有特殊字符"));
-      }
-      // 3.验证是否格式错误
-      else if (!isBuildingNumber.test(value)) {
-        return callback(new Error("格式有误，必须由数字组成"));
-      }
-      // 4.验证是否数据重复
-      else if (isCurrentDataSame(rule.field, value) == true) {
-        return callback(new Error("已有该房号"));
-      } else {
-        callback();
-      }
-    };
-    // 数字类型字段验证
-    var numDataRule = function(rule, value, callback) {
-      let isBuildingNumber = /^[0-9]+$/;
-
-      // 1.是否为空
-      if (value == null || value == undefined || value == "") {
-        switch (rule.field) {
-          case "rentArea":
-            return callback(new Error("计租面积不得为空"));
-            break;
-          case "builtUpArea":
-            return callback(new Error("建筑面积不得为空"));
-            break;
-          default:
-            break;
-        }
-      }
-      // 2.验证是否含有特殊字符
-      else if (!checkSpecialKey(value)) {
-        return callback(new Error("不得含有特殊字符"));
-      }
-      // 3.是否是大于0的数字
-      else if (!isBuildingNumber.test(value)) {
-        return callback(new Error("格式有误，必须是数字"));
-      } else {
-        callback();
-      }
-    };
     return {
-
+      roomDataContinue: [], // 存储已有租赁信息
       isFirstRent: false, // 是否显示首租弹窗
       isContinueRent: false, // 是否显示续租弹窗
 
@@ -1632,36 +1701,6 @@ export default {
         propertyFeeOne: "",
         energySharingOne: "",
         totalRentOne: "",
-        unitRentTwo: "",
-        leasePeriodTwo: "",
-        totalAmountTwo: "",
-        propertyFeeTwo: "",
-        energySharingTwo: "",
-        totalRentTwo: "",
-        unitRentThree: "",
-        leasePeriodThree: "",
-        totalAmountThree: "",
-        propertyFeeThree: "",
-        energySharingThree: "",
-        totalRentThree: "",
-        unitRentFour: "",
-        leasePeriodFour: "",
-        totalAmountFour: "",
-        propertyFeeFour: "",
-        energySharingFour: "",
-        totalRentFour: "",
-        unitRentFive: "",
-        leasePeriodFive: "",
-        totalAmountFive: "",
-        propertyFeeFive: "",
-        energySharingFive: "",
-        totalRentFive: "",
-        unitRentSix: "",
-        leasePeriodSix: "",
-        totalAmountSix: "",
-        propertyFeeSix: "",
-        energySharingSix: "",
-        totalRentSix: "",
         isPayBond: "",
         isPayFirstRent: "",
         isPaySecondRent: "",
@@ -1669,6 +1708,18 @@ export default {
         annualTurnoverInterval: "",
         dailyQuantityInterval: "",
         register: ""
+      },
+      formValidate2: {
+        owner: "",
+        roomNumber: "",
+        buildingName: "",
+        rentNumber: "",
+        unitRentOne: "",
+        leasePeriodOne: "",
+        totalAmountOne: "",
+        propertyFeeOne: "",
+        energySharingOne: "",
+        totalRentOne: ""
       },
       // 表单数据验证设置
       ruleValidate: {
@@ -1704,20 +1755,6 @@ export default {
           {
             required: true,
             message: "租期不得为空",
-            trigger: "blur"
-          }
-        ],
-        startingLeasePeriod: [
-          {
-            required: true,
-            message: "起租期不得为空",
-            trigger: "blur"
-          }
-        ],
-        terminationPeriod: [
-          {
-            required: true,
-            message: "终止期不得为空",
             trigger: "blur"
           }
         ],
@@ -1771,7 +1808,39 @@ export default {
             trigger: "blur"
           }
         ]
-      }
+      },
+      ruleValidate2: {
+        roomNumber: [
+          {
+            required: true,
+            message: "房号不得为空",
+            trigger: "change"
+          }
+        ],
+        buildingName: [
+          {
+            required: true,
+            message: "所属办公楼不得为空",
+            trigger: "change"
+          }
+        ],
+        owner: [
+          {
+            required: true,
+            message: "业主不得为空",
+            trigger: "blur"
+          }
+        ],
+        rentNumber: [
+          {
+            required: true,
+            message: "租期期数不得为空",
+            trigger: "blur"
+          }
+        ]
+      },
+      // 租赁期数数据
+      rentNumber: ["第2期", "第3期", "第4期", "第5期", "第6期"]
     };
   },
   mounted() {
@@ -1779,6 +1848,7 @@ export default {
     this.getBuildingData();
     this.getRoomData();
     this.getSettingData();
+    this.getAllLease();
   },
 
   methods: {
@@ -1788,40 +1858,26 @@ export default {
       this.pageCurrent = 1;
       this.getRequestData(this.pageCurrent);
     },
-    // 数据显示
-    showData(date) {
-      this.$Message.info("数据显示：" + date);
-    },
-    // 房间号序列化
-    sortRoomNumber(roomData) {
-      // 1.将字符转化数字
-      for (var key1 in roomData) {
-        for (var key2 in roomData) {
-          if (
-            parseInt(roomData[key1].roomNumber) <
-            parseInt(roomData[key2].roomNumber)
-          ) {
-            var exchange = null;
-            exchange = roomData[key1];
-            roomData[key1] = roomData[key2];
-            roomData[key2] = exchange;
-          }
-        }
-      }
-      return roomData;
-    },
-    // 级联选择房间号
+    // 级联选择房间号-首租
     selectRoomNumber(roomData) {
       let numberData = [];
       for (var key in roomData) {
-        if (
-          roomData[key].buildingName == this.formValidate.buildingName &&
-          (roomData[key].owner == "" || roomData[key].owner == null)
-        ) {
+        if (roomData[key].buildingName == this.formValidate.buildingName) {
           numberData.push(roomData[key]);
         }
       }
-      numberData = this.sortRoomNumber(numberData);
+      return numberData;
+    },
+    // 级联选择房间号-续租
+    selectRoomNumberContinue(roomDataContinue) {
+      let numberData = [];
+      for (var key in roomDataContinue) {
+        if (
+          roomDataContinue[key].buildingName == this.formValidate2.buildingName
+        ) {
+          numberData.push(roomDataContinue[key]);
+        }
+      }
       return numberData;
     },
     // 时间差距
@@ -1841,12 +1897,10 @@ export default {
       } else if (d1 < d2) {
         if (d2 - d1 >= moreDay) {
           range += 1;
-          console.log("2");
         }
       } else {
         if (dt1.getDate() - d1 + d2 >= moreDay) {
           range += 1;
-          console.log("3");
         }
       }
 
@@ -1895,7 +1949,7 @@ export default {
       this.formValidate.terminationPeriod = date;
     },
     // 计算租费合计，租费+物业费+能耗公摊
-    getTotalRent(totalAmount, propertyFee, energySharing, num) {
+    getTotalRent(formValidate, totalAmount, propertyFee, energySharing) {
       let sum = 0;
 
       if (totalAmount != "" && propertyFee != "" && energySharing != "") {
@@ -1903,44 +1957,23 @@ export default {
         let num2 = parseFloat(propertyFee);
         let num3 = parseFloat(energySharing);
         sum = num1 + num2 + num3;
-        switch (num) {
-          case 1:
-            this.formValidate.totalRentOne = sum;
-            break;
-          case 2:
-            this.formValidate.totalRentTwo = sum;
-            break;
-          case 3:
-            this.formValidate.totalRentThree = sum;
-            break;
-          case 4:
-            this.formValidate.totalRentFour = sum;
-            break;
-          case 5:
-            this.formValidate.totalRentFive = sum;
-            break;
-          case 6:
-            this.formValidate.totalRentSix = sum;
-            break;
-          default:
-            break;
-        }
+        formValidate.totalRentOne = sum;
       }
       return sum;
     },
     // 计算租期应付物业费，周期*单价*计租面积
-    getPropertyFee(leasePeriod, num) {
+    getPropertyFee(leasePeriod, formValidate, roomData) {
       let sum = 0;
       if (leasePeriod == "") {
       } else {
         // 1.找到Room的计租面积
         let rentArea = 0;
-        for (var key in this.roomData) {
+        for (var key in roomData) {
           if (
-            this.roomData[key].roomNumber == this.formValidate.roomNumber &&
-            this.roomData[key].buildingName == this.formValidate.buildingName
+            roomData[key].roomNumber == formValidate.roomNumber &&
+            roomData[key].buildingName == formValidate.buildingName
           ) {
-            rentArea = this.roomData[key].rentArea;
+            rentArea = roomData[key].rentArea;
           }
         }
         // 2.找到Setting的管理单价
@@ -1948,75 +1981,31 @@ export default {
         // 3.当管理单价和计租面积都不为空时计算
         if (rentArea != 0 && money != 0) {
           sum = parseFloat(leasePeriod) * money * rentArea;
-          switch (num) {
-            case 1:
-              this.formValidate.propertyFeeOne = sum;
-              break;
-            case 2:
-              this.formValidate.propertyFeeTwo = sum;
-              break;
-            case 3:
-              this.formValidate.propertyFeeThree = sum;
-              break;
-            case 4:
-              this.formValidate.propertyFeeFour = sum;
-              break;
-            case 5:
-              this.formValidate.propertyFeeFive = sum;
-              break;
-            case 6:
-              this.formValidate.propertyFeeSix = sum;
-              break;
-
-            default:
-              break;
-          }
+          formValidate.propertyFeeOne = sum;
         }
       }
 
       return sum;
     },
     // 计算租期应付总额，周期*租金*计租面积
-    getTotalAmount(unitRent, leasePeriod, num) {
+    getTotalAmount(unitRent, leasePeriod, formValidate, roomData) {
       let sum = 0;
       if (unitRent == "" || leasePeriod == "") {
       } else {
         // 1.先找到Room的计租面积
         let rentArea = 0;
-        for (var key in this.roomData) {
+        for (var key in roomData) {
           if (
-            this.roomData[key].roomNumber == this.formValidate.roomNumber &&
-            this.roomData[key].buildingName == this.formValidate.buildingName
+            roomData[key].roomNumber == formValidate.roomNumber &&
+            roomData[key].buildingName == formValidate.buildingName
           ) {
-            rentArea = this.roomData[key].rentArea;
+            rentArea = roomData[key].rentArea;
           }
         }
         // 2.当计租面积不为空的时候才计算
         if (rentArea != 0) {
           sum = parseFloat(unitRent) * parseFloat(leasePeriod) * rentArea;
-          switch (num) {
-            case 1:
-              this.formValidate.totalAmountOne = sum;
-              break;
-            case 2:
-              this.formValidate.totalAmountTwo = sum;
-              break;
-            case 3:
-              this.formValidate.totalAmountThree = sum;
-              break;
-            case 4:
-              this.formValidate.totalAmountFour = sum;
-              break;
-            case 5:
-              this.formValidate.totalAmountFive = sum;
-              break;
-            case 6:
-              this.formValidate.totalAmountSix = sum;
-              break;
-
-            default:
-              break;
-          }
+          formValidate.totalAmountOne = sum;
         }
       }
       return sum;
@@ -2207,11 +2196,20 @@ export default {
             data: excelData
           })
           .then(function(response) {
-            if (response.data != 0) {
-              _this.$Message.success("导入成功");
-              _this.getRequestData(_this.pageCurrent);
+            if (response.data == 0) {
+              _this.$Message.error("未知原因，导入失败");
+            } else if (response.data == -1) {
+              _this.$Message.error("导入失败，表内无数据");
+            } else if (response.data == -2) {
+              _this.$Message.error("导入失败，数据全部存在");
             } else {
-              _this.$Message.error("表内无数据，导入失败");
+              if (response.data == excelData.length) {
+                _this.$Message.success("导入成功");
+              } else if (response.data < excelData.length) {
+                let num = excelData.length - response.data;
+                _this.$Message.info(num + "条数据因重复而未导入");
+              }
+              _this.getRequestData(_this.pageCurrent);
             }
           });
       }
@@ -2526,8 +2524,6 @@ export default {
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
-      console.log("请求前历史数据:");
-      console.log(this.historyData);
       this.getRequestData(index);
     },
     // 删除记录
@@ -2686,7 +2682,6 @@ export default {
       // 把行数恢复默认值
       this.editIndex = -1;
     },
-
     // 保存数据
     handleSave(index) {
       let _this = this;
@@ -2750,28 +2745,75 @@ export default {
       ].dailyQuantityInterval = this.editDailyQuantityInterval;
       this.historyData[index].register = this.editRegister;
 
-      _data = this.historyData[index];
+      if (
+        this.historyData[index].roomNumber == "" ||
+        this.historyData[index].roomNumber == null ||
+        this.historyData[index].roomNumber == undefined ||
+        this.historyData[index].buildingName == "" ||
+        this.historyData[index].buildingName == null ||
+        this.historyData[index].buildingName == undefined ||
+        this.historyData[index].owner == "" ||
+        this.historyData[index].owner == null ||
+        this.historyData[index].owner == undefined ||
+        this.historyData[index].depositOnContracts == "" ||
+        this.historyData[index].depositOnContracts == null ||
+        this.historyData[index].depositOnContracts == undefined ||
+        this.historyData[index].startingLeasePeriod == "" ||
+        this.historyData[index].startingLeasePeriod == null ||
+        this.historyData[index].startingLeasePeriod == undefined ||
+        this.historyData[index].terminationPeriod == "" ||
+        this.historyData[index].terminationPeriod == null ||
+        this.historyData[index].terminationPeriod == undefined ||
+        this.historyData[index].leaseTerm == "" ||
+        this.historyData[index].leaseTerm == null ||
+        this.historyData[index].leaseTerm == undefined ||
+        this.historyData[index].isPayBond == "" ||
+        this.historyData[index].isPayBond == null ||
+        this.historyData[index].isPayBond == undefined ||
+        this.historyData[index].isPayFirstRent == "" ||
+        this.historyData[index].isPayFirstRent == null ||
+        this.historyData[index].isPayFirstRent == undefined ||
+        this.historyData[index].isPaySecondRent == "" ||
+        this.historyData[index].isPaySecondRent == null ||
+        this.historyData[index].isPaySecondRent == undefined ||
+        this.historyData[index].rentalUnits == "" ||
+        this.historyData[index].rentalUnits == null ||
+        this.historyData[index].rentalUnits == undefined ||
+        this.historyData[index].annualTurnoverInterval == "" ||
+        this.historyData[index].annualTurnoverInterval == null ||
+        this.historyData[index].annualTurnoverInterval == undefined ||
+        this.historyData[index].dailyQuantityInterval == "" ||
+        this.historyData[index].dailyQuantityInterval == null ||
+        this.historyData[index].dailyQuantityInterval == undefined ||
+        this.historyData[index].register == "" ||
+        this.historyData[index].register == null ||
+        this.historyData[index].register == undefined
+      ) {
+        this.$Message.error("有内容未填写");
+      } else {
+        _data = this.historyData[index];
 
-      axios
-        .request({
-          url: "/lease/updateLeaseList",
-          method: "post",
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          data: _data
-        })
-        .then(function(response) {
-          if (response.data == 1) {
-            _this.$Message.success("保存成功");
-            _this.getRequestData(_this.pageCurrent);
-          } else {
-            _this.$Message.error("保存失败");
-          }
-        });
-      this.editIndex = -1;
+        axios
+          .request({
+            url: "/lease/updateLeaseList",
+            method: "post",
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8"
+            },
+            data: _data
+          })
+          .then(function(response) {
+            if (response.data == 1) {
+              _this.$Message.success("保存成功");
+              _this.getRequestData(_this.pageCurrent);
+            } else {
+              _this.$Message.error("保存失败");
+            }
+          });
+        this.editIndex = -1;
+      }
     },
-    // 确认提交新增数据
+    // 确认提交首期租赁数据
     handleSubmitFirst(name) {
       this.$refs[name].validate(valid => {
         if (valid) {
@@ -2800,7 +2842,40 @@ export default {
             .then(function() {
               _this.$refs[name].resetFields();
             });
-          this.isAddNewData = false;
+          this.isFirstRent = false;
+        }
+      });
+    },
+    // 确认提交第n期租赁数据
+    handleSubmitContinue(name) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          // 开始向后台发送数据
+          let _this = this;
+          let _data = this.formValidate2;
+          axios
+            .request({
+              url: "/lease/insertLeaseListContinue",
+              method: "post",
+              headers: {
+                "Content-Type": "application/json;charset=UTF-8"
+              },
+              data: _data
+            })
+            .then(function(response) {
+              if (response.data == 1) {
+                _this.$Message.success("添加成功");
+                _this.getRequestData(_this.pageCurrent);
+              } else if (response.data == -1) {
+                _this.$Message.error("已有该租赁信息存在");
+              } else {
+                _this.$Message.error("添加失败");
+              }
+            })
+            .then(function() {
+              _this.$refs[name].resetFields();
+            });
+          this.isContinueRent = false;
         }
       });
     },
@@ -2809,8 +2884,7 @@ export default {
       this.$refs[name].resetFields();
       this.isFirstRent = false;
     },
-    // 首租页面点击取消
-
+    // 续租页面点击取消
     handleResetContinue(name) {
       this.$refs[name].resetFields();
       this.isContinueRent = false;
@@ -2834,8 +2908,6 @@ export default {
           _this.historyData = response.data.leaseList;
           _this.pageData = _this.historyData;
           _this.dataCount = response.data.dataCount;
-          console.log("数据请求:");
-          console.log(_this.historyData);
         });
     },
     // 从后台获取办公楼数据
@@ -2850,7 +2922,7 @@ export default {
           _this.buildingData = response.data;
         });
     },
-    // 从后台获取办公室数据
+    // 从后台获取空闲办公室数据
     getRoomData() {
       let _this = this;
       axios
@@ -2860,6 +2932,18 @@ export default {
         })
         .then(function(response) {
           _this.roomData = response.data;
+        });
+    },
+    // 从后台获取已租办公室信息
+    getAllLease() {
+      let _this = this;
+      axios
+        .request({
+          url: "/room/getRoomListContinue",
+          method: "get"
+        })
+        .then(function(response) {
+          _this.roomDataContinue = response.data;
         });
     },
     // 从后台获取系统设置数据
@@ -2873,39 +2957,6 @@ export default {
         .then(function(response) {
           _this.settingData = response.data;
         });
-    },
-    // 房号存在验证
-    checkRoomNumber(roomNumber, buildingName, roomData) {
-      let isExits = false;
-      for (var i in roomData) {
-        if (
-          roomNumber == roomData[i].roomNumber &&
-          buildingName == roomData[i].buildingName
-        ) {
-          isExits = true;
-        }
-      }
-      return isExits;
-    },
-    // 特殊字符验证
-    checkSpecialKey(str) {
-      var specialKey =
-        "[`~!#$^&*()=|{}':;'\\[\\].<>/?~！#￥……&*（）——|{}【】‘；：”“'。，、？]‘'";
-      for (var i = 0; i < str.length; i++) {
-        if (specialKey.indexOf(str.substr(i, 1)) != -1) {
-          return false;
-        }
-      }
-      return true;
-    },
-    // 数字格式验证
-    checkNumberKey(str) {
-      let isBuildingNumber = /^[0-9]+$/;
-      let isDataOk = false;
-      if (isBuildingNumber.test(str) == true) {
-        isDataOk = true;
-      }
-      return isDataOk;
     }
   }
 };

@@ -411,25 +411,22 @@ export default {
         enterpriseName: [
           {
             required: true,
-            // message: "公司名称不得为空",
+            message: "公司名称不得为空",
             trigger: "blur",
-            validator: strDataRule
           }
         ],
         enterprisePerson: [
           {
             required: true,
-            // message: "联系人不得为空",
+            message: "联系人不得为空",
             trigger: "blur",
-            validator: strDataRule
           }
         ],
         enterpriseTelphone: [
           {
             required: true,
-            // message: "联系电话不得为空",
+            message: "联系电话不得为空",
             trigger: "blur",
-            validator: numDataRule
           }
         ]
       }
@@ -459,9 +456,7 @@ export default {
 
       // 验证空数据
       let isDataEmpty = 0;
-      console.log(excelData);
       for (var key in excelData) {
-        console.log(excelData[key].buildingNumber);
         excelData[key].enterpriseName == undefined ||
         excelData[key].enterpriseName == null ||
         excelData[key].enterpriseName == "" ||
@@ -487,11 +482,20 @@ export default {
             data: excelData
           })
           .then(function(response) {
-            if (response.data != 0) {
-              _this.$Message.success("导入成功");
-              _this.getRequestData(_this.pageCurrent);
+            if (response.data == 0) {
+              _this.$Message.error("未知原因，导入失败");
+            } else if (response.data == -1) {
+              _this.$Message.error("导入失败，表内无数据");
+            } else if (response.data == -2) {
+              _this.$Message.error("导入失败，数据全部存在");
             } else {
-              _this.$Message.error("表内无数据，导入失败");
+              if (response.data == excelData.length) {
+                _this.$Message.success("导入成功");
+              } else if (response.data < excelData.length) {
+                let num = excelData.length - response.data;
+                _this.$Message.info(num + "条数据因重复而未导入");
+              }
+              _this.getRequestData(_this.pageCurrent);
             }
           });
       }
@@ -604,8 +608,6 @@ export default {
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
-      console.log("请求前历史数据:");
-      console.log(this.historyData);
       this.getRequestData(index);
     },
 
@@ -673,7 +675,19 @@ export default {
       this.historyData[index].enterpriseName = this.editEnterpriseName;
       this.historyData[index].enterprisePerson = this.editEnterprisePerson;
       this.historyData[index].enterpriseTelphone = this.editEnterpriseTelphone;
-      _data = this.historyData[index];
+      if (this.historyData[index].enterpriseName == undefined ||
+        this.historyData[index].enterpriseName == null ||
+        this.historyData[index].enterpriseName == "" ||
+        this.historyData[index].enterprisePerson == "" ||
+        this.historyData[index].enterprisePerson == null ||
+        this.historyData[index].enterprisePerson == undefined ||
+        this.historyData[index].enterpriseTelphone == "" ||
+        this.historyData[index].enterpriseTelphone == null ||
+        this.historyData[index].enterpriseTelphone == undefined
+        ) {
+        this.$Message.error("有内容未填写");
+      } else {
+        _data = this.historyData[index];
 
       axios
         .request({
@@ -701,10 +715,11 @@ export default {
           }
         })
         .then(function() {
-          console.log(_this.pageCurrent);
           _this.changePage(_this.pageCurrent);
         });
       this.editIndex = -1;
+      }
+      
     },
 
     // 确认提交新增数据
@@ -766,8 +781,6 @@ export default {
           _this.historyData = response.data.enterpriseList;
           _this.pageData = _this.historyData;
           _this.dataCount = response.data.dataCount;
-          console.log("数据请求:");
-          console.log(_this.historyData);
         });
     },
     // 特殊字符验证
