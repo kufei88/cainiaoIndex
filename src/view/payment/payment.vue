@@ -10,9 +10,9 @@
       <Tooltip content="添加新数据" placement="top">
         <Button class="btn" @click="value3 = true" type="primary">新增数据</Button>
       </Tooltip>
-      <Tooltip content="删除所有数据" placement="top">
+      <!-- <Tooltip content="删除所有数据" placement="top">
         <Button class="btn" @click="removeAll" type="primary">删除所有数据</Button>
-      </Tooltip>
+      </Tooltip>-->
     </div>
 
     <!-- EXCEL导入导出 -->
@@ -93,8 +93,15 @@
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="企业或者房号" label-position="top">
-              <Input v-model="formData.enterpriseNumber" placeholder="请输入企业或者房号" />
+            <FormItem label="企业" label-position="top">
+              <Input v-model="formData.enterpriseNumber" placeholder="请输入企业" clearable />
+            </FormItem>
+          </Col>
+        </Row>
+        <Row :gutter="32">
+          <Col span="18">
+            <FormItem label="房号" label-position="top">
+              <Input v-model="formData.roomNumber" placeholder="请输入房号" clearable />
             </FormItem>
           </Col>
         </Row>
@@ -122,9 +129,24 @@
             <template slot-scope="{ row }" slot="enterpriseNumber">
               <span>{{ row.enterpriseNumber }}</span>
             </template>
+
+            <template slot-scope="{ row }" slot="roomNumber">
+              <span>{{ row.roomNumber }}</span>
+            </template>
           </Table>
           <!-- 分页-->
-          <Page :total="previousData.length" show-total class="margin-top-10" />
+
+          <Page
+            :total="dataCountPrevious"
+            show-total
+            show-sizer
+            :page-size="pageSizePrevious"
+            :page-size-opts="[10,20,50,100]"
+            :current="pageCurrentPrevious"
+            @on-change="changePreviousPage"
+            @on-page-size-change="changePreviousPageNumber"
+            class="margin-top-10"
+          />
         </Card>
       </Col>
       <Col span="14" offset>
@@ -146,53 +168,73 @@
               <span v-else>{{ row.electricityNumber }}</span>
             </template>
 
-            <template slot-scope="{ row, index }" slot="enterpriseNumber">
-              <Input
-                type="text"
-                clearable
-                v-model="editEnterpriseNumber"
-                v-if="editIndex === index"
-              />
-              <span v-else>{{ row.enterpriseNumber }}</span>
+            <template slot-scope="{ row }" slot="enterpriseNumber">
+              <span>{{ row.enterpriseNumber }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="roomNumber">
+              <span>{{ row.roomNumber }}</span>
             </template>
 
             <template slot-scope="{ row, index }" slot="action">
               <div v-if="editIndex === index">
-                <Button type="info" @click="handleSave(index)" class="btn">保存</Button>
-                <Button @click="editIndex = -1">取消</Button>
+                <Button type="info" @click="handleSave(index)" class="btn" size="small">保存</Button>
+                <Button @click="editIndex = -1" size="small">取消</Button>
               </div>
 
               <div v-else>
-                <Button type="info" @click="handleEdit(row,index)" class="btn">修改</Button>
-                <Button type="error" @click="remove(index)">删除</Button>
+                <Button type="info" @click="handleEdit(row,index)" class="btn" size="small">修改</Button>
+                <Poptip
+                  confirm
+                  title="是否要删除该行?"
+                  @on-ok="remove(index)"
+                  @on-cancel="cancel"
+                  placement="left"
+                >
+                  <Button type="error" size="small">删除</Button>
+                </Poptip>
               </div>
             </template>
           </Table>
           <!-- 分页-->
-          <Page :total="data.length" show-total class="margin-top-10" />
+          <Page
+            :total="dataCount"
+            show-total
+            show-sizer
+            :page-size="pageSize"
+            :page-size-opts="[10,20,50,100]"
+            :current="pageCurrent"
+            @on-change="changePage"
+            @on-page-size-change="changePageNumber"
+            class="margin-top-10"
+          />
         </Card>
       </Col>
     </Row>
     <Row>
       <Card shadow>
-        <example style="height: 310px;" v-bind:exampleData="exampleData" v-if="value4 && value5 && value6" />
+        <example
+          style="height: 310px;"
+          v-bind:exampleData="exampleData"
+          v-if="value4 && value5 && value6"
+        />
         <div slot="title">
           <p>水电使用数据报表</p>
-          <Poptip title="时间线" class="text-center a">
+          <Poptip title="时间线" class="text-center a" v-model="visible">
             <a href="#">
               <Icon type="ios-funnel"></Icon>
               选择时间线{{timeText}}
             </a>
-            <div slot="content">
-              <div>
+            <div slot="content" style="height:90px">
+              <Divider size="small">
                 <a href="#" @click="year">年</a>
-              </div>
-              <div>
+              </Divider>
+              <Divider size="small">
                 <a href="#" @click="quarter">季</a>
-              </div>
-              <div>
+              </Divider>
+              <Divider size="small">
                 <a href="#" @click="month">月</a>
-              </div>
+              </Divider>
             </div>
           </Poptip>
         </div>
@@ -215,7 +257,6 @@ export default {
         waterData: [],
         electricityData: []
       },
-
       columns: [
         {
           title: "水表读数",
@@ -228,9 +269,14 @@ export default {
           key: "electricityNumber"
         },
         {
-          title: "企业或房号",
+          title: "企业",
           slot: "enterpriseNumber",
           key: "enterpriseNumber"
+        },
+        {
+          title: "房号",
+          slot: "roomNumber",
+          key: "roomNumber"
         },
         {
           title: "操作",
@@ -239,16 +285,20 @@ export default {
       ],
       previousColumns: [
         {
-          title: "上期水表读数",
+          title: "水表读数",
           slot: "waterNumber"
         },
         {
-          title: "上期电表读数",
+          title: "电表读数",
           slot: "electricityNumber"
         },
         {
-          title: "企业或房号",
+          title: "企业",
           slot: "enterpriseNumber"
+        },
+        {
+          title: "房号",
+          slot: "roomNumber"
         }
       ],
       data: [], //本期数据
@@ -256,7 +306,6 @@ export default {
       editIndex: -1, // 当前聚焦的输入框的行数
       editWaterNumber: "", // 水表输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
       editElectricityNumber: "", // 电表列输入框
-      editEnterpriseNumber: "", // 企业或者房号列输入框
       uploadLoading: false, //上传状态
       progressPercent: 0,
       showProgress: false,
@@ -279,14 +328,25 @@ export default {
         enterpriseNumber: ""
       },
       timeText: "",
-      value4: true,//时间数据状态
-      value5: true,//水数据状态
-      value6:true//电数据状态
+      value4: true, //时间数据状态
+      value5: true, //水费数据状态
+      value6: true, //电费数据状态
+      visible: false,
+      pageCurrent: 1, //当前页数
+      pageStart: 0,
+      pageEnd: 0,
+      dataCount: 0, //后台数据的总记录
+      pageSize: 10, //每页显示多少条
+      pageCurrentPrevious: 1, //当前页数
+      pageStartPrevious: 0,
+      pageEndPrevious: 0,
+      dataCountPrevious: 0, //后台数据的总记录
+      pageSizePrevious: 10 //每页显示多少条
     };
   },
   mounted() {
-    this.getPaymentData();
-    this.getPaymentPreviousData();
+    this.getPaymentDataPage(this.pageCurrent);
+    this.getPaymentPreviousData(this.pageCurrentPrevious);
     this.year();
   },
   methods: {
@@ -298,69 +358,97 @@ export default {
     },
     //保存数据
     handleSave(index) {
-      this.data[index].waterNumber = this.editWaterNumber;
-      this.data[index].electricityNumber = this.editElectricityNumber;
-      this.data[index].enterpriseNumber = this.editEnterpriseNumber;
-      this.editIndex = -1;
-      if (
-        this.data[index].waterNumber != "" &&
-        this.data[index].electricityNumber != "" &&
-        this.data[index].enterpriseNumber != ""
-      ) {
-        //修改
-        axios.request({
-          url: "/payment/updatePaymentData",
-          method: "post",
-          params: {
-            id: this.data[index].id,
-            waterNumber: this.data[index].waterNumber,
-            electricityNumber: this.data[index].electricityNumber,
-            enterpriseNumber: this.data[index].enterpriseNumber
-          }
-        });
-        this.$Message.success("修改成功！");
-      } else {
-        this.$Message.error("存在空数据,已删除当前行！请输入数据！");
+      
+      if (this.editWaterNumber != "" && this.editElectricityNumber != "") {
+        this.data[index].waterNumber = this.editWaterNumber;
+        this.data[index].electricityNumber = this.editElectricityNumber;
         this.editIndex = -1;
-        this.data.splice(index, 1);
+        if (
+          this.data[index].waterNumber != "" &&
+          this.data[index].electricityNumber != ""
+        ) {
+          //修改
+          axios
+            .request({
+              url: "/payment/updatePaymentData",
+              method: "post",
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
+                id: this.data[index].id,
+                waterNumber: this.data[index].waterNumber,
+                electricityNumber: this.data[index].electricityNumber
+              }
+            })
+            .then(response => {
+              this.getPaymentDataPage();
+              if (response.data == 1) {
+                this.$Message.success("修改成功！");
+              } else {
+                this.$Message.error("修改失败！");
+              }
+            });
+        }
+      } else {
+        this.$Message.error("存在空数据！请重新修改！");
       }
     },
-    //得到数据
-    getPaymentData() {
-      let _this = this;
-      axios
-        .request({
-          url: "/payment/getPaymentList",
-          method: "get"
-        })
-        .then(function(response) {
-          _this.data = response.data;
-        });
-    },
     //得到上期数据
-    getPaymentPreviousData() {
-      let _this = this;
+    getPaymentPreviousData(index) {
+      this.pageNumPrevious = index;
+      this.pageStartPrevious = (index - 1) * this.pageSizePrevious;
+      this.pageEndPrevious = index * this.pageSizePrevious;
       axios
         .request({
           url: "/payment/getPreviousPaymentList",
-          method: "get"
+          method: "get",
+          params: {
+            dataStart: this.pageStartPrevious,
+            dataEnd: this.pageEndPrevious
+          }
         })
-        .then(function(response) {
-          _this.previousData = response.data;
+        .then(response => {
+          this.previousData = response.data.paymentInfos;
+          this.dataCountPrevious = response.data.dataCount;
         });
+    },
+    // 改变上期数据每页条数
+    changePreviousPageNumber(index) {
+      this.pageSizePrevious = index;
+      if (this.pageCurrentPrevious === 1) {
+        this.changePreviousPage(this.pageCurrentPrevious);
+      }
+    },
+    // 上期数据分页
+    changePreviousPage(index) {
+      // 获得当前页数，以及发送数据请求
+      this.pageCurrentPrevious = index;
+      this.getPaymentPreviousData(index);
     },
     //删除数据
     remove(index) {
       //删除
-      axios.request({
-        url: "/payment/deletePaymentData",
-        method: "post",
-        params: {
-          id: this.data[index].id
-        }
-      });
+      axios
+        .request({
+          url: "/payment/deletePaymentData",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json" //设置请求头请求格式为JSON
+          },
+          data: {
+            id: this.data[index].id
+          }
+        })
+        .then(response => {
+          this.getPaymentDataPage();
+          if (response.data == 1) {
+            this.$Message.success("已删除当前行！");
+          } else {
+            this.$Message.error("删除失败！");
+          }
+        });
       this.data.splice(index, 1);
-      this.$Message.success("已删除当前行！");
     },
     //删除所有数据
     removeAll() {
@@ -382,29 +470,33 @@ export default {
       if (
         this.formData.waterNumber != "" &&
         this.formData.electricityNumber != "" &&
-        this.formData.enterpriseNumber != ""
+        this.formData.enterpriseNumber != "" &&
+        this.formData.roomNumber != ""
       ) {
         //增加
         axios
           .request({
             url: "/payment/insertPaymentData",
             method: "post",
-            params: {
+            headers: {
+              "Content-Type": "application/json" //设置请求头请求格式为JSON
+            },
+            data: {
               waterNumber: this.formData.waterNumber,
               electricityNumber: this.formData.electricityNumber,
-              enterpriseNumber: this.formData.enterpriseNumber
+              enterpriseNumber: this.formData.enterpriseNumber,
+              roomNumber: this.formData.roomNumber
             }
           })
-          .then(response => {
-            this.getPaymentData();
+          .then(response => { 
+            if (response.data == 1) {
+              this.getPaymentDataPage(this.pageCurrent);
+              this.getPaymentPreviousData(this.pageCurrent);
+              this.$Message.success("添加成功！");
+            } else {
+              this.$Message.error("添加失败！");
+            }
           });
-        this.data.push({
-          waterNumber: this.formData.waterNumber,
-          electricityNumber: this.formData.electricityNumber,
-          enterpriseNumber: this.formData.enterpriseNumber
-        });
-        this.editIndex = this.data.length;
-        this.$Message.success("添加成功！");
       } else {
         this.$Message.error("存在空数据！请输入数据！");
       }
@@ -416,8 +508,13 @@ export default {
         this.exportLoading = true;
         const params = {
           data: this.data,
-          title: ["水表读数", "电表读数", "企业或房号"],
-          key: ["waterNumber", "electricityNumber", "enterpriseNumber"],
+          title: ["水表读数", "电表读数", "企业", "房号"],
+          key: [
+            "waterNumber",
+            "electricityNumber",
+            "enterpriseNumber",
+            "roomNumber"
+          ],
           autoWidth: true,
           filename: "缴费管理"
         };
@@ -434,7 +531,7 @@ export default {
       this.exportLoadingTemplate = true;
       const params = {
         data: this.data,
-        title: ["水表读数", "电表读数", "企业或房号"],
+        title: ["水表读数", "电表读数", "企业", "房号"],
         key: [],
         autoWidth: true,
         filename: "缴费管理模板"
@@ -504,13 +601,15 @@ export default {
           this.data.push({
             waterNumber: results[i][header[0]],
             electricityNumber: results[i][header[1]],
-            enterpriseNumber: results[i][header[2]]
+            enterpriseNumber: results[i][header[2]],
+            roomNumber: results[i][header[3]]
           });
           this.editIndex = this.data.length;
           if (
             results[i][header[0]] != "" &&
             results[i][header[1]] != "" &&
-            results[i][header[2]] != ""
+            results[i][header[2]] != "" &&
+            results[i][header[3]] != ""
           ) {
             axios.request({
               url: "/payment/insertPaymentData",
@@ -518,7 +617,8 @@ export default {
               params: {
                 waterNumber: results[i][header[0]],
                 electricityNumber: results[i][header[1]],
-                enterpriseNumber: results[i][header[2]]
+                enterpriseNumber: results[i][header[2]],
+                roomNumber: results[i][header[3]]
               }
             });
             if (i == results.length - 1) {
@@ -535,16 +635,41 @@ export default {
         this.showRemoveFile = true;
       };
     },
-    handlePage(value) {
-      console.log(value);
-      this.pageNum = value;
-      var _start = (value - 1) * this.pageSize;
-      var _end = value * this.pageSize;
-      this.dataArr = this.data1.slice(_start, _end);
+    //得到本期数据及条数
+    getPaymentDataPage(index) {
+      this.pageNum = index;
+      this.pageStart = (index - 1) * this.pageSize;
+      this.pageEnd = index * this.pageSize;
+      axios
+        .request({
+          url: "/payment/getPaymentList",
+          method: "get",
+          params: {
+            dataStart: this.pageStart,
+            dataEnd: this.pageEnd
+          }
+        })
+        .then(response => {
+          this.data = response.data.paymentInfos;
+          this.dataCount = response.data.dataCount;
+        });
+    },
+    // 本期数据改变每页条数
+    changePageNumber(index) {
+      this.pageSize = index;
+      if (this.pageCurrent === 1) {
+        this.changePage(this.pageCurrent);
+      }
+    },
+    // 本期数据分页
+    changePage(index) {
+      // 获得当前页数，以及发送数据请求
+      this.pageCurrent = index;
+      this.getPaymentDataPage(index);
     },
     //年份
     year() {
-      this.timeText = " / 年";
+      this.timeText = " > 年";
       this.value4 = false;
       this.value5 = false;
       this.value6 = false;
@@ -556,35 +681,35 @@ export default {
         })
         .then(response => {
           this.exampleData.timeData = response.data;
-          
+
           axios
             .request({
               url: "/payment/getYearsWaterCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
-            axios
+          axios
             .request({
               url: "/payment/getYearsElectricityCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
-            
-            this.value4 = true;
+
+          this.value4 = true;
         });
-        
+      this.visible = false;
     },
     //月份
     month() {
-      this.timeText = " / 月";
+      this.timeText = " > 月";
       this.value4 = false;
       this.value5 = false;
       this.value6 = false;
@@ -602,25 +727,26 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
-            axios
+          axios
             .request({
               url: "/payment/getMonthElectricityCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.electricityData = response.data;
-             this.value6 = true;
+              this.value6 = true;
             });
         });
+      this.visible = false;
     },
     //季度
     quarter() {
-      this.timeText = " / 季";
+      this.timeText = " > 季";
       this.value4 = false;
       this.value5 = false;
       this.value6 = false;
@@ -638,21 +764,22 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
-            axios
+          axios
             .request({
               url: "/payment/getQuarterElectricityCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data)
+              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
         });
+      this.visible = false;
     }
   }
 };

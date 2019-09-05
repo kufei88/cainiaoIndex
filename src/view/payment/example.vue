@@ -1,8 +1,6 @@
 <template>
   <div ref="dom">
-
   </div>
-  <!-- <Button @click="show">显示</Button> -->
 </template>
 
 <script>
@@ -13,9 +11,7 @@ export default {
   props: ["exampleData"] /*通过props接收父组件传递过来的数据 */,
   data() {
     return {
-      dom: null,
-      waterData: [],
-      electricityData: []
+      dom: null
     };
   },
   methods: {
@@ -45,7 +41,6 @@ export default {
         {
           type: "category",
           boundaryGap: false,
-          // data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
           data: this.exampleData.timeData
         }
       ],
@@ -64,7 +59,6 @@ export default {
               color: "#2d8cf0"
             }
           },
-          // data: [120, 132, 101, 134]
           data: this.exampleData.waterData
         },
         {
@@ -76,7 +70,6 @@ export default {
               color: "#10A6FF"
             }
           },
-          // data: [257, 358, 278, 234]
           data: this.exampleData.electricityData
         }
       ]

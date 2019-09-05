@@ -77,14 +77,18 @@ export default {
   methods: {
     //得到数据
     getHydropowerData() {
-      let _this = this;
       axios
         .request({
           url: "/payment/getHydropowerPaymentList",
           method: "get"
         })
-        .then(function(response) {
-          _this.data = response.data;
+        .then(response => {
+          this.data = response.data;
+          if (response.data == 1) {
+            this.$Message.success("修改成功！");
+          } else {
+            this.$Message.error("修改失败！");
+          }
         });
     },
     alter(row) {
@@ -109,14 +113,17 @@ export default {
                 url: "/payment/getHydropowerPaymentList",
                 method: "get"
               })
-              .then(function(response) {
-                _this.data = response.data;
+              .then(response => {
+                this.data = response.data;
+                if (response.data == 1) {
+                  this.$Message.success("修改成功！");
+                } else {
+                  this.$Message.error("修改失败！");
+                }
               });
-              
           });
-        this.$Message.success("修改成功！");
       } else {
-        this.$Message.error("存在空数据,已删除！请输入数据！");
+        this.$Message.error("存在空数据！请重新输入数据！");
       }
     }
   }
