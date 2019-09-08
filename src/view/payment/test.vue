@@ -12,7 +12,7 @@
       </Tooltip>
       <!-- <Tooltip content="删除所有数据" placement="top">
         <Button class="btn" @click="removeAll" type="primary">删除所有数据</Button>
-      </Tooltip>-->
+      </Tooltip> -->
     </div>
 
     <!-- EXCEL导入导出 -->
@@ -80,14 +80,32 @@
         <Row :gutter="32">
           <Col span="18">
             <FormItem label="水表读数" label-position="top">
-              <Input v-model="formData.waterNumber" placeholder="请输入水表读数" clearable />
+              <Poptip word-wrap trigger="hover" content="只保留小数点后两位">
+                <Input
+                  type="number"
+                  v-model="formData.waterNumber"
+                  placeholder="请输入水表读数，必须为数字"
+                  clearable
+                  precision="2"
+                  class="width"
+                />
+              </Poptip>
             </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
             <FormItem label="电表读数" label-position="top">
-              <Input v-model="formData.electricityNumber" placeholder="请输入电表读数" clearable />
+              <Poptip word-wrap trigger="hover" content="只保留小数点后两位">
+                <Input
+                  type="number"
+                  v-model="formData.electricityNumber"
+                  placeholder="请输入电表读数，必须为数字"
+                  clearable
+                  precision="2"
+                  class="width"
+                />
+              </Poptip>
             </FormItem>
           </Col>
         </Row>
@@ -113,7 +131,7 @@
     </Drawer>
     <!-- 数据展示 -->
     <Row>
-      <Col span="10">
+      <Col span="9">
         <Card shadow>
           <p slot="title">上期数据</p>
           <!-- 数据列表展示 上期数据-->
@@ -149,23 +167,36 @@
           />
         </Card>
       </Col>
-      <Col span="14" offset>
+      <Col span="15" offset>
         <Card shadow>
           <p slot="title">本期数据</p>
           <Table :columns="columns" :data="data" :loading="tableLoading">
             <template slot-scope="{ row, index }" slot="waterNumber">
-              <Input type="text" clearable v-model="editWaterNumber" v-if="editIndex === index" />
-              <span border:true v-else>{{ row.waterNumber }}</span>
+              <Poptip word-wrap trigger="hover" content="只保留小数点后两位">
+                <Input
+                  type="number"
+                  clearable
+                  precision="2"
+                  
+                  v-model="editWaterNumber"
+                  v-if="editIndex === index"
+                />
+                <span border:true v-else>{{ row.waterNumber }}</span>
+              </Poptip>
             </template>
 
             <template slot-scope="{ row, index }" slot="electricityNumber">
-              <Input
-                type="text"
-                clearable
-                v-model="editElectricityNumber"
-                v-if="editIndex === index"
-              />
-              <span v-else>{{ row.electricityNumber }}</span>
+              <Poptip word-wrap trigger="hover" content="只保留小数点后两位">
+                <Input
+                  type="number"
+                  clearable
+                  v-model="editElectricityNumber"
+                  v-if="editIndex === index"
+                  precision="2"
+                 
+                />
+                <span v-else>{{ row.electricityNumber }}</span>
+              </Poptip>
             </template>
 
             <template slot-scope="{ row }" slot="enterpriseNumber">
@@ -219,12 +250,13 @@
           v-if="value4 && value5 && value6"
         />
         <div slot="title">
-          <p>水电使用数据报表</p>
+          <p>水电费使用数据报表</p>
           <Poptip title="时间线" class="text-center a" v-model="visible">
             <a href="#">
               <Icon type="ios-funnel"></Icon>
               选择时间线{{timeText}}
             </a>
+            单位元
             <div slot="content" style="height:90px">
               <Divider size="small">
                 <a href="#" @click="year">年</a>
@@ -334,12 +366,10 @@ export default {
       visible: false,
       pageCurrent: 1, //当前页数
       pageStart: 0,
-      pageEnd: 0,
       dataCount: 0, //后台数据的总记录
       pageSize: 10, //每页显示多少条
       pageCurrentPrevious: 1, //当前页数
       pageStartPrevious: 0,
-      pageEndPrevious: 0,
       dataCountPrevious: 0, //后台数据的总记录
       pageSizePrevious: 10 //每页显示多少条
     };
@@ -355,6 +385,20 @@ export default {
       this.editElectricityNumber = row.electricityNumber;
       this.editEnterpriseNumber = row.enterpriseNumber;
       this.editIndex = index;
+    },
+    //删除所有数据
+    removeAll() {
+      let i,
+        _this = this;
+      axios
+        .request({
+          url: "/payment/deletePaymentDataAll",
+          method: "post"
+        })
+        .then(function(response) {
+          _this.data = response.data;
+        });
+      this.$Message.success("已删除所有数据！");
     },
     //保存数据
     handleSave(index) {
@@ -381,9 +425,8 @@ export default {
               }
             })
             .then(response => {
+              this.getPaymentDataPage();
               if (response.data == 1) {
-                this.getPaymentDataPage(this.pageCurrent);
-                this.getPaymentPreviousData(this.pageCurrent);
                 this.$Message.success("修改成功！");
               } else {
                 this.$Message.error("修改失败！");
@@ -391,21 +434,20 @@ export default {
             });
         }
       } else {
-        this.$Message.error("存在空数据！请重新修改！");
+        this.$Message.error("存在空数据或者中英文！请重新修改数据！");
       }
     },
     //得到上期数据
     getPaymentPreviousData(index) {
       this.pageNumPrevious = index;
       this.pageStartPrevious = (index - 1) * this.pageSizePrevious;
-      this.pageEndPrevious = index * this.pageSizePrevious;
       axios
         .request({
           url: "/payment/getPreviousPaymentList",
           method: "get",
           params: {
             dataStart: this.pageStartPrevious,
-            dataEnd: this.pageEndPrevious
+            dataEnd: this.pageSizePrevious
           }
         })
         .then(response => {
@@ -444,25 +486,13 @@ export default {
           this.getPaymentDataPage();
           if (response.data == 1) {
             this.$Message.success("已删除当前行！");
+            this.getPaymentDataPage(this.pageCurrent);
+            this.getPaymentPreviousData(this.pageCurrentPrevious);
           } else {
             this.$Message.error("删除失败！");
           }
         });
-      this.data.splice(index, 1);
-    },
-    //删除所有数据
-    removeAll() {
-      let i,
-        _this = this;
-      axios
-        .request({
-          url: "/payment/deletePaymentDataAll",
-          method: "post"
-        })
-        .then(function(response) {
-          _this.data = response.data;
-        });
-      this.$Message.success("已删除所有数据！");
+      // this.data.splice(index, 1);
     },
     //添加数据
     add() {
@@ -489,15 +519,16 @@ export default {
             }
           })
           .then(response => {
-            this.getPaymentDataPage();
             if (response.data == 1) {
+              this.getPaymentDataPage(this.pageCurrent);
+              this.getPaymentPreviousData(this.pageCurrentPrevious);
               this.$Message.success("添加成功！");
             } else {
               this.$Message.error("添加失败！");
             }
           });
       } else {
-        this.$Message.error("存在空数据！请输入数据！");
+        this.$Message.error("存在空数据或者中英文！请重新输入数据！");
       }
     },
     //导出excel
@@ -529,7 +560,7 @@ export default {
       this.value2 = false;
       this.exportLoadingTemplate = true;
       const params = {
-        data: this.data,
+        data: [],
         title: ["水表读数", "电表读数", "企业", "房号"],
         key: [],
         autoWidth: true,
@@ -597,12 +628,6 @@ export default {
           return { title: item, key: item };
         });
         for (i = 0; i < results.length; i++) {
-          this.data.push({
-            waterNumber: results[i][header[0]],
-            electricityNumber: results[i][header[1]],
-            enterpriseNumber: results[i][header[2]],
-            roomNumber: results[i][header[3]]
-          });
           this.editIndex = this.data.length;
           if (
             results[i][header[0]] != "" &&
@@ -613,7 +638,10 @@ export default {
             axios.request({
               url: "/payment/insertPaymentData",
               method: "post",
-              params: {
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
                 waterNumber: results[i][header[0]],
                 electricityNumber: results[i][header[1]],
                 enterpriseNumber: results[i][header[2]],
@@ -622,7 +650,9 @@ export default {
             });
             if (i == results.length - 1) {
               this.$Message.success("添加成功！");
-              this.value2 = false;
+              this.getPaymentDataPage(this.pageCurrent);
+              this.getPaymentPreviousData(this.pageCurrentPrevious);
+              // this.value2 = false;
             }
           } else {
             this.$Message.error("存在空数据！请输入数据！");
@@ -638,14 +668,13 @@ export default {
     getPaymentDataPage(index) {
       this.pageNum = index;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = index * this.pageSize;
       axios
         .request({
           url: "/payment/getPaymentList",
           method: "get",
           params: {
             dataStart: this.pageStart,
-            dataEnd: this.pageEnd
+            dataEnd: this.pageSize
           }
         })
         .then(response => {
@@ -680,14 +709,12 @@ export default {
         })
         .then(response => {
           this.exampleData.timeData = response.data;
-
           axios
             .request({
               url: "/payment/getYearsWaterCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -697,7 +724,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
@@ -726,7 +752,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -736,7 +761,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
@@ -763,7 +787,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -773,13 +796,14 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
         });
       this.visible = false;
-    }
+    },
+    //取消
+    cancel() {}
   }
 };
 </script>

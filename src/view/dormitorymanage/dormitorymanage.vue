@@ -3,8 +3,26 @@
     <Button type="primary" @click="showadd()" ghost>新增合同</Button>
     <Button type="primary" @click="shownext()" ghost>合同详情</Button>
     <Button type="primary" @click="showRadd()" ghost>续租</Button>
+    <Button type="primary" :loading="exportLoading" @click="exportExcel" ghost>导出</Button>
+    <Upload action :before-upload="handleBeforeUpload" accept=".xls, .xlsx">
+      <Button
+        icon="ios-cloud-upload-outline"
+        :loading="uploadLoading"
+        @click="handleUploadFile"
+      >上传文件</Button>
+    </Upload>
+
     <Modal v-model="modal2" title="合同详情">
-      <Table border :columns="renewalColumns" :data="rewData" ref="table">
+      <div style="text-align:center">
+        <h2>公司:{{ selectRowData.companyName }}</h2>
+      </div>
+      <div>
+        <h3>租赁宿舍:{{selectRowData.dormitoryNum}}</h3>
+        <span style="margin-right:20px">联系人:{{ selectRowData. contact}}</span>
+
+        <span>联系电话:{{ selectRowData. contactNumber}}</span>
+      </div>
+      <Table border :columns="renewalColumns" :data="rewData" ref="table" height="300">
         <template slot-scope="{ row, index }" slot="startDate">
           <span>{{ rewData[index].startDate }}</span>
         </template>
@@ -21,6 +39,18 @@
           <span>{{ rewData[index].remark }}</span>
         </template>
       </Table>
+      <Button type="primary" @click="showfangjian()" ghost>查看租赁房号</Button>
+    </Modal>
+    <Modal v-model="modal5" title="租赁房号">
+      <Table border :columns="fangjianColumns" :data="fangjianData" ref="table" height="300">
+        <template slot-scope="{ row, index }" slot="dromNum">
+          <span>{{ fangjianData[index].dromNum }}</span>
+        </template>
+      </Table>
+      <div slot="footer">
+        <Button type="text" size="large" @click="modal5=false">取消</Button>
+        <Button type="primary" size="large" @click="modal5=false">确定</Button>
+      </div>
     </Modal>
     <Modal v-model="modal1" title="新增合同">
       <Form ref="formCustom" :model="editDtae" :rules="ruleCustom" :label-width="80">
@@ -102,29 +132,33 @@
           <span>{{ dormsData[index].dromNum }}</span>
         </template>
       </Table>
-      <Page :total="dormAll" :page-size="5" @on-change="dormpage" />
+      <Page :total="dormAll" :page-size="5"  @on-change="dormpage" />
       <div slot="footer">
         <Button type="text" size="large" @click="modal4=false">取消</Button>
         <Button type="primary" size="large" @click="savedorms()">确定</Button>
       </div>
     </Modal>
+    <Modal v-model="modal6" title="提示">
+        <p>是否确定删除</p>
+        <div slot="footer">
+        <Button type="text" size="large" @click="modal6=false">取消</Button>
+        <Button type="primary" size="large" @click="deleterow()" >确定</Button>
+      </div>
+    </Modal>
+    <Input
+      search
+      enter-button
+      @on-search="getListByname()"
+      v-model="cname.name"
+      style="width: 300px"
+    />
 
-    <Button type="primary" @click="exportData()" ghost>导出</Button>
-    <Input search enter-button @on-search="getListByname()" v-model="cname.name" />
-
-    <Upload action :before-upload="handleBeforeUpload" accept=".xls, .xlsx">
-      <Button
-        icon="ios-cloud-upload-outline"
-        :loading="uploadLoading"
-        @click="handleUploadFile"
-      >上传文件</Button>
-    </Upload>
     <Table
       border
       :columns="accountColumns"
       :data="accountData"
       ref="table"
-      style="height:600px"
+      height='520'
       highlight-row
       @on-current-change="rowSelect"
     >
@@ -149,34 +183,28 @@
       </template>
 
       <template slot-scope="{ row, index }" slot="contractSigning">
-        <Input type="text" v-model="accountData[index].contractSigning" v-if="editIndex === index" />
-        <span v-else>{{ accountData[index].contractSigning }}</span>
+        <span>{{ accountData[index].contractSigning }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="startDate">
-        <!-- <DatePicker
-          type="datetime"
-          format="yyyy-MM-dd"
-          v-model="accountData[index].startDate"
-          v-if="editIndex === index"
-        ></DatePicker>-->
+      <!-- <template slot-scope="{ row, index }" slot="startDate">
+
         <span>{{ accountData[index].startDate }}</span>
       </template>
 
       <template slot-scope="{ row, index }" slot="endDate">
-        <!-- <Input type="text" v-model="accountData[index].endDate" v-if="editIndex === index" /> -->
+
         <span>{{ accountData[index].endDate }}</span>
       </template>
 
       <template slot-scope="{ row, index }" slot="leasePeriod">
-        <!-- <Input type="text" v-model="accountData[index].leasePeriod" v-if="editIndex === index" /> -->
+
         <span>{{ accountData[index].leasePeriod }}</span>
       </template>
 
       <template slot-scope="{ row, index }" slot="remark">
-        <!-- <Input type="text" v-model="accountData[index].remark" v-if="editIndex === index" /> -->
+
         <span>{{ accountData[index].remark }}</span>
-      </template>
+      </template>-->
 
       <template slot-scope="{ row, index }" slot="action">
         <div v-if="editIndex === index">
@@ -189,8 +217,8 @@
         </div>
       </template>
     </Table>
-
-    <Page :total="dormCounts" @on-change="handlePage" />
+    <span>共{{dormCounts}}条</span>
+    <Page :total="dormCounts" show-sizer @on-change="handlePage" @on-page-size-change="pagesize"/>
   </div>
 </template>
 
@@ -250,11 +278,13 @@ export default {
       }
     };
     return {
+      
       buttonflag: true,
       dormAll: 0,
       dormCounts: 0,
       pagenum: {
-        startnum: 1
+        startnum: 1,
+        pagecount:10
       },
       uploadLoading: false,
       progressPercent: 0,
@@ -264,6 +294,13 @@ export default {
       tableData: [],
       tableTitle: [],
       tableLoading: false,
+      fangjianColumns: [
+        {
+          title: "房间号",
+          slot: "dromNum",
+          key: "dromNum"
+        }
+      ],
       dormColumns: [
         {
           type: "selection",
@@ -282,21 +319,21 @@ export default {
         { title: "公司名称", slot: "companyName", key: "companyName" },
         { title: "联系人", slot: "contact", key: "contact" },
         { title: "联系电话", slot: "contactNumber", key: "contactNumber" },
-        { title: "租赁寝室", slot: "dormitoryNum", key: "dormitoryNum" },
+        { title: "租赁寝室楼栋", slot: "dormitoryNum", key: "dormitoryNum" },
         {
           title: "租赁合同签署日期",
           slot: "contractSigning",
           key: "contractSigning"
         },
-        { title: "起始日期", slot: "startDate", key: "startDate" },
-        { title: "结束日期", slot: "endDate", key: "endDate" },
-        { title: "租期", slot: "leasePeriod", key: "leasePeriod" },
-        { title: "租金", slot: "remark", key: "remark" },
+        // { title: "起始日期", slot: "startDate", key: "startDate" },
+        // { title: "结束日期", slot: "endDate", key: "endDate" },
+        // { title: "租期", slot: "leasePeriod", key: "leasePeriod" },
+        // { title: "租金", slot: "remark", key: "remark" },
         {
           title: "操作",
           slot: "action",
           width: 150,
-          align: "center"
+          align: "center",
         }
       ],
       accountData: [],
@@ -339,6 +376,7 @@ export default {
         pagedom: 1
       },
       dormsData: [],
+      fangjianData: [],
       rewData: [],
       editDtae: {
         companyName: "",
@@ -357,6 +395,8 @@ export default {
       modal2: false,
       modal3: false,
       modal4: false,
+      modal5: false,
+      modal6:false,
       rt: "",
       monthmoney: "",
       dormitorydata: [],
@@ -367,7 +407,10 @@ export default {
         htname: "",
         dornum: ""
       },
-      dmst1: []
+      isSelectrow: false,
+      selectRowData: "",
+      deleterowdata:"",
+      exportLoading: false
     };
   },
   components: {},
@@ -381,6 +424,26 @@ export default {
   },
 
   methods: {
+    exportExcel () {
+      if (this.accountData.length) {
+        this.exportLoading = true
+        const params = {
+          title: ['公司名称', '联系人', '联系电话','租赁寝室楼栋','租赁合同签署日期'],
+          key: ['companyName', 'contact', 'contactNumber','dormitoryNum','contractSigning'],
+          data: this.accountData,
+          autoWidth: true,
+          filename: '合同导出'
+        }
+        excel.export_array_to_excel(params)
+        this.exportLoading = false
+      } else {
+        this.$Message.info('表格数据不能为空！')
+      }
+    },
+    showfangjian() {
+      this.selectDromData();
+      this.modal5 = true;
+    },
     conceldata() {
       this.dorms.dormid = "";
       this.dorms.pagedom = 1;
@@ -449,12 +512,27 @@ export default {
       this.getdormsCount(this.dorms);
       this.modal4 = true;
     },
+    selectDromData() {
+      let _this = this;
+      axios
+        .request({
+          url: "/Renewal/selectDroms",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json" //设置请求头请求格式为JSON
+          },
+          data: _this.selectRowData
+        })
+        .then(function(response) {
+          _this.fangjianData = response.data;
+        });
+    },
     getdormsData(domid) {
       let _this = this;
       axios
         .request({
           url: "/Dorms/getDormsData",
-          method: "post",
+          method: "get",
           params: domid
         })
         .then(function(response) {
@@ -468,6 +546,11 @@ export default {
             }
           }
         });
+    },
+    pagesize(val){
+      let _this = this;
+      this.pagenum.pagecount = val;
+      this.getaccountData(_this.pagenum);
     },
     handlePage(val) {
       let _this = this;
@@ -484,17 +567,17 @@ export default {
         })
         .then(function(response) {
           _this.dormCounts = response.data;
+          _this.getaccountData(_this.pagenum);
           //console.log(_this.dormCounts);
         });
     },
-    exportData() {
-      this.$refs.table.exportCsv({
-        filename: "宿舍",
-        columns: this.accountColumns.filter((col, index) => index < 6)
-      });
-    },
 
-    saveXuzu() {
+    saveXuzu() {     
+      let _this = this;
+      if (this.xuzuData.leasePeriod == "") {
+        _this.$refs["formCustom"].validate();
+        return false;
+      }
       this.xuzuData.remark = (
         parseInt(this.xuzuData.leasePeriod) * parseInt(this.xuzuData.unityPrice)
       ).toString();
@@ -503,7 +586,7 @@ export default {
       this.modal3 = false;
     },
     insertRenewal(xuzudata) {
-      console.log(xuzudata.leasePeriod);
+      //console.log(xuzudata.leasePeriod);
       let _this = this;
       axios
         .request({
@@ -515,16 +598,23 @@ export default {
           data: xuzudata
         })
         .then(function(response) {
+          if (response.data > 0) {
+            _this.$Message.success("续租成功");
+          } else {
+            _this.$Message.warning("续租失败");
+          }
           _this.xuzuData.leasePeriod = "";
-          this.getRenwealCount(this.renewalData);
+          _this.getRenwealCount(_this.renewalData);
         });
     },
     rowSelect(currentRow, oldCurrentRow) {
+      this.isSelectrow = true;
       let _this = this;
 
       this.getRenwealCount(this.renewalData);
 
       //console.log(currentRow);
+      this.selectRowData = currentRow;
       this.renewalData.nid = currentRow.id;
       this.xuzuData.dormitoryMid = parseInt(currentRow.id);
       this.xuzuData.unityPrice = (
@@ -579,8 +669,13 @@ export default {
           break;
         }
       }
-      if (_this.flag) {
-        this.$refs[name].validate();
+      if (_this.selectionDatas.length <= 0) {
+        this.$Message.warning("请选择寝室房号");
+        _this.flag = true;
+      }
+
+      if (_this.flag == true) {
+        _this.$refs["formCustom"].validate();
         _this.flag = false;
         return false;
       } else {
@@ -598,6 +693,7 @@ export default {
     },
     showadd() {
       let _this = this;
+
       for (let item in _this.editDtae) {
         _this.editDtae[item] = "";
       }
@@ -605,7 +701,10 @@ export default {
     },
     showRadd() {
       let _this = this;
-
+      if (this.isSelectrow == false) {
+        this.$Message.warning("请选择合同");
+        return false;
+      }
       if (_this.renewalData.count < 1) {
         _this.getdormitoryIdData(_this.renewalData);
       } else {
@@ -624,6 +723,7 @@ export default {
         })
         .then(function(response) {
           _this.rewData = response.data;
+          _this.rewData = _this.rewData.concat(_this.selectRowData);
         });
     },
     getRenwealCount(renewalData) {
@@ -640,9 +740,12 @@ export default {
     },
     shownext() {
       let _this = this;
-
+      if (this.isSelectrow == false) {
+        this.$Message.warning("请选择合同");
+        return false;
+      }
       //console.log(this.renewalData.count);
-      if (this.renewalData.count < 1) {
+      if (_this.renewalData.count < 1) {
         this.getdormitoryIdData(_this.renewalData);
       } else {
         this.getRenwealData(_this.renewalData);
@@ -689,23 +792,38 @@ export default {
     concel() {
       let _this = this;
 
-      _this.getaccountData(_this.pagenum);
+      _this.getdormCount();
 
       this.editIndex = -1;
     },
     deleteaccount(row) {
-      this.deleterow(row);
+      this.modal6=true;
+      this.deleterowdata=row;
     },
-    deleterow(row) {
+    deleterow() {
       let _this = this;
       axios
         .request({
           url: "/Account/deleteAccount",
-          method: "get",
-          params: row
+          method: "post",
+          headers: {
+            "Content-Type": "application/json" //设置请求头请求格式为JSON
+          },
+          data: _this.deleterowdata
         })
         .then(function(response) {
-          _this.getaccountData(_this.pagenum);
+          if(_this.dormCounts%10==1){
+            console.log(_this.pagenum.startnum);
+            console.log("asdasd");
+            _this.pagenum.startnum-=1;
+            console.log(_this.pagenum.startnum);
+          }
+          _this.getdormCount();
+          if(response.data>0){
+            _this.$Message.success("合同删除成功");
+          }
+          
+          _this.modal6=false;
         });
     },
     update(row) {
@@ -723,13 +841,16 @@ export default {
           data: row
         })
         .then(function(response) {
-          _this.getaccountData(_this.pagenum);
+          if(response.data>0){
+            _this.$Message.success("合同更新成功");
+          }
+          _this.getdormCount();
         });
     },
 
     insert(adddata) {
       let _this = this;
-      console.log(adddata);
+      //console.log(adddata);
       axios
         .request({
           url: "/Account/insertAccount",
@@ -740,7 +861,12 @@ export default {
           data: adddata
         })
         .then(function(response) {
-          _this.getaccountData(_this.pagenum);
+          if (response.data > 0) {
+            _this.$Message.success("合同新增成功");
+          } else {
+            _this.$Message.warning("合同新增失败");
+          }
+          _this.getdormCount();
           _this.dorms.dormid = "";
           _this.dorms.pagedom = 1;
           _this.selectionDatas = [];
@@ -839,6 +965,7 @@ export default {
       return false;
     },
     readFile(file) {
+      let _this = this;
       const reader = new FileReader();
       reader.readAsArrayBuffer(file);
       reader.onloadstart = e => {
@@ -854,7 +981,6 @@ export default {
       };
       reader.onload = e => {
         let _this = this;
-        this.$Message.info("文件读取成功");
         const data = e.target.result;
         const { header, results } = excel.read(data, "array");
         const tableTitle = header.map(item => {
@@ -865,11 +991,95 @@ export default {
         this.uploadLoading = false;
         this.tableLoading = false;
         this.showRemoveFile = true;
-        for (let i = 0; i < this.tableData.length; i++) {
-          _this.uploader(this.tableData[i]);
-        }
-        this.getaccountData(_this.pagenum);
+        _this.uploadExcelData(this.tableData);
       };
+    },
+    uploadExcelData(excelData) {
+      // 1.先进行数据的处理，转化成符合后台读取的格式
+      var exdata = [];
+      for (var key in excelData) {
+        excelData[key].companyName = excelData[key].公司名称;
+        excelData[key].contact = excelData[key].联系人;
+        excelData[key].contactNumber = excelData[key].联系电话;
+        excelData[key].dormitoryId = excelData[key].租赁寝室楼号;
+        excelData[key].startDate = excelData[key].起租时间;
+        excelData[key].leasePeriod = excelData[key].租期;
+        excelData[key].remark = excelData[key].总租金;
+        excelData[key].dromNum = excelData[key].租赁房间号;
+        delete excelData[key].公司名称;
+        delete excelData[key].联系人;
+        delete excelData[key].联系电话;
+        delete excelData[key].租赁寝室楼号;
+        delete excelData[key].起租时间;
+        delete excelData[key].租期;
+        delete excelData[key].总租金;
+        delete excelData[key].租赁房间号;
+        exdata = exdata.concat(excelData[key]);
+        //console.log(excelData[key]);
+      }
+      let isDataEmpty = 0;
+
+      for (var key in excelData) {
+        excelData[key].companyName == undefined ||
+        excelData[key].companyName == null ||
+        excelData[key].companyName == "" ||
+        excelData[key].contact == "" ||
+        excelData[key].contact == null ||
+        excelData[key].contact == undefined ||
+        excelData[key].contactNumber == undefined ||
+        excelData[key].contactNumber == null ||
+        excelData[key].contactNumber == "" ||
+        excelData[key].dormitoryId == undefined ||
+        excelData[key].dormitoryId == null ||
+        excelData[key].dormitoryId == "" ||
+        excelData[key].startDate == undefined ||
+        excelData[key].startDate == null ||
+        excelData[key].startDate == "" ||
+        excelData[key].leasePeriod == undefined ||
+        excelData[key].leasePeriod == null ||
+        excelData[key].leasePeriod == "" ||
+        excelData[key].remark == undefined ||
+        excelData[key].remark == null ||
+        excelData[key].remark == "" ||
+        excelData[key].dromNum == undefined ||
+        excelData[key].dromNum == null ||
+        excelData[key].dromNum == ""
+          ? (isDataEmpty += 1)
+          : (isDataEmpty += 0);
+      }
+      if (isDataEmpty == 0) {
+        this.uploadf(exdata);
+        //console.log(exdata);
+      } else {
+        this.$Message.error("该表内有" + isDataEmpty + "行数据有空项");
+        //console.log("失败");
+        exdata = [];
+        isDataEmpty = 0;
+      }
+    },
+    uploadf(uploaddata) {
+      let _this=this;
+      axios.request({
+        url: "/Account/uploadAccount",
+        method: "post",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8"
+        },
+        data:uploaddata
+      }).then(function(response){
+        if(response.data==1){
+          _this.$Message.success("上传成功")
+          _this.getdormCount()
+        }
+        else if(response.data==-1){
+          _this.$Message.error("表中存在已被出租的房间")
+        }
+        else{
+          _this.$Message.error("发生未知错误")
+        }
+        
+      })
+      ;
     }
   }
 };

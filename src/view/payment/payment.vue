@@ -14,7 +14,6 @@
         <Button class="btn" @click="removeAll" type="primary">删除所有数据</Button>
       </Tooltip>-->
     </div>
-
     <!-- EXCEL导入导出 -->
     <Drawer title="EXCEL" placement="left" :closable="false" v-model="value2">
       <Card title="导入EXCEL">
@@ -76,48 +75,77 @@
     </Drawer>
     <!-- 新增数据 -->
     <Drawer title="新增数据" v-model="value3" width="360" :mask-closable="false" :styles="styles">
-      <Form :model="formData">
+      <Form ref="formData" :model="formData" :rules="ruleformData">
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="水表读数" label-position="top">
-              <Input v-model="formData.waterNumber" placeholder="请输入水表读数" clearable />
+            <FormItem label="水表读数" label-position="top" prop="waterNumber">
+              <Input
+                v-model="formData.waterNumber"
+                placeholder="请输入水表读数，必须为数字"
+                clearable
+                precision="2"
+                number
+                :maxlength="15"
+              />
             </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="电表读数" label-position="top">
-              <Input v-model="formData.electricityNumber" placeholder="请输入电表读数" clearable />
+            <FormItem label="电表读数" label-position="top" prop="electricityNumber">
+              <Input
+                v-model="formData.electricityNumber"
+                placeholder="请输入电表读数，必须为数字"
+                clearable
+                precision="2"
+                number
+                :maxlength="15"
+              />
             </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="企业" label-position="top">
+            <FormItem label="企业" label-position="top" prop="enterpriseNumber">
               <Input v-model="formData.enterpriseNumber" placeholder="请输入企业" clearable />
             </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="房号" label-position="top">
+            <FormItem label="房号" label-position="top" prop="roomNumber">
               <Input v-model="formData.roomNumber" placeholder="请输入房号" clearable />
+            </FormItem>
+          </Col>
+        </Row>
+
+        <Row :gutter="32">
+          <Col span="18">
+            <FormItem label="开始时间" label-position="top" prop="startTime">
+              <DatePicker v-model="formData.startTime" type="date" placeholder="选择开始时间"></DatePicker>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row :gutter="32">
+          <Col span="18">
+            <FormItem label="结束时间" label-position="top" prop="endTime">
+              <DatePicker v-model="formData.endTime" type="date" placeholder="选择结束时间"></DatePicker>
             </FormItem>
           </Col>
         </Row>
       </Form>
       <div class="demo-drawer-footer">
         <Button style="margin-right: 8px" @click="value3 = false">取消</Button>
-        <Button type="primary" @click="add">确定</Button>
+        <Button type="primary" @click="add('formData')">确定</Button>
       </div>
     </Drawer>
     <!-- 数据展示 -->
     <Row>
-      <Col span="10">
+      <Col span="9">
         <Card shadow>
           <p slot="title">上期数据</p>
           <!-- 数据列表展示 上期数据-->
-          <Table :columns="previousColumns" :data="previousData">
+          <Table height="520" :columns="previousColumns" :data="previousData">
             <template slot-scope="{ row }" slot="waterNumber">
               <span>{{ row.waterNumber }}</span>
             </template>
@@ -149,21 +177,28 @@
           />
         </Card>
       </Col>
-      <Col span="14" offset>
+      <Col span="15" offset>
         <Card shadow>
           <p slot="title">本期数据</p>
-          <Table :columns="columns" :data="data" :loading="tableLoading">
+          <Table height="520" :columns="columns" :data="data" :loading="tableLoading">
             <template slot-scope="{ row, index }" slot="waterNumber">
-              <Input type="text" clearable v-model="editWaterNumber" v-if="editIndex === index" />
+              <Input
+                clearable
+                precision="2"
+                :maxlength="15"
+                v-model="editWaterNumber"
+                v-if="editIndex === index"
+              />
               <span border:true v-else>{{ row.waterNumber }}</span>
             </template>
 
             <template slot-scope="{ row, index }" slot="electricityNumber">
               <Input
-                type="text"
                 clearable
                 v-model="editElectricityNumber"
                 v-if="editIndex === index"
+                precision="2"
+                :maxlength="15"
               />
               <span v-else>{{ row.electricityNumber }}</span>
             </template>
@@ -189,7 +224,7 @@
                   title="是否要删除该行?"
                   @on-ok="remove(index)"
                   @on-cancel="cancel"
-                  placement="left"
+                  placement="left-end"
                 >
                   <Button type="error" size="small">删除</Button>
                 </Poptip>
@@ -213,18 +248,20 @@
     </Row>
     <Row>
       <Card shadow>
+        单位：元
         <example
           style="height: 310px;"
           v-bind:exampleData="exampleData"
           v-if="value4 && value5 && value6"
         />
         <div slot="title">
-          <p>水电使用数据报表</p>
+          <p>水电费使用数据报表</p>
           <Poptip title="时间线" class="text-center a" v-model="visible">
             <a href="#">
               <Icon type="ios-funnel"></Icon>
               选择时间线{{timeText}}
             </a>
+
             <div slot="content" style="height:90px">
               <Divider size="small">
                 <a href="#" @click="year">年</a>
@@ -251,6 +288,19 @@ export default {
     Example
   },
   data() {
+    const validateNumber = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("请输入数字！"));
+      }
+      // 模拟异步验证效果
+      setTimeout(() => {
+        if (!Number.isInteger(value)) {
+          callback(new Error("存在中英文，请重新输入数字！"));
+        } else {
+          callback();
+        }
+      }, 100);
+    };
     return {
       exampleData: {
         timeData: [],
@@ -325,7 +375,56 @@ export default {
       formData: {
         waterNumber: "",
         electricityNumber: "",
-        enterpriseNumber: ""
+        enterpriseNumber: "",
+        roomNumber: "",
+        startTime: "",
+        endTime: ""
+      },
+      ruleformData: {
+        waterNumber: [
+          {
+            required: true,
+            validator: validateNumber,
+            trigger: "blur"
+          }
+        ],
+        electricityNumber: [
+          {
+            required: true,
+            validator: validateNumber,
+            trigger: "blur"
+          }
+        ],
+        enterpriseNumber: [
+          {
+            required: true,
+            message: "请输入企业",
+            trigger: "blur"
+          }
+        ],
+        roomNumber: [
+          {
+            required: true,
+            message: "请输入房号",
+            trigger: "blur"
+          }
+        ],
+        startTime: [
+          {
+            required: true,
+            type: "date",
+            message: "选择开始时间",
+            trigger: "blur"
+          }
+        ],
+        endTime: [
+          {
+            required: true,
+            type: "date",
+            message: "选择结束时间",
+            trigger: "blur"
+          }
+        ]
       },
       timeText: "",
       value4: true, //时间数据状态
@@ -334,12 +433,10 @@ export default {
       visible: false,
       pageCurrent: 1, //当前页数
       pageStart: 0,
-      pageEnd: 0,
       dataCount: 0, //后台数据的总记录
       pageSize: 10, //每页显示多少条
       pageCurrentPrevious: 1, //当前页数
       pageStartPrevious: 0,
-      pageEndPrevious: 0,
       dataCountPrevious: 0, //后台数据的总记录
       pageSizePrevious: 10 //每页显示多少条
     };
@@ -356,9 +453,22 @@ export default {
       this.editEnterpriseNumber = row.enterpriseNumber;
       this.editIndex = index;
     },
+    //删除所有数据
+    removeAll() {
+      let i,
+        _this = this;
+      axios
+        .request({
+          url: "/payment/deletePaymentDataAll",
+          method: "post"
+        })
+        .then(function(response) {
+          _this.data = response.data;
+        });
+      this.$Message.success("已删除所有数据！");
+    },
     //保存数据
     handleSave(index) {
-      
       if (this.editWaterNumber != "" && this.editElectricityNumber != "") {
         this.data[index].waterNumber = this.editWaterNumber;
         this.data[index].electricityNumber = this.editElectricityNumber;
@@ -382,30 +492,38 @@ export default {
               }
             })
             .then(response => {
-              this.getPaymentDataPage();
               if (response.data == 1) {
                 this.$Message.success("修改成功！");
-              } else {
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+              }
+            })
+            .catch(error => {
+              if (error) {
+                
                 this.$Message.error("修改失败！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
               }
             });
         }
       } else {
-        this.$Message.error("存在空数据！请重新修改！");
+        this.$Message.error("存在空数据或者中英文！请重新修改数据！");
       }
     },
     //得到上期数据
     getPaymentPreviousData(index) {
       this.pageNumPrevious = index;
       this.pageStartPrevious = (index - 1) * this.pageSizePrevious;
-      this.pageEndPrevious = index * this.pageSizePrevious;
       axios
         .request({
           url: "/payment/getPreviousPaymentList",
           method: "get",
           params: {
             dataStart: this.pageStartPrevious,
-            dataEnd: this.pageEndPrevious
+            dataEnd: this.pageSizePrevious
           }
         })
         .then(response => {
@@ -441,65 +559,56 @@ export default {
           }
         })
         .then(response => {
-          this.getPaymentDataPage();
           if (response.data == 1) {
             this.$Message.success("已删除当前行！");
+            this.getPaymentDataPage(this.pageCurrent);
+            this.getPaymentPreviousData(this.pageCurrentPrevious);
           } else {
             this.$Message.error("删除失败！");
           }
         });
-      this.data.splice(index, 1);
-    },
-    //删除所有数据
-    removeAll() {
-      let i,
-        _this = this;
-      axios
-        .request({
-          url: "/payment/deletePaymentDataAll",
-          method: "post"
-        })
-        .then(function(response) {
-          _this.data = response.data;
-        });
-      this.$Message.success("已删除所有数据！");
     },
     //添加数据
-    add() {
-      this.value3 = false;
-      if (
-        this.formData.waterNumber != "" &&
-        this.formData.electricityNumber != "" &&
-        this.formData.enterpriseNumber != "" &&
-        this.formData.roomNumber != ""
-      ) {
-        //增加
-        axios
-          .request({
-            url: "/payment/insertPaymentData",
-            method: "post",
-            headers: {
-              "Content-Type": "application/json" //设置请求头请求格式为JSON
-            },
-            data: {
-              waterNumber: this.formData.waterNumber,
-              electricityNumber: this.formData.electricityNumber,
-              enterpriseNumber: this.formData.enterpriseNumber,
-              roomNumber: this.formData.roomNumber
-            }
-          })
-          .then(response => { 
-            if (response.data == 1) {
-              this.getPaymentDataPage(this.pageCurrent);
-              this.getPaymentPreviousData(this.pageCurrent);
-              this.$Message.success("添加成功！");
-            } else {
-              this.$Message.error("添加失败！");
-            }
-          });
-      } else {
-        this.$Message.error("存在空数据！请输入数据！");
-      }
+    add(name) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          this.value3 = false;
+          //增加
+          axios
+            .request({
+              url: "/payment/insertPaymentData",
+              method: "post",
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
+                waterNumber: this.formData.waterNumber,
+                electricityNumber: this.formData.electricityNumber,
+                enterpriseNumber: this.formData.enterpriseNumber,
+                roomNumber: this.formData.roomNumber,
+                startTime: this.formData.startTime,
+                endTime: this.formData.endTime
+              }
+            })
+            .then(response => {
+              if (response.data == 1) {
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+                this.$Message.success("添加成功！");
+              } 
+            }).catch(error => {
+              if (error) {
+                this.$Message.error("添加失败！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+              }
+            });
+        } else {
+          this.$Message.error("存在空数据或者中英文！请重新输入数据!");
+        }
+      });
     },
     //导出excel
     exportExcel() {
@@ -530,8 +639,8 @@ export default {
       this.value2 = false;
       this.exportLoadingTemplate = true;
       const params = {
-        data: this.data,
-        title: ["水表读数", "电表读数", "企业", "房号"],
+        data: [],
+        title: ["水表读数", "电表读数", "企业", "房号", "开始时间", "结束时间"],
         key: [],
         autoWidth: true,
         filename: "缴费管理模板"
@@ -591,42 +700,56 @@ export default {
       };
       reader.onload = e => {
         let i;
-        this.$Message.info("文件读取成功");
         const readerData = e.target.result;
         const { header, results } = excel.read(readerData, "array");
         const tableTitle = header.map(item => {
           return { title: item, key: item };
         });
         for (i = 0; i < results.length; i++) {
-          this.data.push({
-            waterNumber: results[i][header[0]],
-            electricityNumber: results[i][header[1]],
-            enterpriseNumber: results[i][header[2]],
-            roomNumber: results[i][header[3]]
-          });
-          this.editIndex = this.data.length;
           if (
             results[i][header[0]] != "" &&
             results[i][header[1]] != "" &&
             results[i][header[2]] != "" &&
-            results[i][header[3]] != ""
+            results[i][header[3]] != "" &&
+            results[i][header[4]] != "" &&
+            results[i][header[5]] != ""
           ) {
             axios.request({
               url: "/payment/insertPaymentData",
               method: "post",
-              params: {
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
                 waterNumber: results[i][header[0]],
                 electricityNumber: results[i][header[1]],
                 enterpriseNumber: results[i][header[2]],
-                roomNumber: results[i][header[3]]
+                roomNumber: results[i][header[3]],
+                startTime: results[i][header[4]],
+                endTime: results[i][header[5]]
+              }
+            })
+            .then(response => {
+              if (response.data == 1 ) {
+                if(i == results.length){
+                this.$Message.success("上传成功！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+                this.value2 = false;
+                }
+              }
+            })
+            .catch(error => {
+              if (error) {
+                this.$Message.error("上传失败！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+                this.value2 = false;
               }
             });
-            if (i == results.length - 1) {
-              this.$Message.success("添加成功！");
-              this.value2 = false;
-            }
-          } else {
-            this.$Message.error("存在空数据！请输入数据！");
+            
           }
         }
 
@@ -639,14 +762,13 @@ export default {
     getPaymentDataPage(index) {
       this.pageNum = index;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = index * this.pageSize;
       axios
         .request({
           url: "/payment/getPaymentList",
           method: "get",
           params: {
             dataStart: this.pageStart,
-            dataEnd: this.pageEnd
+            dataEnd: this.pageSize
           }
         })
         .then(response => {
@@ -681,14 +803,12 @@ export default {
         })
         .then(response => {
           this.exampleData.timeData = response.data;
-
           axios
             .request({
               url: "/payment/getYearsWaterCostList",
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -698,7 +818,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
@@ -727,7 +846,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -737,7 +855,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
@@ -764,7 +881,6 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.waterData = response.data;
               this.value5 = true;
             });
@@ -774,13 +890,14 @@ export default {
               method: "get"
             })
             .then(response => {
-              console.log(response.data);
               this.exampleData.electricityData = response.data;
               this.value6 = true;
             });
         });
       this.visible = false;
-    }
+    },
+    //取消
+    cancel() {}
   }
 };
 </script>

@@ -365,11 +365,6 @@ export default {
       // 表格显示的列名数据
       dataColumns: [
         {
-          title: "#id",
-          key: "id",
-          slot: "id"
-        },
-        {
           title: "所属办公楼",
           key: "buildingName",
           slot: "buildingName"
@@ -801,7 +796,7 @@ export default {
     getRequestData(index) {
       let _this = this;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = index * this.pageSize;
+      this.pageEnd = this.pageSize;
       axios
         .request({
           url: "/room/getSearchList",

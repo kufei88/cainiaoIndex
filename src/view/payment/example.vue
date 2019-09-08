@@ -8,7 +8,7 @@ import echarts from "echarts";
 import { on, off } from "@/libs/tools";
 export default {
   name: "serviceRequests",
-  props: ["exampleData"] /*通过props接收父组件传递过来的数据 */,
+  props: ["exampleData"] ,/*通过props接收父组件传递过来的数据 */
   data() {
     return {
       dom: null
@@ -51,7 +51,7 @@ export default {
       ],
       series: [
         {
-          name: "水表读数",
+          name: "水费",
           type: "line",
           stack: "总量",
           areaStyle: {
@@ -62,7 +62,7 @@ export default {
           data: this.exampleData.waterData
         },
         {
-          name: "电表读数",
+          name: "电费",
           type: "line",
           stack: "总量",
           areaStyle: {
@@ -82,7 +82,6 @@ export default {
   },
   beforeDestroy() {
     off(window, "resize", this.resize);
-  },
-  init() {}
+  }
 };
 </script>
