@@ -41,6 +41,7 @@
       </Table>
       <Button type="primary" @click="showfangjian()" ghost>查看租赁房号</Button>
     </Modal>
+
     <Modal v-model="modal5" title="租赁房号">
       <Table border :columns="fangjianColumns" :data="fangjianData" ref="table" height="300">
         <template slot-scope="{ row, index }" slot="dromNum">
@@ -51,7 +52,10 @@
         <Button type="text" size="large" @click="modal5=false">取消</Button>
         <Button type="primary" size="large" @click="modal5=false">确定</Button>
       </div>
+      
     </Modal>
+
+
     <Modal v-model="modal1" title="新增合同">
       <Form ref="formCustom" :model="editDtae" :rules="ruleCustom" :label-width="80">
         <FormItem label="公司名称" prop="companyName">
@@ -464,7 +468,7 @@ export default {
         for (let j = 0; j < _this.selectionDatas.length; j++) {
           if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
             _this.selectionDatas.splice(j, 1);
-            //console.log(_this.selectionDatas);
+
           }
         }
       }
@@ -476,15 +480,15 @@ export default {
         for (let j = 0; j < _this.selectionDatas.length; j++) {
           if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
             _this.selectionDatas.splice(j, 1);
-            //console.log(_this.selectionDatas);
+
           }
         }
       }
-      //console.log(row);
+
     },
     selectDrom(selection) {
       this.selectionData = selection;
-      //console.log(this.selectionData);
+
     },
     getdormsCount(domid) {
       let _this = this;
@@ -502,7 +506,7 @@ export default {
       let _this = this;
       this.dorms.pagedom = val;
       this.selectionDatas = this.selectionDatas.concat(this.selectionData);
-      //console.log(this.selectionDatas);
+
       this.selectionData = [];
       this.getdormsData(this.dorms);
     },
@@ -541,7 +545,7 @@ export default {
             for (let j = 0; j < _this.selectionDatas.length; j++) {
               if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
                 _this.$set(_this.dormsData[i], "_checked", true);
-                //console.log(_this.dormsData[i]);
+
               }
             }
           }
@@ -555,7 +559,7 @@ export default {
     handlePage(val) {
       let _this = this;
       this.pagenum.startnum = val;
-      //console.log(this.pagenum.startnum);
+
       this.getaccountData(_this.pagenum);
     },
     getdormCount() {
@@ -568,7 +572,7 @@ export default {
         .then(function(response) {
           _this.dormCounts = response.data;
           _this.getaccountData(_this.pagenum);
-          //console.log(_this.dormCounts);
+
         });
     },
 
@@ -586,7 +590,7 @@ export default {
       this.modal3 = false;
     },
     insertRenewal(xuzudata) {
-      //console.log(xuzudata.leasePeriod);
+
       let _this = this;
       axios
         .request({
@@ -613,7 +617,7 @@ export default {
 
       this.getRenwealCount(this.renewalData);
 
-      //console.log(currentRow);
+
       this.selectRowData = currentRow;
       this.renewalData.nid = currentRow.id;
       this.xuzuData.dormitoryMid = parseInt(currentRow.id);
@@ -621,7 +625,7 @@ export default {
         parseInt(currentRow.remark) / parseInt(currentRow.leasePeriod)
       ).toString();
 
-      //console.log(this.xuzuData);
+
     },
     dateChange(date) {
       this.editDtae.startDate = date;
@@ -629,7 +633,7 @@ export default {
     },
     endChange(date) {
       this.editDtae.endDate = date.toString();
-      //console.log(this.editDtae.endDate);
+
     },
     addMonth(stratTime, n) {
       var s = stratTime.split("-");
@@ -662,7 +666,7 @@ export default {
               parseInt(_this.editDtae["leasePeriod"]) *
               parseInt(_this.monthmoney) *
               parseInt(_this.selectionDatas.length);
-            //console.log(_this.editDtae["remark"]);
+
             break;
           }
           _this.flag = true;
@@ -680,7 +684,7 @@ export default {
         return false;
       } else {
         _this.modal1 = false;
-        //console.log(_this.editDtae);
+
         _this.insert(_this.editDtae);
       }
     },
@@ -744,7 +748,7 @@ export default {
         this.$Message.warning("请选择合同");
         return false;
       }
-      //console.log(this.renewalData.count);
+
       if (_this.renewalData.count < 1) {
         this.getdormitoryIdData(_this.renewalData);
       } else {
@@ -771,10 +775,10 @@ export default {
     },
     chioce(money, itemid) {
       this.monthmoney = money;
-      //console.log(this.monthmoney);
+
       this.dorms.dormid = itemid;
       this.buttonflag = false;
-      //console.log(this.dorms.dormid);
+
     },
     save(row) {
       let _this = this;
@@ -813,10 +817,8 @@ export default {
         })
         .then(function(response) {
           if(_this.dormCounts%10==1){
-            console.log(_this.pagenum.startnum);
-            console.log("asdasd");
             _this.pagenum.startnum-=1;
-            console.log(_this.pagenum.startnum);
+
           }
           _this.getdormCount();
           if(response.data>0){
@@ -827,9 +829,7 @@ export default {
         });
     },
     update(row) {
-      //console.log(row);
-      // console.log(this.accountData[index]);
-      // console.log(JSON.stringify(row));
+
       let _this = this;
       axios
         .request({
@@ -850,7 +850,7 @@ export default {
 
     insert(adddata) {
       let _this = this;
-      //console.log(adddata);
+
       axios
         .request({
           url: "/Account/insertAccount",
@@ -886,7 +886,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Dormitory/getDormitoryList",
+          url: "/Dormitory/getDormitoryList0",
           method: "get"
         })
         .then(function(response) {
@@ -1015,7 +1015,7 @@ export default {
         delete excelData[key].总租金;
         delete excelData[key].租赁房间号;
         exdata = exdata.concat(excelData[key]);
-        //console.log(excelData[key]);
+
       }
       let isDataEmpty = 0;
 
@@ -1049,10 +1049,10 @@ export default {
       }
       if (isDataEmpty == 0) {
         this.uploadf(exdata);
-        //console.log(exdata);
+
       } else {
         this.$Message.error("该表内有" + isDataEmpty + "行数据有空项");
-        //console.log("失败");
+
         exdata = [];
         isDataEmpty = 0;
       }
