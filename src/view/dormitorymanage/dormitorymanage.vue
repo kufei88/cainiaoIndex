@@ -4,6 +4,7 @@
     <Button type="primary" @click="shownext()" ghost>合同详情</Button>
     <Button type="primary" @click="showRadd()" ghost>续租</Button>
     <Button type="primary" :loading="exportLoading" @click="exportExcel" ghost>导出</Button>
+    <Button type="primary" :loading="exportLoading1" @click="exportExcel1" ghost>模板下载</Button>
     <Upload action :before-upload="handleBeforeUpload" accept=".xls, .xlsx">
       <Button
         icon="ios-cloud-upload-outline"
@@ -14,29 +15,33 @@
 
     <Modal v-model="modal2" title="合同详情">
       <div style="text-align:center">
-        <h2>公司:{{ selectRowData.companyName }}</h2>
+        <h2>公司:{{ selectRowData.owner }}</h2>
       </div>
       <div>
-        <h3>租赁宿舍:{{selectRowData.dormitoryNum}}</h3>
-        <span style="margin-right:20px">联系人:{{ selectRowData. contact}}</span>
+        <h3>租赁宿舍:{{selectRowData.buildingName}}</h3>
+        <span style="margin-right:20px">联系人:{{ ownerdata.enterprisePerson}}</span>
 
-        <span>联系电话:{{ selectRowData. contactNumber}}</span>
+        <span>联系电话:{{ ownerdata.contactNumber}}</span>
       </div>
       <Table border :columns="renewalColumns" :data="rewData" ref="table" height="300">
         <template slot-scope="{ row, index }" slot="startDate">
-          <span>{{ rewData[index].startDate }}</span>
+          <span>{{ rewData[index].continueStartTime }}</span>
         </template>
 
         <template slot-scope="{ row, index }" slot="endDate">
-          <span>{{ rewData[index].endDate }}</span>
+          <span>{{ rewData[index].continueEndTime }}</span>
         </template>
 
         <template slot-scope="{ row, index }" slot="leasePeriod">
-          <span>{{ rewData[index].leasePeriod }}</span>
+          <span>{{ rewData[index].continuePeriod }}</span>
         </template>
 
         <template slot-scope="{ row, index }" slot="remark">
-          <span>{{ rewData[index].remark }}</span>
+          <span>{{ rewData[index].totalCost }}</span>
+        </template>
+
+        <template slot-scope="{ row, index }" slot="insertTime">
+          <span>{{ rewData[index].insertTime }}</span>
         </template>
       </Table>
       <Button type="primary" @click="showfangjian()" ghost>查看租赁房号</Button>
@@ -44,37 +49,37 @@
 
     <Modal v-model="modal5" title="租赁房号">
       <Table border :columns="fangjianColumns" :data="fangjianData" ref="table" height="300">
-        <template slot-scope="{ row, index }" slot="dromNum">
-          <span>{{ fangjianData[index].dromNum }}</span>
+        <template slot-scope="{ row, index }" slot="roomNumber">
+          <span>{{ fangjianData[index].roomNumber }}</span>
         </template>
       </Table>
+      <span>共{{roomAll}}条</span>
+      <Page :total="roomAll" :page-size="5" @on-change="roompage" />
       <div slot="footer">
         <Button type="text" size="large" @click="modal5=false">取消</Button>
         <Button type="primary" size="large" @click="modal5=false">确定</Button>
       </div>
-      
     </Modal>
-
 
     <Modal v-model="modal1" title="新增合同">
       <Form ref="formCustom" :model="editDtae" :rules="ruleCustom" :label-width="80">
         <FormItem label="公司名称" prop="companyName">
           <Input type="text" v-model="editDtae.companyName" />
         </FormItem>
-        <FormItem label="联系人" prop="contact">
+        <!-- <FormItem label="联系人" prop="contact">
           <Input type="text" v-model="editDtae.contact" />
         </FormItem>
         <FormItem label="联系电话" prop="contactNumber">
           <Input type="text" v-model="editDtae.contactNumber" number />
-        </FormItem>
+        </FormItem>-->
         <FormItem label="宿舍楼号" prop="dormitoryNum">
           <Select v-model="editDtae.dormitoryNum" style="width:200px">
             <Option
               v-for="item in dormitorydata"
-              :value="item.dormitoryName"
+              :value="item.buildingName"
               :key="item.id"
-              @click.native="chioce(item.money,item.id)"
-            >{{ item.dormitoryName }}</Option>
+              @click.native="chioce(item.buildingName)"
+            >{{ item.buildingName }}</Option>
           </Select>
           <Button type="primary" @click="showdorms()" :disabled="buttonflag" ghost>选择寝室</Button>
         </FormItem>
@@ -109,9 +114,9 @@
     </Modal>
 
     <Modal v-model="modal3" title="续租合同">
-      <Form ref="formCustom" :model="xuzuData" :rules="ruleCustom" :label-width="80">
-        <FormItem label="租期" prop="leasePeriod">
-          <Input type="text" v-model="xuzuData.leasePeriod" />
+      <Form ref="formCustoms" :model="xuzuData" :rules="ruleCustoms" :label-width="80">
+        <FormItem label="租期" prop="leasePeriods">
+          <Input type="text" v-model="xuzuData.continuePeriod" />
         </FormItem>
       </Form>
       <div slot="footer">
@@ -132,27 +137,30 @@
         @on-select-cancel="cancelSelect"
         @on-select-all-cancel="cancelAll"
       >
-        <template slot-scope="{ row, index }" slot="dromNum">
-          <span>{{ dormsData[index].dromNum }}</span>
+        <template slot-scope="{ row, index }" slot="roomNumber">
+          <span>{{ dormsData[index].roomNumber }}</span>
         </template>
       </Table>
-      <Page :total="dormAll" :page-size="5"  @on-change="dormpage" />
+      <span>{{dormAll}}</span>
+      <Page :total="dormAll" :page-size="5" @on-change="dormpage" />
       <div slot="footer">
         <Button type="text" size="large" @click="modal4=false">取消</Button>
         <Button type="primary" size="large" @click="savedorms()">确定</Button>
       </div>
     </Modal>
     <Modal v-model="modal6" title="提示">
-        <p>是否确定删除</p>
-        <div slot="footer">
+      <p>是否确定删除</p>
+      <div slot="footer">
         <Button type="text" size="large" @click="modal6=false">取消</Button>
-        <Button type="primary" size="large" @click="deleterow()" >确定</Button>
+        <Button type="primary" size="large" @click="deleterow()">确定</Button>
       </div>
     </Modal>
+
     <Input
       search
       enter-button
-      @on-search="getListByname()"
+      placeholder="请输入公司名"
+      @on-search="getNameCount()"
       v-model="cname.name"
       style="width: 300px"
     />
@@ -162,16 +170,16 @@
       :columns="accountColumns"
       :data="accountData"
       ref="table"
-      height='520'
+      height="520"
       highlight-row
       @on-current-change="rowSelect"
     >
       <template slot-scope="{ row, index }" slot="companyName">
-        <Input type="text" v-model="accountData[index].companyName" v-if="editIndex === index" />
-        <span v-else>{{ accountData[index].companyName }}</span>
+        <!-- <Input type="text" v-model="accountData[index].owner" v-if="editIndex === index" /> -->
+        <span>{{ accountData[index].owner }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="contact">
+      <!-- <template slot-scope="{ row, index }" slot="contact">
         <Input type="text" v-model="accountData[index].contact" v-if="editIndex === index" />
         <span v-else>{{ accountData[index].contact }}</span>
       </template>
@@ -179,33 +187,34 @@
       <template slot-scope="{ row, index }" slot="contactNumber">
         <Input type="text" v-model="accountData[index].contactNumber" v-if="editIndex === index" />
         <span v-else>{{ accountData[index].contactNumber }}</span>
-      </template>
+      </template>-->
 
       <template slot-scope="{ row, index }" slot="dormitoryNum">
-        <Input type="text" v-model="accountData[index].dormitoryNum" v-if="editIndex === index" />
-        <span v-else>{{ accountData[index].dormitoryNum }}</span>
+        <!-- <Input type="text" v-model="accountData[index].buildingName" v-if="editIndex === index" /> -->
+        <span>{{ accountData[index].buildingName }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="contractSigning">
+      <!-- <template slot-scope="{ row, index }" slot="contractSigning">
         <span>{{ accountData[index].contractSigning }}</span>
-      </template>
+      </template>-->
 
-      <!-- <template slot-scope="{ row, index }" slot="startDate">
-
-        <span>{{ accountData[index].startDate }}</span>
+      <template slot-scope="{ row, index }" slot="startDate">
+        <span>{{ accountData[index].startRentTime }}</span>
       </template>
 
       <template slot-scope="{ row, index }" slot="endDate">
-
-        <span>{{ accountData[index].endDate }}</span>
+        <span>{{ accountData[index].endRentTime }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="leasePeriod">
-
-        <span>{{ accountData[index].leasePeriod }}</span>
+      <template slot-scope="{ row, index }" slot="totalLeasePeriod">
+        <span>{{ accountData[index].totalPeriod }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="remark">
+      <template slot-scope="{ row, index }" slot="insertTime">
+        <span>{{ accountData[index].insertTime }}</span>
+      </template>
+
+      <!-- <template slot-scope="{ row, index }" slot="remark">
 
         <span>{{ accountData[index].remark }}</span>
       </template>-->
@@ -216,13 +225,13 @@
           <Button @click="concel()">取消</Button>
         </div>
         <div v-else>
-          <Button @click="show(index)">更新</Button>
+          <!-- <Button @click="show(index)">更新</Button> -->
           <Button @click="deleteaccount(row)">删除</Button>
         </div>
       </template>
     </Table>
     <span>共{{dormCounts}}条</span>
-    <Page :total="dormCounts" show-sizer @on-change="handlePage" @on-page-size-change="pagesize"/>
+    <Page :total="dormCounts" show-sizer @on-change="handlePage" @on-page-size-change="pagesize" />
   </div>
 </template>
 
@@ -281,14 +290,22 @@ export default {
         callback();
       }
     };
+    var validateleasePeriods = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("租期不能为空"));
+      } else {
+        callback();
+      }
+    };
     return {
-      
+      ownerdata: "",
+      roomAll: 0,
       buttonflag: true,
       dormAll: 0,
       dormCounts: 0,
       pagenum: {
         startnum: 1,
-        pagecount:10
+        pagecount: 10
       },
       uploadLoading: false,
       progressPercent: 0,
@@ -301,8 +318,8 @@ export default {
       fangjianColumns: [
         {
           title: "房间号",
-          slot: "dromNum",
-          key: "dromNum"
+          slot: "roomNumber",
+          key: "roomNumber"
         }
       ],
       dormColumns: [
@@ -311,38 +328,45 @@ export default {
           width: 60,
           align: "center"
         },
-        { title: "房间号", slot: "dromNum", key: "dromNum" }
+        { title: "房间号", slot: "roomNumber", key: "roomNumber" }
       ],
       renewalColumns: [
         { title: "起始日期", slot: "startDate", key: "startDate" },
         { title: "结束日期", slot: "endDate", key: "endDate" },
         { title: "租期", slot: "leasePeriod", key: "leasePeriod" },
-        { title: "租金", slot: "remark", key: "remark" }
+        { title: "租金", slot: "remark", key: "remark" },
+        { title: "插入日期", slot: "insertTime", key: "insertTime" }
       ],
       accountColumns: [
         { title: "公司名称", slot: "companyName", key: "companyName" },
-        { title: "联系人", slot: "contact", key: "contact" },
-        { title: "联系电话", slot: "contactNumber", key: "contactNumber" },
+        // { title: "联系人", slot: "contact", key: "contact" },
+        // { title: "联系电话", slot: "contactNumber", key: "contactNumber" },
         { title: "租赁寝室楼栋", slot: "dormitoryNum", key: "dormitoryNum" },
-        {
-          title: "租赁合同签署日期",
-          slot: "contractSigning",
-          key: "contractSigning"
-        },
-        // { title: "起始日期", slot: "startDate", key: "startDate" },
-        // { title: "结束日期", slot: "endDate", key: "endDate" },
+        // {
+        //   title: "租赁合同签署日期",
+        //   slot: "contractSigning",
+        //   key: "contractSigning"
+        // },
+        { title: "起始日期", slot: "startDate", key: "startDate" },
+        { title: "结束日期", slot: "endDate", key: "endDate" },
         // { title: "租期", slot: "leasePeriod", key: "leasePeriod" },
         // { title: "租金", slot: "remark", key: "remark" },
+        { title: "总租期", slot: "totalLeasePeriod", key: "totalLeasePeriod" },
+        { title: "插入时间", slot: "insertTime", key: "insertTime" },
         {
           title: "操作",
           slot: "action",
           width: 150,
-          align: "center",
+          align: "center"
         }
       ],
       accountData: [],
       editIndex: -1,
-      cname: { name: "" },
+      cname: {
+        name: "",
+        spg: 1,
+        spgsize: 10
+      },
       ruleCustom: {
         companyName: [{ validator: validatecompanyName, trigger: "blur" }],
         contact: [{ validator: validatecontact, trigger: "blur" }],
@@ -351,6 +375,9 @@ export default {
         startDate: [{ validator: validatestartDate, trigger: "blur" }],
         endDate: [{ validator: validateendDate, trigger: "blur" }],
         leasePeriod: [{ validator: validateleasePeriod, trigger: "blur" }]
+      },
+      ruleCustoms: {
+        leasePeriods: [{ validator: validateleasePeriods, trigger: "blur" }]
       },
       tagname: {
         companyName: "公司名称",
@@ -369,14 +396,16 @@ export default {
         count: ""
       },
       xuzuData: {
-        dormitoryMid: "",
-        startDate: "",
-        endDate: "",
-        leasePeriod: "",
-        remark: ""
+        contractId: "",
+        continueStartTime: "",
+        continueEndTime: "",
+        continuePeriod: "",
+        totalCost: "",
+        insertTime: "",
+        unityPrice: ""
       },
       dorms: {
-        dormid: "",
+        buildingName: "",
         pagedom: 1
       },
       dormsData: [],
@@ -384,15 +413,15 @@ export default {
       rewData: [],
       editDtae: {
         companyName: "",
-        contact: "",
-        contactNumber: "",
+        // contact: "",
+        // contactNumber: "",
         dormitoryNum: "",
         startDate: "",
         endDate: "",
         leasePeriod: "",
         remark: "",
-        selectdatas: [],
-        unityPrice: ""
+        insertTime: "",
+        selectdatas: []
       },
       flag: false,
       modal1: false,
@@ -400,21 +429,37 @@ export default {
       modal3: false,
       modal4: false,
       modal5: false,
-      modal6:false,
+      modal6: false,
       rt: "",
       monthmoney: "",
       dormitorydata: [],
       selectionData: [],
       selectionDatas: [],
       dmst: {
-        sid: "",
-        htname: "",
-        dornum: ""
+        owner: "",
+        buildingName: "",
+        startpage: 1
       },
       isSelectrow: false,
       selectRowData: "",
-      deleterowdata:"",
-      exportLoading: false
+      deleterowdata: "",
+      firstdata: {
+        continueStartTime: "",
+        continueEndTime: "",
+        continuePeriod: "",
+        totalCost: "",
+        insertTime: ""
+      },
+      modelData: [{
+        companyName: "请输入公司名称",
+        buildingName: "输入寝室楼栋名字",
+        startDate: "输入起租日期 如2019/9/9",
+        leasePeriod: "请输入数字",
+        remark: "请输入数字 如1000",
+        roomNumber: "请输入数字 如101,102,103...."
+      }],
+      exportLoading: false,
+      exportLoading1:false
     };
   },
   components: {},
@@ -423,33 +468,90 @@ export default {
 
   mounted() {
     this.getaccountData0();
+
     this.getdormitoryData();
+
     this.getdormCount();
   },
 
   methods: {
-    exportExcel () {
-      if (this.accountData.length) {
-        this.exportLoading = true
+    roompage(val) {
+      this.dmst.startpage = val;
+      this.selectDromData();
+    },
+    exportExcel1() {
+      if (this.modelData.length) {
+        this.exportLoading1 = true;
         const params = {
-          title: ['公司名称', '联系人', '联系电话','租赁寝室楼栋','租赁合同签署日期'],
-          key: ['companyName', 'contact', 'contactNumber','dormitoryNum','contractSigning'],
-          data: this.accountData,
+          title: [
+            "公司名称",
+            "租赁寝室楼",
+            "起租时间",
+            "租期",
+            "总租金",
+            "租赁房间号"
+          ],
+          key: [
+            "companyName",
+            "buildingName",
+            "startDate",
+            "leasePeriod",
+            "remark",
+            "roomNumber"
+          ],
+          data: this.modelData,
           autoWidth: true,
-          filename: '合同导出'
-        }
-        excel.export_array_to_excel(params)
-        this.exportLoading = false
+          filename: "模板下载"
+        };
+        excel.export_array_to_excel(params);
+        this.exportLoading1 = false;
       } else {
-        this.$Message.info('表格数据不能为空！')
+        this.$Message.info("表格数据不能为空！");
       }
     },
+    //导出excel
+    exportExcel() {
+      if (this.accountData.length) {
+        this.exportLoading = true;
+        const params = {
+          title: [
+            "公司名称",
+            "起租日期",
+            "结束日期",
+            "租赁寝室楼栋",
+            "租赁合同签署日期",
+            "总租期"
+          ],
+          key: [
+            "owner",
+            "startRentTime",
+            "endRentTime",
+            "buildingName",
+            "insertTime",
+            "totalPeriod"
+          ],
+          data: this.accountData,
+          autoWidth: true,
+          filename: "合同导出"
+        };
+        excel.export_array_to_excel(params);
+        this.exportLoading = false;
+      } else {
+        this.$Message.info("表格数据不能为空！");
+      }
+    },
+    //展示房间页面
     showfangjian() {
+      this.dmst.buildingName = this.selectRowData.buildingName;
+      this.dmst.owner = this.selectRowData.owner;
+      this.selectDromDataCount();
       this.selectDromData();
+
       this.modal5 = true;
     },
+    //新增合同点击取消
     conceldata() {
-      this.dorms.dormid = "";
+      this.dorms.buildingName = "";
       this.dorms.pagedom = 1;
       this.selectionDatas = [];
       this.modal1 = false;
@@ -468,7 +570,6 @@ export default {
         for (let j = 0; j < _this.selectionDatas.length; j++) {
           if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
             _this.selectionDatas.splice(j, 1);
-
           }
         }
       }
@@ -478,24 +579,23 @@ export default {
       this.selectionData = selection;
       for (let i = 0; i < _this.dormsData.length; i++) {
         for (let j = 0; j < _this.selectionDatas.length; j++) {
-          if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
+          if (
+            _this.dormsData[i].roomNumber == _this.selectionDatas[j].roomNumber
+          ) {
             _this.selectionDatas.splice(j, 1);
-
           }
         }
       }
-
     },
     selectDrom(selection) {
       this.selectionData = selection;
-
     },
     getdormsCount(domid) {
       let _this = this;
       axios
         .request({
-          url: "/Dorms/getDormsCount",
-          method: "post",
+          url: "/Account/getRoomListCount",
+          method: "get",
           params: domid
         })
         .then(function(response) {
@@ -516,16 +616,25 @@ export default {
       this.getdormsCount(this.dorms);
       this.modal4 = true;
     },
+    selectDromDataCount() {
+      let _this = this;
+      axios
+        .request({
+          url: "/Account/getRoomListCount2",
+          method: "get",
+          params: _this.dmst
+        })
+        .then(function(response) {
+          _this.roomAll = response.data;
+        });
+    },
     selectDromData() {
       let _this = this;
       axios
         .request({
-          url: "/Renewal/selectDroms",
-          method: "post",
-          headers: {
-            "Content-Type": "application/json" //设置请求头请求格式为JSON
-          },
-          data: _this.selectRowData
+          url: "/Account/getRoomList2",
+          method: "get",
+          params: _this.dmst
         })
         .then(function(response) {
           _this.fangjianData = response.data;
@@ -535,7 +644,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Dorms/getDormsData",
+          url: "/Account/getRoomList",
           method: "get",
           params: domid
         })
@@ -543,24 +652,37 @@ export default {
           _this.dormsData = response.data;
           for (let i = 0; i < _this.dormsData.length; i++) {
             for (let j = 0; j < _this.selectionDatas.length; j++) {
-              if (_this.dormsData[i].id == _this.selectionDatas[j].id) {
+              if (
+                _this.dormsData[i].roomNumber ==
+                _this.selectionDatas[j].roomNumber
+              ) {
                 _this.$set(_this.dormsData[i], "_checked", true);
-
               }
             }
           }
         });
     },
-    pagesize(val){
+    pagesize(val) {
       let _this = this;
       this.pagenum.pagecount = val;
-      this.getaccountData(_this.pagenum);
+      this.cname.spgsize = val;
+      if (_this.cname.name != "") {
+        console.log(_this.cname);
+
+        _this.getNameCount();
+      } else {
+        this.getdormCount();
+      }
     },
     handlePage(val) {
       let _this = this;
       this.pagenum.startnum = val;
-
-      this.getaccountData(_this.pagenum);
+      this.cname.spg = val;
+      if (_this.cname.name != "") {
+        _this.getNameCount();
+      } else {
+        this.getdormCount();
+      }
     },
     getdormCount() {
       let _this = this;
@@ -572,25 +694,24 @@ export default {
         .then(function(response) {
           _this.dormCounts = response.data;
           _this.getaccountData(_this.pagenum);
-
         });
     },
 
-    saveXuzu() {     
+    saveXuzu() {
       let _this = this;
-      if (this.xuzuData.leasePeriod == "") {
-        _this.$refs["formCustom"].validate();
+      if (this.xuzuData.continuePeriod == "") {
+        _this.$refs["formCustoms"].validate();
         return false;
       }
-      this.xuzuData.remark = (
-        parseInt(this.xuzuData.leasePeriod) * parseInt(this.xuzuData.unityPrice)
-      ).toString();
-      this.xuzuData.startDate = this.rewData[0].endDate;
+      this.xuzuData.totalCost =
+        parseInt(this.xuzuData.continuePeriod) *
+        parseInt(this.xuzuData.unityPrice);
+      this.xuzuData.continueStartTime = this.rewData[0].continueEndTime;
+      this.xuzuData.insertTime = this.getFormatDate();
       this.insertRenewal(this.xuzuData);
       this.modal3 = false;
     },
     insertRenewal(xuzudata) {
-
       let _this = this;
       axios
         .request({
@@ -604,10 +725,11 @@ export default {
         .then(function(response) {
           if (response.data > 0) {
             _this.$Message.success("续租成功");
+            _this.getaccountData(_this.pagenum);
           } else {
             _this.$Message.warning("续租失败");
           }
-          _this.xuzuData.leasePeriod = "";
+          _this.xuzuData.continuePeriod = "";
           _this.getRenwealCount(_this.renewalData);
         });
     },
@@ -617,15 +739,13 @@ export default {
 
       this.getRenwealCount(this.renewalData);
 
-
       this.selectRowData = currentRow;
       this.renewalData.nid = currentRow.id;
-      this.xuzuData.dormitoryMid = parseInt(currentRow.id);
-      this.xuzuData.unityPrice = (
-        parseInt(currentRow.remark) / parseInt(currentRow.leasePeriod)
-      ).toString();
 
+      this.xuzuData.contractId = parseInt(currentRow.id);
 
+      this.xuzuData.unityPrice =
+        parseInt(currentRow.totalCost) / parseInt(currentRow.rentPeriod);
     },
     dateChange(date) {
       this.editDtae.startDate = date;
@@ -633,7 +753,6 @@ export default {
     },
     endChange(date) {
       this.editDtae.endDate = date.toString();
-
     },
     addMonth(stratTime, n) {
       var s = stratTime.split("-");
@@ -658,14 +777,16 @@ export default {
     pushdata(name) {
       let _this = this;
       let item;
+      _this.editDtae.remark = 0;
 
       for (item in _this.editDtae) {
         if (_this.editDtae[item] == "") {
           if (item.toString() == "remark") {
-            _this.editDtae["remark"] =
-              parseInt(_this.editDtae["leasePeriod"]) *
-              parseInt(_this.monthmoney) *
-              parseInt(_this.selectionDatas.length);
+            for (let i = 0; i < _this.editDtae.selectdatas.length; i++) {
+              _this.editDtae["remark"] +=
+                _this.editDtae.selectdatas[i].monthRent *
+                _this.editDtae.leasePeriod;
+            }
 
             break;
           }
@@ -683,19 +804,13 @@ export default {
         _this.flag = false;
         return false;
       } else {
-        _this.modal1 = false;
-
+        _this.editDtae.insertTime = _this.getFormatDate();
         _this.insert(_this.editDtae);
+        _this.modal1 = false;
       }
     },
-    updateDorms(drdata) {
-      axios.request({
-        url: "/Dorms/updateDromData",
-        method: "post",
-        params: drdata
-      });
-    },
     showadd() {
+      this.$refs["formCustom"].resetFields();
       let _this = this;
 
       for (let item in _this.editDtae) {
@@ -704,6 +819,7 @@ export default {
       this.modal1 = true;
     },
     showRadd() {
+      this.xuzuData.continuePeriod = "";
       let _this = this;
       if (this.isSelectrow == false) {
         this.$Message.warning("请选择合同");
@@ -712,6 +828,7 @@ export default {
       if (_this.renewalData.count < 1) {
         _this.getdormitoryIdData(_this.renewalData);
       } else {
+        _this.getdormitoryIdData2(_this.renewalData);
         _this.getRenwealData(_this.renewalData);
       }
 
@@ -727,7 +844,7 @@ export default {
         })
         .then(function(response) {
           _this.rewData = response.data;
-          _this.rewData = _this.rewData.concat(_this.selectRowData);
+          _this.rewData = _this.rewData.concat(_this.firstdata);
         });
     },
     getRenwealCount(renewalData) {
@@ -752,10 +869,22 @@ export default {
       if (_this.renewalData.count < 1) {
         this.getdormitoryIdData(_this.renewalData);
       } else {
+        this.getdormitoryIdData2(_this.renewalData);
         this.getRenwealData(_this.renewalData);
       }
+      axios
+        .request({
+          url: "/Account/getOwnerList",
+          method: "get",
+          params: {
+            owner: _this.selectRowData.owner
+          }
+        })
+        .then(function(response) {
+          _this.ownerdata = response.data[0];
 
-      this.modal2 = true;
+          _this.modal2 = true;
+        });
     },
     getdormitoryIdData(lid) {
       let _this = this;
@@ -766,19 +895,38 @@ export default {
           params: lid
         })
         .then(function(response) {
-          _this.rewData = response.data;
+          _this.firstdata.continueStartTime = response.data[0].startRentTime;
+          _this.firstdata.continueEndTime = response.data[0].endRentTime;
+          _this.firstdata.continuePeriod = response.data[0].rentPeriod;
+          _this.firstdata.totalCost = response.data[0].totalCost;
+          _this.firstdata.insertTime = response.data[0].insertTime;
+          _this.rewData = _this.rewData.concat(_this.firstdata);
+        });
+    },
+
+    getdormitoryIdData2(lid) {
+      let _this = this;
+      axios
+        .request({
+          url: "/Account/getIdList",
+          method: "get",
+          params: lid
+        })
+        .then(function(response) {
+          _this.firstdata.continueStartTime = response.data[0].startRentTime;
+          _this.firstdata.continueEndTime = response.data[0].endRentTime;
+          _this.firstdata.continuePeriod = response.data[0].rentPeriod;
+          _this.firstdata.totalCost = response.data[0].totalCost;
+          _this.firstdata.insertTime = response.data[0].insertTime;
         });
     },
 
     show(index) {
       this.editIndex = index;
     },
-    chioce(money, itemid) {
-      this.monthmoney = money;
-
-      this.dorms.dormid = itemid;
+    chioce(buildingName) {
+      this.dorms.buildingName = buildingName;
       this.buttonflag = false;
-
     },
     save(row) {
       let _this = this;
@@ -801,8 +949,8 @@ export default {
       this.editIndex = -1;
     },
     deleteaccount(row) {
-      this.modal6=true;
-      this.deleterowdata=row;
+      this.modal6 = true;
+      this.deleterowdata = row;
     },
     deleterow() {
       let _this = this;
@@ -816,20 +964,20 @@ export default {
           data: _this.deleterowdata
         })
         .then(function(response) {
-          if(_this.dormCounts%10==1){
-            _this.pagenum.startnum-=1;
-
+          if (_this.dormCounts != 1) {
+            if (_this.dormCounts % 10 == 1) {
+              _this.pagenum.startnum -= 1;
+            }
           }
           _this.getdormCount();
-          if(response.data>0){
+          if (response.data > 0) {
             _this.$Message.success("合同删除成功");
           }
-          
-          _this.modal6=false;
+
+          _this.modal6 = false;
         });
     },
     update(row) {
-
       let _this = this;
       axios
         .request({
@@ -841,7 +989,7 @@ export default {
           data: row
         })
         .then(function(response) {
-          if(response.data>0){
+          if (response.data > 0) {
             _this.$Message.success("合同更新成功");
           }
           _this.getdormCount();
@@ -867,7 +1015,7 @@ export default {
             _this.$Message.warning("合同新增失败");
           }
           _this.getdormCount();
-          _this.dorms.dormid = "";
+          _this.dorms.buildingName = "";
           _this.dorms.pagedom = 1;
           _this.selectionDatas = [];
           _this.buttonflag = true;
@@ -886,7 +1034,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Dormitory/getDormitoryList0",
+          url: "/Account/getBuildingList",
           method: "get"
         })
         .then(function(response) {
@@ -928,6 +1076,20 @@ export default {
         })
         .then(function(response) {
           _this.accountData = response.data;
+        });
+    },
+    getNameCount() {
+      let _this = this;
+
+      axios
+        .request({
+          url: "/Account/getNameCount",
+          method: "get",
+          params: _this.cname
+        })
+        .then(function(response) {
+          _this.dormCounts = response.data;
+          _this.getListByname();
         });
     },
 
@@ -999,23 +1161,20 @@ export default {
       var exdata = [];
       for (var key in excelData) {
         excelData[key].companyName = excelData[key].公司名称;
-        excelData[key].contact = excelData[key].联系人;
-        excelData[key].contactNumber = excelData[key].联系电话;
-        excelData[key].dormitoryId = excelData[key].租赁寝室楼号;
+        excelData[key].buildingName = excelData[key].租赁寝室楼;
         excelData[key].startDate = excelData[key].起租时间;
         excelData[key].leasePeriod = excelData[key].租期;
         excelData[key].remark = excelData[key].总租金;
-        excelData[key].dromNum = excelData[key].租赁房间号;
+        excelData[key].roomNumber = excelData[key].租赁房间号;
+        excelData[key].insertTime = this.getFormatDate();
         delete excelData[key].公司名称;
-        delete excelData[key].联系人;
-        delete excelData[key].联系电话;
-        delete excelData[key].租赁寝室楼号;
+        delete excelData[key].租赁寝室楼;
         delete excelData[key].起租时间;
         delete excelData[key].租期;
         delete excelData[key].总租金;
         delete excelData[key].租赁房间号;
-        exdata = exdata.concat(excelData[key]);
 
+        exdata = exdata.concat(excelData[key]);
       }
       let isDataEmpty = 0;
 
@@ -1023,15 +1182,9 @@ export default {
         excelData[key].companyName == undefined ||
         excelData[key].companyName == null ||
         excelData[key].companyName == "" ||
-        excelData[key].contact == "" ||
-        excelData[key].contact == null ||
-        excelData[key].contact == undefined ||
-        excelData[key].contactNumber == undefined ||
-        excelData[key].contactNumber == null ||
-        excelData[key].contactNumber == "" ||
-        excelData[key].dormitoryId == undefined ||
-        excelData[key].dormitoryId == null ||
-        excelData[key].dormitoryId == "" ||
+        excelData[key].buildingName == undefined ||
+        excelData[key].buildingName == null ||
+        excelData[key].buildingName == "" ||
         excelData[key].startDate == undefined ||
         excelData[key].startDate == null ||
         excelData[key].startDate == "" ||
@@ -1041,15 +1194,14 @@ export default {
         excelData[key].remark == undefined ||
         excelData[key].remark == null ||
         excelData[key].remark == "" ||
-        excelData[key].dromNum == undefined ||
-        excelData[key].dromNum == null ||
-        excelData[key].dromNum == ""
+        excelData[key].roomNumber == undefined ||
+        excelData[key].roomNumber == null ||
+        excelData[key].roomNumber == ""
           ? (isDataEmpty += 1)
           : (isDataEmpty += 0);
       }
       if (isDataEmpty == 0) {
         this.uploadf(exdata);
-
       } else {
         this.$Message.error("该表内有" + isDataEmpty + "行数据有空项");
 
@@ -1058,28 +1210,54 @@ export default {
       }
     },
     uploadf(uploaddata) {
-      let _this=this;
-      axios.request({
-        url: "/Account/uploadAccount",
-        method: "post",
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8"
-        },
-        data:uploaddata
-      }).then(function(response){
-        if(response.data==1){
-          _this.$Message.success("上传成功")
-          _this.getdormCount()
-        }
-        else if(response.data==-1){
-          _this.$Message.error("表中存在已被出租的房间")
-        }
-        else{
-          _this.$Message.error("发生未知错误")
-        }
-        
-      })
-      ;
+      let _this = this;
+      axios
+        .request({
+          url: "/Account/uploadAccount",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+          },
+          data: uploaddata
+        })
+        .then(function(response) {
+          if (response.data == 1) {
+            _this.$Message.success("上传成功");
+            _this.getdormCount();
+          } else if (response.data == -1) {
+            _this.$Message.error("表中存在已被出租的房间");
+          } else if (response.data == -4) {
+            _this.$Message.error("表中宿舍楼栋不存在");
+          } else {
+            _this.$Message.error("发生未知错误");
+          }
+        });
+    },
+
+    // 获取当前系统时间
+    getFormatDate() {
+      var date = new Date();
+      var month = date.getMonth() + 1;
+      var strDate = date.getDate();
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+      var currentDate =
+        date.getFullYear() +
+        "-" +
+        month +
+        "-" +
+        strDate +
+        " " +
+        date.getHours() +
+        ":" +
+        date.getMinutes() +
+        ":" +
+        date.getSeconds();
+      return currentDate;
     }
   }
 };

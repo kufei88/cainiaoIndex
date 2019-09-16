@@ -1,4 +1,4 @@
-import Main from '@/components/main'
+﻿import Main from '@/components/main'
 import parentView from '@/components/parent-view'
 
 /**
@@ -142,26 +142,37 @@ export default [{
         },
         component: Main,
         children: [{
-                path: 'dormitorymanage',
-                name: '宿舍管理',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '宿舍管理'
-                },
-                component: () =>
-                    import ('@/view/dormitorymanage/dormitorymanage.vue')
-            },
-            {
-                path: 'dormitory',
-                name: '宿舍',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '宿舍'
-                },
-                component: () =>
-                    import ('@/view/dormitorymanage/dormitory.vue')
-            }
-        ]
+    path: 'dormitorymanage',
+    name: '宿舍合同管理',
+    meta: {
+      icon: 'md-arrow-dropdown-circle',
+      title: '宿舍合同管理'
+    },
+    component: () =>
+      import('@/view/dormitorymanage/dormitorymanage.vue')
+  }
+    ,
+  {
+    path: 'dormitory',
+    name: '宿舍楼设置',
+    meta: {
+      icon: 'md-arrow-dropdown-circle',
+      title: '宿舍楼设置'
+    },
+    component: () =>
+      import('@/view/dormitorymanage/building.vue')
+  },
+  {
+    path: 'dorms',
+    name: '宿舍房间租金设置',
+    meta: {
+      icon: 'md-arrow-dropdown-circle',
+      title: '宿舍房间租金设置'
+    },
+    component: () =>
+      import('@/view/dormitorymanage/room.vue')
+  }
+]
 
     },
 
