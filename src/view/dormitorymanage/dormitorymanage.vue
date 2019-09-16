@@ -298,7 +298,10 @@ export default {
       }
     };
     return {
-      ownerdata: "",
+      ownerdata: {
+        enterprisePerson:"",
+        contactNumber:""
+        },
       roomAll: 0,
       buttonflag: true,
       dormAll: 0,
