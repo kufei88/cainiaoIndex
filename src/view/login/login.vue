@@ -44,11 +44,12 @@ export default {
             name: "home"
           });
         }
-        // this.getUserInfo().then(res => {
-        //   this.$router.push({
-        //     name: "home"
-        //   });
-        // }); 
+        /*
+        this.getUserInfo().then(res => {
+          this.$router.push({
+            name: "home"
+          });
+        }); */
       });
     }
   }

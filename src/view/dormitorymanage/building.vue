@@ -245,7 +245,6 @@ export default {
 
       pageCurrent: 1, // 当前页数
       pageStart: 0,
-      pageEnd: 0,
       dataCount: 0, // 后台读取的总记录长度
       pageSize: 10, // 每页显示多少条
       pageData: [], // table绑定的数据
@@ -596,7 +595,6 @@ export default {
     getRequestData(index) {
       let _this = this;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = this.pageSize;
       axios
         .request({
           url: "/building/getSearchList",
@@ -605,7 +603,7 @@ export default {
             search: this.searchData,
             dataType: this.dataType,
             dataStart: this.pageStart,
-            dataEnd: this.pageEnd
+            dataSize: this.pageSize
           }
         })
         .then(function(response) {

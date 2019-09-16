@@ -4,27 +4,27 @@
     <Input
       search
       enter-button="查询"
-      placeholder="请输入查询内容"
+      placeholder="请输入办公楼名称"
       style="width:300px;margin-bottom:10px;float:left;"
       @on-search="searchData"
       v-model="searchBuildingName"
     />
     <!-- Excel模板下载按钮 -->
-    <Button
+    <!-- <Button
       icon="md-download"
       :loading="exportLoading"
       @click="exportExcelModel"
       style="float:right"
-    >模板下载</Button>
+    >模板下载</Button> -->
     <!-- Excel导出按钮 -->
-    <Button
+    <!-- <Button
       icon="md-download"
       :loading="exportLoading"
       @click="exportExcel"
       style="float:right"
-    >导出文件</Button>
+    >导出文件</Button> -->
     <!-- Excel导入按钮 -->
-    <Upload
+    <!-- <Upload
       action=""
       :before-upload="handleBeforeUpload"
       accept=".xls, .xlsx"
@@ -37,7 +37,7 @@
         @click="handleUploadFile"
       >上传文件</Button>
 
-    </Upload>
+    </Upload> -->
 
     <!-- 第n期租赁信息按钮 -->
     <Button
@@ -127,23 +127,23 @@
 
         <FormItem
           label="租期(月):"
-          prop="leaseTerm"
+          prop="rentPeriod"
         >
           <Input
             clearable
-            v-model="formValidate.leaseTerm"
+            v-model="formValidate.rentPeriod"
           />
         </FormItem>
 
         <FormItem
           label="起租期:"
-          prop="startingLeasePeriod"
+          prop="startRentTime"
         >
           <DatePicker
             type="date"
             placeholder="请选择日期"
             format="yyyy-MM-dd"
-            v-model="formValidate.startingLeasePeriod"
+            v-model="formValidate.startRentTime"
             @on-change="selectStartDate"
           ></DatePicker>
 
@@ -151,13 +151,13 @@
 
         <FormItem
           label="终止期:"
-          prop="terminationPeriod"
+          prop="endRentTime"
         >
           <DatePicker
             type="date"
             placeholder="请选择日期"
             format="yyyy-MM-dd"
-            v-model="formValidate.terminationPeriod"
+            v-model="formValidate.endRentTime"
             @on-change="selectEndDate"
           ></DatePicker>
 
@@ -166,56 +166,56 @@
         <!-- 首期 -->
         <FormItem
           label="首期租金单价(元/月/平米):"
-          prop="unitRentOne"
+          prop="unitPrice1"
         >
           <Input
             clearable
-            v-model="formValidate.unitRentOne"
+            v-model="formValidate.unitPrice1"
           />
         </FormItem>
 
         <FormItem
           label="首期租期周期(月):"
-          prop="leasePeriodOne"
+          prop="period1"
         >
           <Input
             clearable
-            v-model="formValidate.leasePeriodOne"
+            v-model="formValidate.period1"
           />
         </FormItem>
 
         <FormItem
           label="首期租期应付总额:"
-          prop="totalAmountOne"
+          prop="rentCost1"
         >
-          <p>{{getTotalAmount(formValidate.unitRentOne,formValidate.leasePeriodOne,formValidate,roomData)}}元</p>
+          <p>{{getrentCost(formValidate.unitPrice1,formValidate.period1,formValidate,roomData)}}元</p>
 
         </FormItem>
 
         <FormItem
           label="首期租期应付物业费:"
-          prop="propertyFeeOne"
+          prop="propertyFee1"
         >
 
-          <p>{{getPropertyFee(formValidate.leasePeriodOne,formValidate,roomData)}}元</p>
+          <p>{{getPropertyFee(formValidate.period1,formValidate,roomData)}}元</p>
 
         </FormItem>
 
         <FormItem
           label="首期能耗公摊(元):"
-          prop="energySharingOne"
+          prop="energySharing1"
         >
           <Input
             clearable
-            v-model="formValidate.energySharingOne"
+            v-model="formValidate.energySharing1"
           />
         </FormItem>
 
         <FormItem
           label="首期租费合计:"
-          prop="totalRentOne"
+          prop="totalCost1"
         >
-          <p>{{getTotalRent(formValidate,formValidate.totalAmountOne,formValidate.propertyFeeOne,formValidate.energySharingOne)}}元</p>
+          <p>{{gettotalCost(formValidate,formValidate.rentCost1,formValidate.propertyFee1,formValidate.energySharing1)}}元</p>
 
         </FormItem>
         <!-- 其他 -->
@@ -232,9 +232,9 @@
 
         <FormItem
           label="首年租金是否支付:"
-          prop="isPayFirstRent"
+          prop="isPayFirst"
         >
-          <RadioGroup v-model="formValidate.isPayFirstRent">
+          <RadioGroup v-model="formValidate.isPayFirst">
             <Radio label="是">是</Radio>
             <Radio label="否">否</Radio>
           </RadioGroup>
@@ -242,9 +242,9 @@
 
         <FormItem
           label="第二年租金是否支付:"
-          prop="isPaySecondRent"
+          prop="isPaySecond"
         >
-          <RadioGroup v-model="formValidate.isPaySecondRent">
+          <RadioGroup v-model="formValidate.isPaySecond">
             <Radio label="是">是</Radio>
             <Radio label="否">否</Radio>
           </RadioGroup>
@@ -252,31 +252,31 @@
 
         <FormItem
           label="出租单元数:"
-          prop="rentalUnits"
+          prop="rentCount"
         >
           <Input
             clearable
-            v-model="formValidate.rentalUnits"
+            v-model="formValidate.rentCount"
           />
         </FormItem>
 
         <FormItem
           label="年成交额区间:"
-          prop="annualTurnoverInterval"
+          prop="yearTurnoverRange"
         >
           <Input
             clearable
-            v-model="formValidate.annualTurnoverInterval"
+            v-model="formValidate.yearTurnoverRange"
           />
         </FormItem>
 
         <FormItem
           label="日均单量区间:"
-          prop="dailyQuantityInterval"
+          prop="dayAverageRange"
         >
           <Input
             clearable
-            v-model="formValidate.dailyQuantityInterval"
+            v-model="formValidate.dayAverageRange"
           />
         </FormItem>
 
@@ -384,56 +384,56 @@
         <!-- 首期 -->
         <FormItem
           label="租金单价(元/月/平米):"
-          prop="unitRentOne"
+          prop="unitPrice1"
         >
           <Input
             clearable
-            v-model="formValidate2.unitRentOne"
+            v-model="formValidate2.unitPrice1"
           />
         </FormItem>
 
         <FormItem
           label="租期周期(月):"
-          prop="leasePeriodOne"
+          prop="period1"
         >
           <Input
             clearable
-            v-model="formValidate2.leasePeriodOne"
+            v-model="formValidate2.period1"
           />
         </FormItem>
 
         <FormItem
           label="租期应付总额:"
-          prop="totalAmountOne"
+          prop="rentCost1"
         >
-          <p>{{getTotalAmount(formValidate2.unitRentOne,formValidate2.leasePeriodOne,formValidate2,roomDataContinue)}}元</p>
+          <p>{{getrentCost(formValidate2.unitPrice1,formValidate2.period1,formValidate2,roomDataContinue)}}元</p>
 
         </FormItem>
 
         <FormItem
           label="租期应付物业费:"
-          prop="propertyFeeOne"
+          prop="propertyFee1"
         >
 
-          <p>{{getPropertyFee(formValidate2.leasePeriodOne,formValidate2,roomDataContinue)}}元</p>
+          <p>{{getPropertyFee(formValidate2.period1,formValidate2,roomDataContinue)}}元</p>
 
         </FormItem>
 
         <FormItem
           label="能耗公摊(元):"
-          prop="energySharingOne"
+          prop="energySharing1"
         >
           <Input
             clearable
-            v-model="formValidate2.energySharingOne"
+            v-model="formValidate2.energySharing1"
           />
         </FormItem>
 
         <FormItem
           label="租费合计:"
-          prop="totalRentOne"
+          prop="totalCost1"
         >
-          <p>{{getTotalRent(formValidate2,formValidate2.totalAmountOne,formValidate2.propertyFeeOne,formValidate2.energySharingOne)}}元</p>
+          <p>{{gettotalCost(formValidate2,formValidate2.rentCost1,formValidate2.propertyFee1,formValidate2.energySharing1)}}元</p>
 
         </FormItem>
 
@@ -517,475 +517,475 @@
 
       <template
         slot-scope="{ row, index }"
-        slot="leaseTerm"
+        slot="rentPeriod"
       >
         <Input
           type="text"
-          v-model="editLeaseTerm"
+          v-model="editRentPeriod"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leaseTerm }}</span>
+        <span v-else>{{ row.rentPeriod }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="startingLeasePeriod"
+        slot="startRentTime"
       >
         <Input
           type="text"
-          v-model="editStartingLeasePeriod"
+          v-model="editStartRentTime"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.startingLeasePeriod }}</span>
+        <span v-else>{{ row.startRentTime }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="terminationPeriod"
+        slot="endRentTime"
       >
         <Input
           type="text"
-          v-model="editTerminationPeriod"
+          v-model="editEndRentTime"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.terminationPeriod }}</span>
+        <span v-else>{{ row.endRentTime }}</span>
       </template>
       <!-- 首期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentOne"
+        slot="unitPrice1"
       >
         <Input
           type="text"
-          v-model="editUnitRentOne"
+          v-model="editunitPrice1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentOne }}</span>
+        <span v-else>{{ row.unitPrice1 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodOne"
+        slot="period1"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodOne"
+          v-model="editperiod1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodOne }}</span>
+        <span v-else>{{ row.period1 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountOne"
+        slot="rentCost1"
       >
         <Input
           type="text"
-          v-model="editTotalAmountOne"
+          v-model="editRentCost1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountOne }}</span>
+        <span v-else>{{ row.rentCost1 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeOne"
+        slot="propertyFee1"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeOne"
+          v-model="editPropertyFee1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeOne }}</span>
+        <span v-else>{{ row.propertyFee1 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingOne"
+        slot="energySharing1"
       >
         <Input
           type="text"
-          v-model="editEnergySharingOne"
+          v-model="editEnergySharing1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingOne }}</span>
+        <span v-else>{{ row.energySharing1 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentOne"
+        slot="totalCost1"
       >
         <Input
           type="text"
-          v-model="editTotalRentOne"
+          v-model="edittotalCost1"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentOne }}</span>
+        <span v-else>{{ row.totalCost1 }}</span>
       </template>
 
       <!-- 第2期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentTwo"
+        slot="unitPrice2"
       >
         <Input
           type="text"
-          v-model="editUnitRentTwo"
+          v-model="editunitPrice2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentTwo }}</span>
+        <span v-else>{{ row.unitPrice2 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodTwo"
+        slot="period2"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodTwo"
+          v-model="editperiod2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodTwo }}</span>
+        <span v-else>{{ row.period2 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountTwo"
+        slot="rentCost2"
       >
         <Input
           type="text"
-          v-model="editTotalAmountTwo"
+          v-model="editRentCost2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountTwo }}</span>
+        <span v-else>{{ row.rentCost2 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeTwo"
+        slot="propertyFee2"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeTwo"
+          v-model="editPropertyFee2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeTwo }}</span>
+        <span v-else>{{ row.propertyFee2 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingTwo"
+        slot="energySharing2"
       >
         <Input
           type="text"
-          v-model="editEnergySharingTwo"
+          v-model="editEnergySharing2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingTwo }}</span>
+        <span v-else>{{ row.energySharing2 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentTwo"
+        slot="totalCost2"
       >
         <Input
           type="text"
-          v-model="editTotalRentTwo"
+          v-model="edittotalCost2"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentTwo }}</span>
+        <span v-else>{{ row.totalCost2 }}</span>
       </template>
 
       <!-- 第3期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentThree"
+        slot="unitPrice3"
       >
         <Input
           type="text"
-          v-model="editUnitRentThree"
+          v-model="editunitPrice3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentThree }}</span>
+        <span v-else>{{ row.unitPrice3 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodThree"
+        slot="period3"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodThree"
+          v-model="editperiod3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodThree }}</span>
+        <span v-else>{{ row.period3 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountThree"
+        slot="rentCost3"
       >
         <Input
           type="text"
-          v-model="editTotalAmountThree"
+          v-model="editRentCost3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountThree }}</span>
+        <span v-else>{{ row.rentCost3 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeThree"
+        slot="propertyFee3"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeThree"
+          v-model="editPropertyFee3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeThree }}</span>
+        <span v-else>{{ row.propertyFee3 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingThree"
+        slot="energySharing3"
       >
         <Input
           type="text"
-          v-model="editEnergySharingThree"
+          v-model="editEnergySharing3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingThree }}</span>
+        <span v-else>{{ row.energySharing3 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentThree"
+        slot="totalCost3"
       >
         <Input
           type="text"
-          v-model="editTotalRentThree"
+          v-model="edittotalCost3"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentThree }}</span>
+        <span v-else>{{ row.totalCost3 }}</span>
       </template>
 
       <!-- 第4期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentFour"
+        slot="unitPrice4"
       >
         <Input
           type="text"
-          v-model="editUnitRentFour"
+          v-model="editunitPrice4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentFour }}</span>
+        <span v-else>{{ row.unitPrice4 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodFour"
+        slot="period4"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodFour"
+          v-model="editperiod4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodFour }}</span>
+        <span v-else>{{ row.period4 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountFour"
+        slot="rentCost4"
       >
         <Input
           type="text"
-          v-model="editTotalAmountFour"
+          v-model="editRentCost4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountFour }}</span>
+        <span v-else>{{ row.rentCost4 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeFour"
+        slot="propertyFee4"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeFour"
+          v-model="editPropertyFee4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeFour }}</span>
+        <span v-else>{{ row.propertyFee4 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingFour"
+        slot="energySharing4"
       >
         <Input
           type="text"
-          v-model="editEnergySharingFour"
+          v-model="editEnergySharing4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingFour }}</span>
+        <span v-else>{{ row.energySharing4 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentFour"
+        slot="totalCost4"
       >
         <Input
           type="text"
-          v-model="editTotalRentFour"
+          v-model="edittotalCost4"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentFour }}</span>
+        <span v-else>{{ row.totalCost4 }}</span>
       </template>
 
       <!-- 第5期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentFive"
+        slot="unitPrice5"
       >
         <Input
           type="text"
-          v-model="editUnitRentFive"
+          v-model="editunitPrice5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentFive }}</span>
+        <span v-else>{{ row.unitPrice5 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodFive"
+        slot="period5"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodFive"
+          v-model="editperiod5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodFive }}</span>
+        <span v-else>{{ row.period5 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountFive"
+        slot="rentCost5"
       >
         <Input
           type="text"
-          v-model="editTotalAmountFive"
+          v-model="editRentCost5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountFive }}</span>
+        <span v-else>{{ row.rentCost5 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeFive"
+        slot="propertyFee5"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeFive"
+          v-model="editPropertyFee5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeFive }}</span>
+        <span v-else>{{ row.propertyFee5 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingFive"
+        slot="energySharing5"
       >
         <Input
           type="text"
-          v-model="editEnergySharingFive"
+          v-model="editEnergySharing5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingFive }}</span>
+        <span v-else>{{ row.energySharing5 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentFive"
+        slot="totalCost5"
       >
         <Input
           type="text"
-          v-model="editTotalRentFive"
+          v-model="edittotalCost5"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentFive }}</span>
+        <span v-else>{{ row.totalCost5 }}</span>
       </template>
 
       <!-- 第6期 -->
       <template
         slot-scope="{ row, index }"
-        slot="unitRentSix"
+        slot="unitPrice6"
       >
         <Input
           type="text"
-          v-model="editUnitRentSix"
+          v-model="editunitPrice6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.unitRentSix }}</span>
+        <span v-else>{{ row.unitPrice6 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="leasePeriodSix"
+        slot="period6"
       >
         <Input
           type="text"
-          v-model="editLeasePeriodSix"
+          v-model="editperiod6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.leasePeriodSix }}</span>
+        <span v-else>{{ row.period6 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalAmountSix"
+        slot="rentCost6"
       >
         <Input
           type="text"
-          v-model="editTotalAmountSix"
+          v-model="editRentCost6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalAmountSix }}</span>
+        <span v-else>{{ row.rentCost6 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="propertyFeeSix"
+        slot="propertyFee6"
       >
         <Input
           type="text"
-          v-model="editPropertyFeeSix"
+          v-model="editPropertyFee6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.propertyFeeSix }}</span>
+        <span v-else>{{ row.propertyFee6 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="energySharingSix"
+        slot="energySharing6"
       >
         <Input
           type="text"
-          v-model="editEnergySharingSix"
+          v-model="editEnergySharing6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.energySharingSix }}</span>
+        <span v-else>{{ row.energySharing6 }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="totalRentSix"
+        slot="totalCost6"
       >
         <Input
           type="text"
-          v-model="editTotalRentSix"
+          v-model="edittotalCost6"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.totalRentSix }}</span>
+        <span v-else>{{ row.totalCost6 }}</span>
       </template>
 
       <template
@@ -1002,62 +1002,62 @@
 
       <template
         slot-scope="{ row, index }"
-        slot="isPayFirstRent"
+        slot="isPayFirst"
       >
         <Input
           type="text"
           v-model="editIsPayFirstRent"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.isPayFirstRent }}</span>
+        <span v-else>{{ row.isPayFirst }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="isPaySecondRent"
+        slot="isPaySecond"
       >
         <Input
           type="text"
           v-model="editIsPaySecondRent"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.isPaySecondRent }}</span>
+        <span v-else>{{ row.isPaySecond }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="rentalUnits"
+        slot="rentCount"
       >
         <Input
           type="text"
           v-model="editRentalUnits"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.rentalUnits }}</span>
+        <span v-else>{{ row.rentCount }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="annualTurnoverInterval"
+        slot="yearTurnoverRange"
       >
         <Input
           type="text"
           v-model="editAnnualTurnoverInterval"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.annualTurnoverInterval }}</span>
+        <span v-else>{{ row.yearTurnoverRange }}</span>
       </template>
 
       <template
         slot-scope="{ row, index }"
-        slot="dailyQuantityInterval"
+        slot="dayAverageRange"
       >
         <Input
           type="text"
           v-model="editDailyQuantityInterval"
           v-if="editIndex === index"
         />
-        <span v-else>{{ row.dailyQuantityInterval }}</span>
+        <span v-else>{{ row.dayAverageRange }}</span>
       </template>
 
       <template
@@ -1149,45 +1149,45 @@ export default {
       editRoomNumber: "",
       editBuildingName: "",
       editDepositOnContracts: "",
-      editLeaseTerm: "",
-      editStartingLeasePeriod: "",
-      editTerminationPeriod: "",
-      editUnitRentOne: "",
-      editLeasePeriodOne: "",
-      editTotalAmountOne: "",
-      editPropertyFeeOne: "",
-      editEnergySharingOne: "",
-      editTotalRentOne: "",
-      editUnitRentTwo: "",
-      editLeasePeriodTwo: "",
-      editTotalAmountTwo: "",
-      editPropertyFeeTwo: "",
-      editEnergySharingTwo: "",
-      editTotalRentTwo: "",
-      editUnitRentThree: "",
-      editLeasePeriodThree: "",
-      editTotalAmountThree: "",
-      editPropertyFeeThree: "",
-      editEnergySharingThree: "",
-      editTotalRentThree: "",
-      editUnitRentFour: "",
-      editLeasePeriodFour: "",
-      editTotalAmountFour: "",
-      editPropertyFeeFour: "",
-      editEnergySharingFour: "",
-      editTotalRentFour: "",
-      editUnitRentFive: "",
-      editLeasePeriodFive: "",
-      editTotalAmountFive: "",
-      editPropertyFeeFive: "",
-      editEnergySharingFive: "",
-      editTotalRentFive: "",
-      editUnitRentSix: "",
-      editLeasePeriodSix: "",
-      editTotalAmountSix: "",
-      editPropertyFeeSix: "",
-      editEnergySharingSix: "",
-      editTotalRentSix: "",
+      editRentPeriod: "",
+      editStartRentTime: "",
+      editEndRentTime: "",
+      editunitPrice1: "",
+      editperiod1: "",
+      editRentCost1: "",
+      editPropertyFee1: "",
+      editEnergySharing1: "",
+      edittotalCost1: "",
+      editunitPrice2: "",
+      editperiod2: "",
+      editRentCost2: "",
+      editPropertyFee2: "",
+      editEnergySharing2: "",
+      edittotalCost2: "",
+      editunitPrice3: "",
+      editperiod3: "",
+      editRentCost3: "",
+      editPropertyFee3: "",
+      editEnergySharing3: "",
+      edittotalCost3: "",
+      editunitPrice4: "",
+      editperiod4: "",
+      editRentCost4: "",
+      editPropertyFee4: "",
+      editEnergySharing4: "",
+      edittotalCost4: "",
+      editunitPrice5: "",
+      editperiod5: "",
+      editRentCost5: "",
+      editPropertyFee5: "",
+      editEnergySharing5: "",
+      edittotalCost5: "",
+      editunitPrice6: "",
+      editperiod6: "",
+      editRentCost6: "",
+      editPropertyFee6: "",
+      editEnergySharing6: "",
+      edittotalCost6: "",
       editIsPayBond: "",
       editIsPayFirstRent: "",
       editIsPaySecondRent: "",
@@ -1234,284 +1234,284 @@ export default {
 
         {
           title: "租期",
-          key: "leaseTerm",
+          key: "rentPeriod",
           width: 165,
           align: "center",
-          slot: "leaseTerm"
+          slot: "rentPeriod"
         },
 
         {
           title: "起租期",
-          key: "startingLeasePeriod",
+          key: "startRentTime",
           width: 165,
           align: "center",
-          slot: "startingLeasePeriod"
+          slot: "startRentTime"
         },
 
         {
           title: "终止期",
-          key: "terminationPeriod",
+          key: "endRentTime",
           width: 165,
           align: "center",
-          slot: "terminationPeriod"
+          slot: "endRentTime"
         },
         // 首期
         {
           title: "首期租金单价",
-          key: "unitRentOne",
+          key: "unitPrice1",
           width: 165,
           align: "center",
-          slot: "unitRentOne"
+          slot: "unitPrice1"
         },
         {
           title: "首期租期周期",
-          key: "leasePeriodOne",
+          key: "period1",
           width: 165,
           align: "center",
-          slot: "leasePeriodOne"
+          slot: "period1"
         },
         {
           title: "首期租期应付总额",
-          key: "totalAmountOne",
+          key: "rentCost1",
           width: 165,
           align: "center",
-          slot: "totalAmountOne"
+          slot: "rentCost1"
         },
         {
           title: "首期租期应付物业费",
-          key: "propertyFeeOne",
+          key: "propertyFee1",
           width: 165,
           align: "center",
-          slot: "propertyFeeOne"
+          slot: "propertyFee1"
         },
         {
           title: "首期能耗公摊",
-          key: "energySharingOne",
+          key: "energySharing1",
           width: 165,
           align: "center",
-          slot: "energySharingOne"
+          slot: "energySharing1"
         },
         {
           title: "首期租费合计",
-          key: "totalRentOne",
+          key: "totalCost1",
           width: 165,
           align: "center",
-          slot: "totalRentOne"
+          slot: "totalCost1"
         },
         // 第2期
         {
           title: "第2期租金单价",
-          key: "unitRentTwo",
+          key: "unitPrice2",
           width: 165,
           align: "center",
-          slot: "unitRentTwo"
+          slot: "unitPrice2"
         },
         {
           title: "第2期租期周期",
-          key: "leasePeriodTwo",
+          key: "period2",
           width: 165,
           align: "center",
-          slot: "leasePeriodTwo"
+          slot: "period2"
         },
         {
           title: "第2期租期应付总额",
-          key: "totalAmountTwo",
+          key: "rentCost2",
           width: 165,
           align: "center",
-          slot: "totalAmountTwo"
+          slot: "rentCost2"
         },
         {
           title: "第2期租期应付物业费",
-          key: "propertyFeeTwo",
+          key: "propertyFee2",
           width: 165,
           align: "center",
-          slot: "propertyFeeTwo"
+          slot: "propertyFee2"
         },
         {
           title: "第2期能耗公摊",
-          key: "energySharingTwo",
+          key: "energySharing2",
           width: 165,
           align: "center",
-          slot: "energySharingTwo"
+          slot: "energySharing2"
         },
         {
           title: "第2期租费合计",
-          key: "totalRentTwo",
+          key: "totalCost2",
           width: 165,
           align: "center",
-          slot: "totalRentTwo"
+          slot: "totalCost2"
         },
         // 第3期
         {
           title: "第3期租金单价",
-          key: "unitRentThree",
+          key: "unitPrice3",
           width: 165,
           align: "center",
-          slot: "unitRentThree"
+          slot: "unitPrice3"
         },
         {
           title: "第3期租期周期",
-          key: "leasePeriodThree",
+          key: "period3",
           width: 165,
           align: "center",
-          slot: "leasePeriodThree"
+          slot: "period3"
         },
         {
           title: "第3期租期应付总额",
-          key: "totalAmountThree",
+          key: "rentCost3",
           width: 165,
           align: "center",
-          slot: "totalAmountThree"
+          slot: "rentCost3"
         },
         {
           title: "第3期租期应付物业费",
-          key: "propertyFeeThree",
+          key: "propertyFee3",
           width: 165,
           align: "center",
-          slot: "propertyFeeThree"
+          slot: "propertyFee3"
         },
         {
           title: "第3期能耗公摊",
-          key: "energySharingThree",
+          key: "energySharing3",
           width: 165,
           align: "center",
-          slot: "energySharingThree"
+          slot: "energySharing3"
         },
         {
           title: "第3期租费合计",
-          key: "totalRentThree",
+          key: "totalCost3",
           width: 165,
           align: "center",
-          slot: "totalRentThree"
+          slot: "totalCost3"
         },
         // 第4期
         {
           title: "第4期租金单价",
-          key: "unitRentFour",
+          key: "unitPrice4",
           width: 165,
           align: "center",
-          slot: "unitRentFour"
+          slot: "unitPrice4"
         },
         {
           title: "第4期租期周期",
-          key: "leasePeriodFour",
+          key: "period4",
           width: 165,
           align: "center",
-          slot: "leasePeriodFour"
+          slot: "period4"
         },
         {
           title: "第4期租期应付总额",
-          key: "totalAmountFour",
+          key: "rentCost4",
           width: 165,
           align: "center",
-          slot: "totalAmountFour"
+          slot: "rentCost4"
         },
         {
           title: "第4期租期应付物业费",
-          key: "propertyFeeFour",
+          key: "propertyFee4",
           width: 165,
           align: "center",
-          slot: "propertyFeeFour"
+          slot: "propertyFee4"
         },
         {
           title: "第4期能耗公摊",
-          key: "energySharingFour",
+          key: "energySharing4",
           width: 165,
           align: "center",
-          slot: "energySharingFour"
+          slot: "energySharing4"
         },
         {
           title: "第4期租费合计",
-          key: "totalRentFour",
+          key: "totalCost4",
           width: 165,
           align: "center",
-          slot: "totalRentFour"
+          slot: "totalCost4"
         },
         // 第5期
         {
           title: "第5期租金单价",
-          key: "unitRentFive",
+          key: "unitPrice5",
           width: 165,
           align: "center",
-          slot: "unitRentFive"
+          slot: "unitPrice5"
         },
         {
           title: "第5期租期周期",
-          key: "leasePeriodFive",
+          key: "period5",
           width: 165,
           align: "center",
-          slot: "leasePeriodFive"
+          slot: "period5"
         },
         {
           title: "第5期租期应付总额",
-          key: "totalAmountFive",
+          key: "rentCost5",
           width: 165,
           align: "center",
-          slot: "totalAmountFive"
+          slot: "rentCost5"
         },
         {
           title: "第5期租期应付物业费",
-          key: "propertyFeeFive",
+          key: "propertyFee5",
           width: 165,
           align: "center",
-          slot: "propertyFeeFive"
+          slot: "propertyFee5"
         },
         {
           title: "第5期能耗公摊",
-          key: "energySharingFive",
+          key: "energySharing5",
           width: 165,
           align: "center",
-          slot: "energySharingFive"
+          slot: "energySharing5"
         },
         {
           title: "第5期租费合计",
-          key: "totalRentFive",
+          key: "totalCost5",
           width: 165,
           align: "center",
-          slot: "totalRentFive"
+          slot: "totalCost5"
         },
         // 第6期
         {
           title: "第6期租金单价",
-          key: "unitRentSix",
+          key: "unitPrice6",
           width: 165,
           align: "center",
-          slot: "unitRentSix"
+          slot: "unitPrice6"
         },
         {
           title: "第6期租期周期",
-          key: "leasePeriodSix",
+          key: "period6",
           width: 165,
           align: "center",
-          slot: "leasePeriodSix"
+          slot: "period6"
         },
         {
           title: "第6期租期应付总额",
-          key: "totalAmountSix",
+          key: "rentCost6",
           width: 165,
           align: "center",
-          slot: "totalAmountSix"
+          slot: "rentCost6"
         },
         {
           title: "第6期租期应付物业费",
-          key: "propertyFeeSix",
+          key: "propertyFee6",
           width: 165,
           align: "center",
-          slot: "propertyFeeSix"
+          slot: "propertyFee6"
         },
         {
           title: "第6期能耗公摊",
-          key: "energySharingSix",
+          key: "energySharing6",
           width: 165,
           align: "center",
-          slot: "energySharingSix"
+          slot: "energySharing6"
         },
         {
           title: "第6期租费合计",
-          key: "totalRentSix",
+          key: "totalCost6",
           width: 165,
           align: "center",
-          slot: "totalRentSix"
+          slot: "totalCost6"
         },
 
         {
@@ -1523,38 +1523,38 @@ export default {
         },
         {
           title: "首年租金是否支付",
-          key: "isPayFirstRent",
+          key: "isPayFirst",
           width: 165,
           align: "center",
-          slot: "isPayFirstRent"
+          slot: "isPayFirst"
         },
         {
           title: "第二年租金是否支付",
-          key: "isPaySecondRent",
+          key: "isPaySecond",
           width: 165,
           align: "center",
-          slot: "isPaySecondRent"
+          slot: "isPaySecond"
         },
         {
           title: "出租单元数",
-          key: "rentalUnits",
+          key: "rentCount",
           width: 165,
           align: "center",
-          slot: "rentalUnits"
+          slot: "rentCount"
         },
         {
           title: "年成交额区间",
-          key: "annualTurnoverInterval",
+          key: "yearTurnoverRange",
           width: 120,
           align: "center",
-          slot: "annualTurnoverInterval"
+          slot: "yearTurnoverRange"
         },
         {
           title: "日均单量区间",
-          key: "dailyQuantityInterval",
+          key: "dayAverageRange",
           width: 165,
           align: "center",
-          slot: "dailyQuantityInterval"
+          slot: "dayAverageRange"
         },
         {
           title: "注册",
@@ -1576,7 +1576,7 @@ export default {
       roomData: [], // 从后台获取的办公室数据
       historyData: [], // 从后台读取的表格数据
       //后台获取的设置数据
-      settingData: [],
+      settingData: "",
 
       // excel模板数据格式
       historyDataSaveModel: [
@@ -1585,51 +1585,51 @@ export default {
           roomNumber: "",
           buildingName: "",
           depositOnContracts: "",
-          leaseTerm: "",
-          startingLeasePeriod: "",
-          terminationPeriod: "",
-          unitRentOne: "",
-          leasePeriodOne: "",
-          totalAmountOne: "",
-          propertyFeeOne: "",
-          energySharingOne: "",
-          totalRentOne: "",
-          unitRentTwo: "",
-          leasePeriodTwo: "",
-          totalAmountTwo: "",
-          propertyFeeTwo: "",
-          energySharingTwo: "",
-          totalRentTwo: "",
-          unitRentThree: "",
-          leasePeriodThree: "",
-          totalAmountThree: "",
-          propertyFeeThree: "",
-          energySharingThree: "",
-          totalRentThree: "",
-          unitRentFour: "",
-          leasePeriodFour: "",
-          totalAmountFour: "",
-          propertyFeeFour: "",
-          energySharingFour: "",
-          totalRentFour: "",
-          unitRentFive: "",
-          leasePeriodFive: "",
-          totalAmountFive: "",
-          propertyFeeFive: "",
-          energySharingFive: "",
-          totalRentFive: "",
-          unitRentSix: "",
-          leasePeriodSix: "",
-          totalAmountSix: "",
-          propertyFeeSix: "",
-          energySharingSix: "",
-          totalRentSix: "",
+          rentPeriod: "",
+          startRentTime: "",
+          endRentTime: "",
+          unitPrice1: "",
+          period1: "",
+          rentCost1: "",
+          propertyFee1: "",
+          energySharing1: "",
+          totalCost1: "",
+          unitPrice2: "",
+          period2: "",
+          rentCost2: "",
+          propertyFee2: "",
+          energySharing2: "",
+          totalCost2: "",
+          unitPrice3: "",
+          period3: "",
+          rentCost3: "",
+          propertyFee3: "",
+          energySharing3: "",
+          totalCost3: "",
+          unitPrice4: "",
+          period4: "",
+          rentCost4: "",
+          propertyFee4: "",
+          energySharing4: "",
+          totalCost4: "",
+          unitPrice5: "",
+          period5: "",
+          rentCost5: "",
+          propertyFee5: "",
+          energySharing5: "",
+          totalCost5: "",
+          unitPrice6: "",
+          period6: "",
+          rentCost6: "",
+          propertyFee6: "",
+          energySharing6: "",
+          totalCost6: "",
           isPayBond: "",
-          isPayFirstRent: "",
-          isPaySecondRent: "",
-          rentalUnits: "",
-          annualTurnoverInterval: "",
-          dailyQuantityInterval: "",
+          isPayFirst: "",
+          isPaySecond: "",
+          rentCount: "",
+          yearTurnoverRange: "",
+          dayAverageRange: "",
           register: ""
         }
       ],
@@ -1639,51 +1639,51 @@ export default {
         roomNumber: "",
         buildingName: "",
         depositOnContracts: "",
-        leaseTerm: "",
-        startingLeasePeriod: "",
-        terminationPeriod: "",
-        unitRentOne: "",
-        leasePeriodOne: "",
-        totalAmountOne: "",
-        propertyFeeOne: "",
-        energySharingOne: "",
-        totalRentOne: "",
-        unitRentTwo: "",
-        leasePeriodTwo: "",
-        totalAmountTwo: "",
-        propertyFeeTwo: "",
-        energySharingTwo: "",
-        totalRentTwo: "",
-        unitRentThree: "",
-        leasePeriodThree: "",
-        totalAmountThree: "",
-        propertyFeeThree: "",
-        energySharingThree: "",
-        totalRentThree: "",
-        unitRentFour: "",
-        leasePeriodFour: "",
-        totalAmountFour: "",
-        propertyFeeFour: "",
-        energySharingFour: "",
-        totalRentFour: "",
-        unitRentFive: "",
-        leasePeriodFive: "",
-        totalAmountFive: "",
-        propertyFeeFive: "",
-        energySharingFive: "",
-        totalRentFive: "",
-        unitRentSix: "",
-        leasePeriodSix: "",
-        totalAmountSix: "",
-        propertyFeeSix: "",
-        energySharingSix: "",
-        totalRentSix: "",
+        rentPeriod: "",
+        startRentTime: "",
+        endRentTime: "",
+        unitPrice1: "",
+        period1: "",
+        rentCost1: "",
+        propertyFee1: "",
+        energySharing1: "",
+        totalCost1: "",
+        unitPrice2: "",
+        period2: "",
+        rentCost2: "",
+        propertyFee2: "",
+        energySharing2: "",
+        totalCost2: "",
+        unitPrice3: "",
+        period3: "",
+        rentCost3: "",
+        propertyFee3: "",
+        energySharing3: "",
+        totalCost3: "",
+        unitPrice4: "",
+        period4: "",
+        rentCost4: "",
+        propertyFee4: "",
+        energySharing4: "",
+        totalCost4: "",
+        unitPrice5: "",
+        period5: "",
+        rentCost5: "",
+        propertyFee5: "",
+        energySharing5: "",
+        totalCost5: "",
+        unitPrice6: "",
+        period6: "",
+        rentCost6: "",
+        propertyFee6: "",
+        energySharing6: "",
+        totalCost6: "",
         isPayBond: "",
-        isPayFirstRent: "",
-        isPaySecondRent: "",
-        rentalUnits: "",
-        annualTurnoverInterval: "",
-        dailyQuantityInterval: "",
+        isPayFirst: "",
+        isPaySecond: "",
+        rentCount: "",
+        yearTurnoverRange: "",
+        dayAverageRange: "",
         register: ""
       },
       // 表单数据设置
@@ -1692,34 +1692,36 @@ export default {
         roomNumber: "",
         buildingName: "",
         depositOnContracts: "",
-        leaseTerm: "",
-        startingLeasePeriod: "",
-        terminationPeriod: "",
-        unitRentOne: "",
-        leasePeriodOne: "",
-        totalAmountOne: "",
-        propertyFeeOne: "",
-        energySharingOne: "",
-        totalRentOne: "",
+        rentPeriod: "",
+        startRentTime: "",
+        endRentTime: "",
+        unitPrice1: "",
+        period1: "",
+        rentCost1: "",
+        propertyFee1: "",
+        energySharing1: "",
+        totalCost1: "",
         isPayBond: "",
-        isPayFirstRent: "",
-        isPaySecondRent: "",
-        rentalUnits: "",
-        annualTurnoverInterval: "",
-        dailyQuantityInterval: "",
-        register: ""
+        isPayFirst: "",
+        isPaySecond: "",
+        rentCount: "",
+        yearTurnoverRange: "",
+        dayAverageRange: "",
+        register: "",
+        insertTime: ""
       },
       formValidate2: {
         owner: "",
         roomNumber: "",
         buildingName: "",
         rentNumber: "",
-        unitRentOne: "",
-        leasePeriodOne: "",
-        totalAmountOne: "",
-        propertyFeeOne: "",
-        energySharingOne: "",
-        totalRentOne: ""
+        unitPrice1: "",
+        period1: "",
+        rentCost1: "",
+        propertyFee1: "",
+        energySharing1: "",
+        totalCost1: "",
+        updateTime: ""
       },
       // 表单数据验证设置
       ruleValidate: {
@@ -1751,7 +1753,7 @@ export default {
             trigger: "blur"
           }
         ],
-        leaseTerm: [
+        rentPeriod: [
           {
             required: true,
             message: "租期不得为空",
@@ -1763,38 +1765,38 @@ export default {
           {
             required: true,
             message: "请选择保证金是否支付",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
-        isPayFirstRent: [
+        isPayFirst: [
           {
             required: true,
             message: "请选择首年租金是否支付",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
-        isPaySecondRent: [
+        isPaySecond: [
           {
             required: true,
             message: "请选择第二年租金是否支付",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
-        rentalUnits: [
+        rentCount: [
           {
             required: true,
             message: "出租单元数不得为空",
             trigger: "blur"
           }
         ],
-        annualTurnoverInterval: [
+        yearTurnoverRange: [
           {
             required: true,
             message: "年成交额区间不得为空",
             trigger: "blur"
           }
         ],
-        dailyQuantityInterval: [
+        dayAverageRange: [
           {
             required: true,
             message: "日均单量区间不得为空",
@@ -1929,43 +1931,47 @@ export default {
     // 选择起租期,租期不为空,计算终止期
     selectStartDate(date) {
       if (
-        this.formValidate.leaseTerm != "" ||
-        this.formValidate.leaseTerm != null ||
-        this.formValidate.leaseTerm != undefined
+        this.formValidate.rentPeriod != "" ||
+        this.formValidate.rentPeriod != null ||
+        this.formValidate.rentPeriod != undefined
       ) {
-        this.formValidate.terminationPeriod = this.addMonth(
+        this.formValidate.endRentTime = this.addMonth(
           date,
-          parseInt(this.formValidate.leaseTerm)
+          parseInt(this.formValidate.rentPeriod)
         );
       }
-      this.formValidate.startingLeasePeriod = date;
+      this.formValidate.startRentTime = date;
     },
     // 选择终止期,自动更新租期
     selectEndDate(date) {
-      this.formValidate.leaseTerm = this.getDaterange(
-        this.formValidate.startingLeasePeriod,
+      this.formValidate.rentPeriod = this.getDaterange(
+        this.formValidate.startRentTime,
         date
       );
-      this.formValidate.terminationPeriod = date;
+      this.formValidate.endRentTime = date;
     },
     // 计算租费合计，租费+物业费+能耗公摊
-    getTotalRent(formValidate, totalAmount, propertyFee, energySharing) {
+    gettotalCost(formValidate, rentCost, propertyFee, energySharing) {
       let sum = 0;
 
-      if (totalAmount != "" && propertyFee != "" && energySharing != "") {
-        let num1 = parseFloat(totalAmount);
+      if (
+        rentCost != undefined &&
+        propertyFee != undefined &&
+        energySharing != undefined
+      ) {
+        let num1 = parseFloat(rentCost);
         let num2 = parseFloat(propertyFee);
         let num3 = parseFloat(energySharing);
         sum = num1 + num2 + num3;
-        formValidate.totalRentOne = sum;
+        formValidate.totalCost1 = sum;
       }
+
       return sum;
     },
     // 计算租期应付物业费，周期*单价*计租面积
-    getPropertyFee(leasePeriod, formValidate, roomData) {
+    getPropertyFee(period, formValidate, roomData) {
       let sum = 0;
-      if (leasePeriod == "") {
-      } else {
+      if (period != undefined) {
         // 1.找到Room的计租面积
         let rentArea = 0;
         for (var key in roomData) {
@@ -1973,25 +1979,24 @@ export default {
             roomData[key].roomNumber == formValidate.roomNumber &&
             roomData[key].buildingName == formValidate.buildingName
           ) {
-            rentArea = roomData[key].rentArea;
+            rentArea = parseFloat(roomData[key].rentArea);
           }
         }
         // 2.找到Setting的管理单价
-        let money = parseFloat(this.settingData[0].manageExpense);
+        let money = parseFloat(this.settingData);
         // 3.当管理单价和计租面积都不为空时计算
         if (rentArea != 0 && money != 0) {
-          sum = parseFloat(leasePeriod) * money * rentArea;
-          formValidate.propertyFeeOne = sum;
+          sum = parseFloat(period) * money * rentArea;
+          formValidate.propertyFee1 = sum;
         }
       }
 
       return sum;
     },
     // 计算租期应付总额，周期*租金*计租面积
-    getTotalAmount(unitRent, leasePeriod, formValidate, roomData) {
+    getrentCost(unitPrice, period, formValidate, roomData) {
       let sum = 0;
-      if (unitRent == "" || leasePeriod == "") {
-      } else {
+      if (unitPrice != undefined && period != undefined) {
         // 1.先找到Room的计租面积
         let rentArea = 0;
         for (var key in roomData) {
@@ -1999,13 +2004,13 @@ export default {
             roomData[key].roomNumber == formValidate.roomNumber &&
             roomData[key].buildingName == formValidate.buildingName
           ) {
-            rentArea = roomData[key].rentArea;
+            rentArea = parseFloat(roomData[key].rentArea);
           }
         }
         // 2.当计租面积不为空的时候才计算
         if (rentArea != 0) {
-          sum = parseFloat(unitRent) * parseFloat(leasePeriod) * rentArea;
-          formValidate.totalAmountOne = sum;
+          sum = parseFloat(unitPrice) * parseFloat(period) * rentArea;
+          formValidate.rentCost1 = sum;
         }
       }
       return sum;
@@ -2020,58 +2025,58 @@ export default {
         excelData[key].buildingName = excelData[key].所属办公楼;
         excelData[key].owner = excelData[key].业主;
         excelData[key].depositOnContracts = excelData[key].合同保证金;
-        excelData[key].startingLeasePeriod = excelData[key].起租期;
-        excelData[key].terminationPeriod = excelData[key].终止期;
-        excelData[key].leaseTerm = excelData[key].租期;
+        excelData[key].startRentTime = excelData[key].起租期;
+        excelData[key].endRentTime = excelData[key].终止期;
+        excelData[key].rentPeriod = excelData[key].租期;
 
-        excelData[key].unitRentOne = excelData[key].首期租金单价;
-        excelData[key].leasePeriodOne = excelData[key].首期租期周期;
-        excelData[key].totalAmountOne = excelData[key].首期租期应付总额;
-        excelData[key].propertyFeeOne = excelData[key].首期租期应付物业费;
-        excelData[key].energySharingOne = excelData[key].首期能耗公摊;
-        excelData[key].totalRentOne = excelData[key].首期租费合计;
+        excelData[key].unitPrice1 = excelData[key].首期租金单价;
+        excelData[key].period1 = excelData[key].首期租期周期;
+        excelData[key].rentCost1 = excelData[key].首期租期应付总额;
+        excelData[key].propertyFee1 = excelData[key].首期租期应付物业费;
+        excelData[key].energySharing1 = excelData[key].首期能耗公摊;
+        excelData[key].totalCost1 = excelData[key].首期租费合计;
 
-        excelData[key].unitRentTwo = excelData[key].第2期租金单价;
-        excelData[key].leasePeriodTwo = excelData[key].第2期租期周期;
-        excelData[key].totalAmountTwo = excelData[key].第2期租期应付总额;
-        excelData[key].propertyFeeTwo = excelData[key].第2期租期应付物业费;
-        excelData[key].energySharingTwo = excelData[key].第2期能耗公摊;
-        excelData[key].totalRentTwo = excelData[key].第2期租费合计;
+        excelData[key].unitPrice2 = excelData[key].第2期租金单价;
+        excelData[key].period2 = excelData[key].第2期租期周期;
+        excelData[key].rentCost2 = excelData[key].第2期租期应付总额;
+        excelData[key].propertyFee2 = excelData[key].第2期租期应付物业费;
+        excelData[key].energySharing2 = excelData[key].第2期能耗公摊;
+        excelData[key].totalCost2 = excelData[key].第2期租费合计;
 
-        excelData[key].unitRentThree = excelData[key].第3期租金单价;
-        excelData[key].leasePeriodThree = excelData[key].第3期租期周期;
-        excelData[key].totalAmountThree = excelData[key].第3期租期应付总额;
-        excelData[key].propertyFeeThree = excelData[key].第3期租期应付物业费;
-        excelData[key].energySharingThree = excelData[key].第3期能耗公摊;
-        excelData[key].totalRentThree = excelData[key].第3期租费合计;
+        excelData[key].unitPrice3 = excelData[key].第3期租金单价;
+        excelData[key].period3 = excelData[key].第3期租期周期;
+        excelData[key].rentCost3 = excelData[key].第3期租期应付总额;
+        excelData[key].propertyFee3 = excelData[key].第3期租期应付物业费;
+        excelData[key].energySharing3 = excelData[key].第3期能耗公摊;
+        excelData[key].totalCost3 = excelData[key].第3期租费合计;
 
-        excelData[key].unitRentFour = excelData[key].第4期租金单价;
-        excelData[key].leasePeriodFour = excelData[key].第4期租期周期;
-        excelData[key].totalAmountFour = excelData[key].第4期租期应付总额;
-        excelData[key].propertyFeeFour = excelData[key].第4期租期应付物业费;
-        excelData[key].energySharingFour = excelData[key].第4期能耗公摊;
-        excelData[key].totalRentFour = excelData[key].第4期租费合计;
+        excelData[key].unitPrice4 = excelData[key].第4期租金单价;
+        excelData[key].period4 = excelData[key].第4期租期周期;
+        excelData[key].rentCost4 = excelData[key].第4期租期应付总额;
+        excelData[key].propertyFee4 = excelData[key].第4期租期应付物业费;
+        excelData[key].energySharing4 = excelData[key].第4期能耗公摊;
+        excelData[key].totalCost4 = excelData[key].第4期租费合计;
 
-        excelData[key].unitRentFive = excelData[key].第5期租金单价;
-        excelData[key].leasePeriodFive = excelData[key].第5期租期周期;
-        excelData[key].totalAmountFive = excelData[key].第5期租期应付总额;
-        excelData[key].propertyFeeFive = excelData[key].第5期租期应付物业费;
-        excelData[key].energySharingFive = excelData[key].第5期能耗公摊;
-        excelData[key].totalRentFive = excelData[key].第5期租费合计;
+        excelData[key].unitPrice5 = excelData[key].第5期租金单价;
+        excelData[key].period5 = excelData[key].第5期租期周期;
+        excelData[key].rentCost5 = excelData[key].第5期租期应付总额;
+        excelData[key].propertyFee5 = excelData[key].第5期租期应付物业费;
+        excelData[key].energySharing5 = excelData[key].第5期能耗公摊;
+        excelData[key].totalCost5 = excelData[key].第5期租费合计;
 
-        excelData[key].unitRentSix = excelData[key].第6期租金单价;
-        excelData[key].leasePeriodSix = excelData[key].第6期租期周期;
-        excelData[key].totalAmountSix = excelData[key].第6期租期应付总额;
-        excelData[key].propertyFeeSix = excelData[key].第6期租期应付物业费;
-        excelData[key].energySharingSix = excelData[key].第6期能耗公摊;
-        excelData[key].totalRentSix = excelData[key].第6期租费合计;
+        excelData[key].unitPrice6 = excelData[key].第6期租金单价;
+        excelData[key].period6 = excelData[key].第6期租期周期;
+        excelData[key].rentCost6 = excelData[key].第6期租期应付总额;
+        excelData[key].propertyFee6 = excelData[key].第6期租期应付物业费;
+        excelData[key].energySharing6 = excelData[key].第6期能耗公摊;
+        excelData[key].totalCost6 = excelData[key].第6期租费合计;
 
         excelData[key].isPayBond = excelData[key].保证金是否支付;
-        excelData[key].isPayFirstRent = excelData[key].首年租金是否支付;
-        excelData[key].isPaySecondRent = excelData[key].第二年租金是否支付;
-        excelData[key].rentalUnits = excelData[key].出租单元数;
-        excelData[key].annualTurnoverInterval = excelData[key].年成交额区间;
-        excelData[key].dailyQuantityInterval = excelData[key].日均单量区间;
+        excelData[key].isPayFirst = excelData[key].首年租金是否支付;
+        excelData[key].isPaySecond = excelData[key].第二年租金是否支付;
+        excelData[key].rentCount = excelData[key].出租单元数;
+        excelData[key].yearTurnoverRange = excelData[key].年成交额区间;
+        excelData[key].dayAverageRange = excelData[key].日均单量区间;
         excelData[key].register = excelData[key].注册;
 
         // 删除数据
@@ -2149,33 +2154,33 @@ export default {
         excelData[key].depositOnContracts == "" ||
         excelData[key].depositOnContracts == null ||
         excelData[key].depositOnContracts == undefined ||
-        excelData[key].startingLeasePeriod == "" ||
-        excelData[key].startingLeasePeriod == null ||
-        excelData[key].startingLeasePeriod == undefined ||
-        excelData[key].terminationPeriod == "" ||
-        excelData[key].terminationPeriod == null ||
-        excelData[key].terminationPeriod == undefined ||
-        excelData[key].leaseTerm == "" ||
-        excelData[key].leaseTerm == null ||
-        excelData[key].leaseTerm == undefined ||
+        excelData[key].startRentTime == "" ||
+        excelData[key].startRentTime == null ||
+        excelData[key].startRentTime == undefined ||
+        excelData[key].endRentTime == "" ||
+        excelData[key].endRentTime == null ||
+        excelData[key].endRentTime == undefined ||
+        excelData[key].rentPeriod == "" ||
+        excelData[key].rentPeriod == null ||
+        excelData[key].rentPeriod == undefined ||
         excelData[key].isPayBond == "" ||
         excelData[key].isPayBond == null ||
         excelData[key].isPayBond == undefined ||
-        excelData[key].isPayFirstRent == "" ||
-        excelData[key].isPayFirstRent == null ||
-        excelData[key].isPayFirstRent == undefined ||
-        excelData[key].isPaySecondRent == "" ||
-        excelData[key].isPaySecondRent == null ||
-        excelData[key].isPaySecondRent == undefined ||
-        excelData[key].rentalUnits == "" ||
-        excelData[key].rentalUnits == null ||
-        excelData[key].rentalUnits == undefined ||
-        excelData[key].annualTurnoverInterval == "" ||
-        excelData[key].annualTurnoverInterval == null ||
-        excelData[key].annualTurnoverInterval == undefined ||
-        excelData[key].dailyQuantityInterval == "" ||
-        excelData[key].dailyQuantityInterval == null ||
-        excelData[key].dailyQuantityInterval == undefined ||
+        excelData[key].isPayFirst == "" ||
+        excelData[key].isPayFirst == null ||
+        excelData[key].isPayFirst == undefined ||
+        excelData[key].isPaySecond == "" ||
+        excelData[key].isPaySecond == null ||
+        excelData[key].isPaySecond == undefined ||
+        excelData[key].rentCount == "" ||
+        excelData[key].rentCount == null ||
+        excelData[key].rentCount == undefined ||
+        excelData[key].yearTurnoverRange == "" ||
+        excelData[key].yearTurnoverRange == null ||
+        excelData[key].yearTurnoverRange == undefined ||
+        excelData[key].dayAverageRange == "" ||
+        excelData[key].dayAverageRange == null ||
+        excelData[key].dayAverageRange == undefined ||
         excelData[key].register == "" ||
         excelData[key].register == null ||
         excelData[key].register == undefined
@@ -2336,51 +2341,51 @@ export default {
             "roomNumber",
             "owner",
             "depositOnContracts",
-            "leaseTerm",
-            "startingLeasePeriod",
-            "terminationPeriod",
-            "unitRentOne",
-            "leasePeriodOne",
-            "totalAmountOne",
-            "propertyFeeOne",
-            "energySharingOne",
-            "totalRentOne",
-            "unitRentTwo",
-            "leasePeriodTwo",
-            "totalAmountTwo",
-            "propertyFeeTwo",
-            "energySharingTwo",
-            "totalRentTwo",
-            "unitRentThree",
-            "leasePeriodThree",
-            "totalAmountThree",
-            "propertyFeeThree",
-            "energySharingThree",
-            "totalRentThree",
-            "unitRentFour",
-            "leasePeriodFour",
-            "totalAmountFour",
-            "propertyFeeFour",
-            "energySharingFour",
-            "totalRentFour",
-            "unitRentFive",
-            "leasePeriodFive",
-            "totalAmountFive",
-            "propertyFeeFive",
-            "energySharingFive",
-            "totalRentFive",
-            "unitRentSix",
-            "leasePeriodSix",
-            "totalAmountSix",
-            "propertyFeeSix",
-            "energySharingSix",
-            "totalRentSix",
+            "rentPeriod",
+            "startRentTime",
+            "endRentTime",
+            "unitPrice1",
+            "period1",
+            "rentCost1",
+            "propertyFee1",
+            "energySharing1",
+            "totalCost1",
+            "unitPrice2",
+            "period2",
+            "rentCost2",
+            "propertyFee2",
+            "energySharing2",
+            "totalCost2",
+            "unitPrice3",
+            "period3",
+            "rentCost3",
+            "propertyFee3",
+            "energySharing3",
+            "totalCost3",
+            "unitPrice4",
+            "period4",
+            "rentCost4",
+            "propertyFee4",
+            "energySharing4",
+            "totalCost4",
+            "unitPrice5",
+            "period5",
+            "rentCost5",
+            "propertyFee5",
+            "energySharing5",
+            "totalCost5",
+            "unitPrice6",
+            "period6",
+            "rentCost6",
+            "propertyFee6",
+            "energySharing6",
+            "totalCost6",
             "isPayBond",
-            "isPayFirstRent",
-            "isPaySecondRent",
-            "rentalUnits",
-            "annualTurnoverInterval",
-            "dailyQuantityInterval",
+            "isPayFirst",
+            "isPaySecond",
+            "rentCount",
+            "yearTurnoverRange",
+            "dayAverageRange",
             "register"
           ],
           data: this.historyDataSaveModel,
@@ -2456,51 +2461,51 @@ export default {
             "roomNumber",
             "owner",
             "depositOnContracts",
-            "leaseTerm",
-            "startingLeasePeriod",
-            "terminationPeriod",
-            "unitRentOne",
-            "leasePeriodOne",
-            "totalAmountOne",
-            "propertyFeeOne",
-            "energySharingOne",
-            "totalRentOne",
-            "unitRentTwo",
-            "leasePeriodTwo",
-            "totalAmountTwo",
-            "propertyFeeTwo",
-            "energySharingTwo",
-            "totalRentTwo",
-            "unitRentThree",
-            "leasePeriodThree",
-            "totalAmountThree",
-            "propertyFeeThree",
-            "energySharingThree",
-            "totalRentThree",
-            "unitRentFour",
-            "leasePeriodFour",
-            "totalAmountFour",
-            "propertyFeeFour",
-            "energySharingFour",
-            "totalRentFour",
-            "unitRentFive",
-            "leasePeriodFive",
-            "totalAmountFive",
-            "propertyFeeFive",
-            "energySharingFive",
-            "totalRentFive",
-            "unitRentSix",
-            "leasePeriodSix",
-            "totalAmountSix",
-            "propertyFeeSix",
-            "energySharingSix",
-            "totalRentSix",
+            "rentPeriod",
+            "startRentTime",
+            "endRentTime",
+            "unitPrice1",
+            "period1",
+            "rentCost1",
+            "propertyFee1",
+            "energySharing1",
+            "totalCost1",
+            "unitPrice2",
+            "period2",
+            "rentCost2",
+            "propertyFee2",
+            "energySharing2",
+            "totalCost2",
+            "unitPrice3",
+            "period3",
+            "rentCost3",
+            "propertyFee3",
+            "energySharing3",
+            "totalCost3",
+            "unitPrice4",
+            "period4",
+            "rentCost4",
+            "propertyFee4",
+            "energySharing4",
+            "totalCost4",
+            "unitPrice5",
+            "period5",
+            "rentCost5",
+            "propertyFee5",
+            "energySharing5",
+            "totalCost5",
+            "unitPrice6",
+            "period6",
+            "rentCost6",
+            "propertyFee6",
+            "energySharing6",
+            "totalCost6",
             "isPayBond",
-            "isPayFirstRent",
-            "isPaySecondRent",
-            "rentalUnits",
-            "annualTurnoverInterval",
-            "dailyQuantityInterval",
+            "isPayFirst",
+            "isPaySecond",
+            "rentCount",
+            "yearTurnoverRange",
+            "dayAverageRange",
             "register"
           ],
           data: this.historyData,
@@ -2520,12 +2525,14 @@ export default {
         this.changePage(this.pageCurrent);
       }
     },
+
     //分页
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
       this.getRequestData(index);
     },
+
     // 删除记录
     handleDelete(index) {
       this.$Modal.confirm({
@@ -2563,62 +2570,67 @@ export default {
 
       this.editIndex = -1;
     },
+
     // 编辑修改记录
     handleEdit(row, index) {
-      //
-      this.editOwner = row.owner;
-      this.editRoomNumber = row.roomNumber;
-      this.editBuildingName = row.buildingName;
-      this.editDepositOnContracts = row.depositOnContracts;
-      this.editLeaseTerm = row.leaseTerm;
-      this.editStartingLeasePeriod = row.startingLeasePeriod;
-      this.editTerminationPeriod = row.terminationPeriod;
-      this.editUnitRentOne = row.unitRentOne;
-      this.editLeasePeriodOne = row.leasePeriodOne;
-      this.editTotalAmountOne = row.totalAmountOne;
-      this.editPropertyFeeOne = row.propertyFeeOne;
-      this.editEnergySharingOne = row.energySharingOne;
-      this.editTotalRentOne = row.totalRentOne;
-      this.editUnitRentTwo = row.unitRentTwo;
-      this.editLeasePeriodTwo = row.leasePeriodTwo;
-      this.editTotalAmountTwo = row.totalAmountTwo;
-      this.editPropertyFeeTwo = row.propertyFeeTwo;
-      this.editEnergySharingTwo = row.energySharingTwo;
-      this.editTotalRentTwo = row.totalRentTwo;
-      this.editUnitRentThree = row.unitRentThree;
-      this.editLeasePeriodThree = row.leasePeriodThree;
-      this.editTotalAmountThree = row.totalAmountThree;
-      this.editPropertyFeeThree = row.propertyFeeThree;
-      this.editEnergySharingThree = row.energySharingThree;
-      this.editTotalRentThree = row.totalRentThree;
-      this.editUnitRentFour = row.unitRentFour;
-      this.editLeasePeriodFour = row.leasePeriodFour;
-      this.editTotalAmountFour = row.totalAmountFour;
-      this.editPropertyFeeFour = row.propertyFeeFour;
-      this.editEnergySharingFour = row.energySharingFour;
-      this.editTotalRentFour = row.totalRentFour;
-      this.editUnitRentFive = row.unitRentFive;
-      this.editLeasePeriodFive = row.leasePeriodFive;
-      this.editTotalAmountFive = row.totalAmountFive;
-      this.editPropertyFeeFive = row.propertyFeeFive;
-      this.editEnergySharingFive = row.energySharingFive;
-      this.editTotalRentFive = row.totalRentFive;
-      this.editUnitRentSix = row.unitRentSix;
-      this.editLeasePeriodSix = row.leasePeriodSix;
-      this.editTotalAmountSix = row.totalAmountSix;
-      this.editPropertyFeeSix = row.propertyFeeSix;
-      this.editEnergySharingSix = row.energySharingSix;
-      this.editTotalRentSix = row.totalRentSix;
-      this.editIsPayBond = row.isPayBond;
-      this.editIsPayFirstRent = row.isPayFirstRent;
-      this.editIsPaySecondRent = row.isPaySecondRent;
-      this.editRentalUnits = row.rentalUnits;
-      this.editAnnualTurnoverInterval = row.annualTurnoverInterval;
-      this.editDailyQuantityInterval = row.dailyQuantityInterval;
-      this.editRegister = row.register;
-      // 把当前行数记录
-      this.editIndex = index;
+      this.$Message.info("功能暂定");
     },
+    // handleEdit(row, index) {
+    //   //
+    //   this.editOwner = row.owner;
+    //   this.editRoomNumber = row.roomNumber;
+    //   this.editBuildingName = row.buildingName;
+    //   this.editDepositOnContracts = row.depositOnContracts;
+    //   this.editRentPeriod = row.rentPeriod;
+    //   this.editStartRentTime = row.startRentTime;
+    //   this.editEndRentTime = row.endRentTime;
+    //   this.editunitPrice1 = row.unitPrice1;
+    //   this.editperiod1 = row.period1;
+    //   this.editRentCost1 = row.rentCost1;
+    //   this.editPropertyFee1 = row.propertyFee1;
+    //   this.editEnergySharing1 = row.energySharing1;
+    //   this.edittotalCost1 = row.totalCost1;
+    //   this.editunitPrice2 = row.unitPrice2;
+    //   this.editperiod2 = row.period2;
+    //   this.editRentCost2 = row.rentCost2;
+    //   this.editPropertyFee2 = row.propertyFee2;
+    //   this.editEnergySharing2 = row.energySharing2;
+    //   this.edittotalCost2 = row.totalCost2;
+    //   this.editunitPrice3 = row.unitPrice3;
+    //   this.editperiod3 = row.period3;
+    //   this.editRentCost3 = row.rentCost3;
+    //   this.editPropertyFee3 = row.propertyFee3;
+    //   this.editEnergySharing3 = row.energySharing3;
+    //   this.edittotalCost3 = row.totalCost3;
+    //   this.editunitPrice4 = row.unitPrice4;
+    //   this.editperiod4 = row.period4;
+    //   this.editRentCost4 = row.rentCost4;
+    //   this.editPropertyFee4 = row.propertyFee4;
+    //   this.editEnergySharing4 = row.energySharing4;
+    //   this.edittotalCost4 = row.totalCost4;
+    //   this.editunitPrice5 = row.unitPrice5;
+    //   this.editperiod5 = row.period5;
+    //   this.editRentCost5 = row.rentCost5;
+    //   this.editPropertyFee5 = row.propertyFee5;
+    //   this.editEnergySharing5 = row.energySharing5;
+    //   this.edittotalCost5 = row.totalCost5;
+    //   this.editunitPrice6 = row.unitPrice6;
+    //   this.editperiod6 = row.period6;
+    //   this.editRentCost6 = row.rentCost6;
+    //   this.editPropertyFee6 = row.propertyFee6;
+    //   this.editEnergySharing6 = row.energySharing6;
+    //   this.edittotalCost6 = row.totalCost6;
+    //   this.editIsPayBond = row.isPayBond;
+    //   this.editIsPayFirst = row.isPayFirst;
+    //   this.editIsPaySecondRent = row.isPaySecond;
+    //   this.editRentalUnits = row.rentCount;
+    //   this.editAnnualTurnoverInterval = row.yearTurnoverRange;
+    //   this.editDailyQuantityInterval = row.dayAverageRange;
+    //   this.editRegister = row.register;
+    //   // 把当前行数记录
+    //   this.editIndex = index;
+    // },
+
     // 取消修改记录
     handleCancel(index) {
       // 数据恢复
@@ -2626,199 +2638,197 @@ export default {
       this.editRoomNumber = this.historyData[index].roomNumber;
       this.editBuildingName = this.historyData[index].buildingName;
       this.editDepositOnContracts = this.historyData[index].depositOnContracts;
-      this.editLeaseTerm = this.historyData[index].leaseTerm;
-      this.editStartingLeasePeriod = this.historyData[
-        index
-      ].startingLeasePeriod;
-      this.editTerminationPeriod = this.historyData[index].terminationPeriod;
-      this.editUnitRentOne = this.historyData[index].unitRentOne;
-      this.editLeasePeriodOne = this.historyData[index].leasePeriodOne;
-      this.editTotalAmountOne = this.historyData[index].totalAmountOne;
-      this.editPropertyFeeOne = this.historyData[index].propertyFeeOne;
-      this.editEnergySharingOne = this.historyData[index].energySharingOne;
-      this.editTotalRentOne = this.historyData[index].totalRentOne;
-      this.editUnitRentTwo = this.historyData[index].unitRentTwo;
-      this.editLeasePeriodTwo = this.historyData[index].leasePeriodTwo;
-      this.editTotalAmountTwo = this.historyData[index].totalAmountTwo;
-      this.editPropertyFeeTwo = this.historyData[index].propertyFeeTwo;
-      this.editEnergySharingTwo = this.historyData[index].energySharingTwo;
-      this.editTotalRentTwo = this.historyData[index].totalRentTwo;
-      this.editUnitRentThree = this.historyData[index].unitRentThree;
-      this.editLeasePeriodThree = this.historyData[index].leasePeriodThree;
-      this.editTotalAmountThree = this.historyData[index].totalAmountThree;
-      this.editPropertyFeeThree = this.historyData[index].propertyFeeThree;
-      this.editEnergySharingThree = this.historyData[index].energySharingThree;
-      this.editTotalRentThree = this.historyData[index].totalRentThree;
-      this.editUnitRentFour = this.historyData[index].unitRentFour;
-      this.editLeasePeriodFour = this.historyData[index].leasePeriodFour;
-      this.editTotalAmountFour = this.historyData[index].totalAmountFour;
-      this.editPropertyFeeFour = this.historyData[index].propertyFeeFour;
-      this.editEnergySharingFour = this.historyData[index].energySharingFour;
-      this.editTotalRentFour = this.historyData[index].totalRentFour;
-      this.editUnitRentFive = this.historyData[index].unitRentFive;
-      this.editLeasePeriodFive = this.historyData[index].leasePeriodFive;
-      this.editTotalAmountFive = this.historyData[index].totalAmountFive;
-      this.editPropertyFeeFive = this.historyData[index].propertyFeeFive;
-      this.editEnergySharingFive = this.historyData[index].energySharingFive;
-      this.editTotalRentFive = this.historyData[index].totalRentFive;
-      this.editUnitRentSix = this.historyData[index].unitRentSix;
-      this.editLeasePeriodSix = this.historyData[index].leasePeriodSix;
-      this.editTotalAmountSix = this.historyData[index].totalAmountSix;
-      this.editPropertyFeeSix = this.historyData[index].propertyFeeSix;
-      this.editEnergySharingSix = this.historyData[index].energySharingSix;
-      this.editTotalRentSix = this.historyData[index].totalRentSix;
+      this.editRentPeriod = this.historyData[index].rentPeriod;
+      this.editStartRentTime = this.historyData[index].startRentTime;
+      this.editEndRentTime = this.historyData[index].endRentTime;
+      this.editunitPrice1 = this.historyData[index].unitPrice1;
+      this.editperiod1 = this.historyData[index].period1;
+      this.editRentCost1 = this.historyData[index].rentCost1;
+      this.editPropertyFee1 = this.historyData[index].propertyFee1;
+      this.editEnergySharing1 = this.historyData[index].energySharing1;
+      this.edittotalCost1 = this.historyData[index].totalCost1;
+      this.editunitPrice2 = this.historyData[index].unitPrice2;
+      this.editperiod2 = this.historyData[index].period2;
+      this.editRentCost2 = this.historyData[index].rentCost2;
+      this.editPropertyFee2 = this.historyData[index].propertyFee2;
+      this.editEnergySharing2 = this.historyData[index].energySharing2;
+      this.edittotalCost2 = this.historyData[index].totalCost2;
+      this.editunitPrice3 = this.historyData[index].unitPrice3;
+      this.editperiod3 = this.historyData[index].period3;
+      this.editRentCost3 = this.historyData[index].rentCost3;
+      this.editPropertyFee3 = this.historyData[index].propertyFee3;
+      this.editEnergySharing3 = this.historyData[index].energySharing3;
+      this.edittotalCost3 = this.historyData[index].totalCost3;
+      this.editunitPrice4 = this.historyData[index].unitPrice4;
+      this.editperiod4 = this.historyData[index].period4;
+      this.editRentCost4 = this.historyData[index].rentCost4;
+      this.editPropertyFee4 = this.historyData[index].propertyFee4;
+      this.editEnergySharing4 = this.historyData[index].energySharing4;
+      this.edittotalCost4 = this.historyData[index].totalCost4;
+      this.editunitPrice5 = this.historyData[index].unitPrice5;
+      this.editperiod5 = this.historyData[index].period5;
+      this.editRentCost5 = this.historyData[index].rentCost5;
+      this.editPropertyFee5 = this.historyData[index].propertyFee5;
+      this.editEnergySharing5 = this.historyData[index].energySharing5;
+      this.edittotalCost5 = this.historyData[index].totalCost5;
+      this.editunitPrice6 = this.historyData[index].unitPrice6;
+      this.editperiod6 = this.historyData[index].period6;
+      this.editRentCost6 = this.historyData[index].rentCost6;
+      this.editPropertyFee6 = this.historyData[index].propertyFee6;
+      this.editEnergySharing6 = this.historyData[index].energySharing6;
+      this.edittotalCost6 = this.historyData[index].totalCost6;
       this.editIsPayBond = this.historyData[index].isPayBond;
-      this.editIsPayFirstRent = this.historyData[index].isPayFirstRent;
-      this.editIsPaySecondRent = this.historyData[index].isPaySecondRent;
-      this.editRentalUnits = this.historyData[index].rentalUnits;
+      this.editIsPayFirstRent = this.historyData[index].isPayFirst;
+      this.editIsPaySecondRent = this.historyData[index].isPaySecond;
+      this.editRentalUnits = this.historyData[index].rentCount;
       this.editAnnualTurnoverInterval = this.historyData[
         index
-      ].annualTurnoverInterval;
-      this.editDailyQuantityInterval = this.historyData[
-        index
-      ].dailyQuantityInterval;
+      ].yearTurnoverRange;
+      this.editDailyQuantityInterval = this.historyData[index].dayAverageRange;
       this.editRegister = this.historyData[index].register;
 
       // 把行数恢复默认值
       this.editIndex = -1;
     },
+
     // 保存数据
     handleSave(index) {
-      let _this = this;
-      let _data = this.historyDataSave;
-
-      // 向后台发送数据
-      this.historyData[index].owner = this.editOwner;
-      this.historyData[index].roomNumber = this.editRoomNumber;
-      this.historyData[index].buildingName = this.editBuildingName;
-      this.historyData[index].depositOnContracts = this.editDepositOnContracts;
-      this.historyData[index].leaseTerm = this.editLeaseTerm;
-      this.historyData[
-        index
-      ].startingLeasePeriod = this.editStartingLeasePeriod;
-      this.historyData[index].terminationPeriod = this.editTerminationPeriod;
-      this.historyData[index].unitRentOne = this.editUnitRentOne;
-      this.historyData[index].leasePeriodOne = this.editLeasePeriodOne;
-      this.historyData[index].totalAmountOne = this.editTotalAmountOne;
-      this.historyData[index].propertyFeeOne = this.editPropertyFeeOne;
-      this.historyData[index].energySharingOne = this.editEnergySharingOne;
-      this.historyData[index].totalRentOne = this.editTotalRentOne;
-      this.historyData[index].unitRentTwo = this.editUnitRentTwo;
-      this.historyData[index].leasePeriodTwo = this.editLeasePeriodTwo;
-      this.historyData[index].totalAmountTwo = this.editTotalAmountTwo;
-      this.historyData[index].propertyFeeTwo = this.editPropertyFeeTwo;
-      this.historyData[index].energySharingTwo = this.editEnergySharingTwo;
-      this.historyData[index].totalRentTwo = this.editTotalRentTwo;
-      this.historyData[index].unitRentThree = this.editUnitRentThree;
-      this.historyData[index].leasePeriodThree = this.editLeasePeriodThree;
-      this.historyData[index].totalAmountThree = this.editTotalAmountThree;
-      this.historyData[index].propertyFeeThree = this.editPropertyFeeThree;
-      this.historyData[index].energySharingThree = this.editEnergySharingThree;
-      this.historyData[index].totalRentThree = this.editTotalRentThree;
-      this.historyData[index].unitRentFour = this.editUnitRentFour;
-      this.historyData[index].leasePeriodFour = this.editLeasePeriodFour;
-      this.historyData[index].totalAmountFour = this.editTotalAmountFour;
-      this.historyData[index].propertyFeeFour = this.editPropertyFeeFour;
-      this.historyData[index].energySharingFour = this.editEnergySharingFour;
-      this.historyData[index].totalRentFour = this.editTotalRentFour;
-      this.historyData[index].unitRentFive = this.editUnitRentFive;
-      this.historyData[index].leasePeriodFive = this.editLeasePeriodFive;
-      this.historyData[index].totalAmountFive = this.editTotalAmountFive;
-      this.historyData[index].propertyFeeFive = this.editPropertyFeeFive;
-      this.historyData[index].energySharingFive = this.editEnergySharingFive;
-      this.historyData[index].totalRentFive = this.editTotalRentFive;
-      this.historyData[index].unitRentSix = this.editUnitRentSix;
-      this.historyData[index].leasePeriodSix = this.editLeasePeriodSix;
-      this.historyData[index].totalAmountSix = this.editTotalAmountSix;
-      this.historyData[index].propertyFeeSix = this.editPropertyFeeSix;
-      this.historyData[index].energySharingSix = this.editEnergySharingSix;
-      this.historyData[index].totalRentSix = this.editTotalRentSix;
-      this.historyData[index].isPayBond = this.editIsPayBond;
-      this.historyData[index].isPayFirstRent = this.editIsPayFirstRent;
-      this.historyData[index].isPaySecondRent = this.editIsPaySecondRent;
-      this.historyData[index].rentalUnits = this.editRentalUnits;
-      this.historyData[
-        index
-      ].annualTurnoverInterval = this.editAnnualTurnoverInterval;
-      this.historyData[
-        index
-      ].dailyQuantityInterval = this.editDailyQuantityInterval;
-      this.historyData[index].register = this.editRegister;
-
-      if (
-        this.historyData[index].roomNumber == "" ||
-        this.historyData[index].roomNumber == null ||
-        this.historyData[index].roomNumber == undefined ||
-        this.historyData[index].buildingName == "" ||
-        this.historyData[index].buildingName == null ||
-        this.historyData[index].buildingName == undefined ||
-        this.historyData[index].owner == "" ||
-        this.historyData[index].owner == null ||
-        this.historyData[index].owner == undefined ||
-        this.historyData[index].depositOnContracts == "" ||
-        this.historyData[index].depositOnContracts == null ||
-        this.historyData[index].depositOnContracts == undefined ||
-        this.historyData[index].startingLeasePeriod == "" ||
-        this.historyData[index].startingLeasePeriod == null ||
-        this.historyData[index].startingLeasePeriod == undefined ||
-        this.historyData[index].terminationPeriod == "" ||
-        this.historyData[index].terminationPeriod == null ||
-        this.historyData[index].terminationPeriod == undefined ||
-        this.historyData[index].leaseTerm == "" ||
-        this.historyData[index].leaseTerm == null ||
-        this.historyData[index].leaseTerm == undefined ||
-        this.historyData[index].isPayBond == "" ||
-        this.historyData[index].isPayBond == null ||
-        this.historyData[index].isPayBond == undefined ||
-        this.historyData[index].isPayFirstRent == "" ||
-        this.historyData[index].isPayFirstRent == null ||
-        this.historyData[index].isPayFirstRent == undefined ||
-        this.historyData[index].isPaySecondRent == "" ||
-        this.historyData[index].isPaySecondRent == null ||
-        this.historyData[index].isPaySecondRent == undefined ||
-        this.historyData[index].rentalUnits == "" ||
-        this.historyData[index].rentalUnits == null ||
-        this.historyData[index].rentalUnits == undefined ||
-        this.historyData[index].annualTurnoverInterval == "" ||
-        this.historyData[index].annualTurnoverInterval == null ||
-        this.historyData[index].annualTurnoverInterval == undefined ||
-        this.historyData[index].dailyQuantityInterval == "" ||
-        this.historyData[index].dailyQuantityInterval == null ||
-        this.historyData[index].dailyQuantityInterval == undefined ||
-        this.historyData[index].register == "" ||
-        this.historyData[index].register == null ||
-        this.historyData[index].register == undefined
-      ) {
-        this.$Message.error("有内容未填写");
-      } else {
-        _data = this.historyData[index];
-
-        axios
-          .request({
-            url: "/lease/updateLeaseList",
-            method: "post",
-            headers: {
-              "Content-Type": "application/json;charset=UTF-8"
-            },
-            data: _data
-          })
-          .then(function(response) {
-            if (response.data == 1) {
-              _this.$Message.success("保存成功");
-              _this.getRequestData(_this.pageCurrent);
-            } else {
-              _this.$Message.error("保存失败");
-            }
-          });
-        this.editIndex = -1;
-      }
+      this.$Message.info("功能暂定");
     },
+    // handleSave(index) {
+    //   let _this = this;
+    //   let _data = this.historyDataSave;
+
+    //   // 向后台发送数据
+    //   this.historyData[index].owner = this.editOwner;
+    //   this.historyData[index].roomNumber = this.editRoomNumber;
+    //   this.historyData[index].buildingName = this.editBuildingName;
+    //   this.historyData[index].depositOnContracts = this.editDepositOnContracts;
+    //   this.historyData[index].rentPeriod = this.editRentPeriod;
+    //   this.historyData[index].startRentTime = this.editStartRentTime;
+    //   this.historyData[index].endRentTime = this.editEndRentTime;
+    //   this.historyData[index].unitPrice1 = this.editunitPrice1;
+    //   this.historyData[index].period1 = this.editperiod1;
+    //   this.historyData[index].rentCost1 = this.editRentCost1;
+    //   this.historyData[index].propertyFee1 = this.editPropertyFee1;
+    //   this.historyData[index].energySharing1 = this.editEnergySharing1;
+    //   this.historyData[index].totalCost1 = this.edittotalCost1;
+    //   this.historyData[index].unitPrice2 = this.editunitPrice2;
+    //   this.historyData[index].period2 = this.editperiod2;
+    //   this.historyData[index].rentCost2 = this.editRentCost2;
+    //   this.historyData[index].propertyFee2 = this.editPropertyFee2;
+    //   this.historyData[index].energySharing2 = this.editEnergySharing2;
+    //   this.historyData[index].totalCost2 = this.edittotalCost2;
+    //   this.historyData[index].unitPrice3 = this.editunitPrice3;
+    //   this.historyData[index].period3 = this.editperiod3;
+    //   this.historyData[index].rentCost3 = this.editRentCost3;
+    //   this.historyData[index].propertyFee3 = this.editPropertyFee3;
+    //   this.historyData[index].energySharing3 = this.editEnergySharing3;
+    //   this.historyData[index].totalCost3 = this.edittotalCost3;
+    //   this.historyData[index].unitPrice4 = this.editunitPrice4;
+    //   this.historyData[index].period4 = this.editperiod4;
+    //   this.historyData[index].rentCost4 = this.editRentCost4;
+    //   this.historyData[index].propertyFee4 = this.editPropertyFee4;
+    //   this.historyData[index].energySharing4 = this.editEnergySharing4;
+    //   this.historyData[index].totalCost4 = this.edittotalCost4;
+    //   this.historyData[index].unitPrice5 = this.editunitPrice5;
+    //   this.historyData[index].period5 = this.editperiod5;
+    //   this.historyData[index].rentCost5 = this.editRentCost5;
+    //   this.historyData[index].propertyFee5 = this.editPropertyFee5;
+    //   this.historyData[index].energySharing5 = this.editEnergySharing5;
+    //   this.historyData[index].totalCost5 = this.edittotalCost5;
+    //   this.historyData[index].unitPrice6 = this.editunitPrice6;
+    //   this.historyData[index].period6 = this.editperiod6;
+    //   this.historyData[index].rentCost6 = this.editRentCost6;
+    //   this.historyData[index].propertyFee6 = this.editPropertyFee6;
+    //   this.historyData[index].energySharing6 = this.editEnergySharing6;
+    //   this.historyData[index].totalCost6 = this.edittotalCost6;
+    //   this.historyData[index].isPayBond = this.editIsPayBond;
+    //   this.historyData[index].isPayFirst = this.editIsPayFirstRent;
+    //   this.historyData[index].isPaySecond = this.editIsPaySecondRent;
+    //   this.historyData[index].rentCount = this.editRentalUnits;
+    //   this.historyData[
+    //     index
+    //   ].yearTurnoverRange = this.editAnnualTurnoverInterval;
+    //   this.historyData[index].dayAverageRange = this.editDailyQuantityInterval;
+    //   this.historyData[index].register = this.editRegister;
+
+    //   if (
+    //     this.historyData[index].roomNumber == "" ||
+    //     this.historyData[index].roomNumber == null ||
+    //     this.historyData[index].roomNumber == undefined ||
+    //     this.historyData[index].buildingName == "" ||
+    //     this.historyData[index].buildingName == null ||
+    //     this.historyData[index].buildingName == undefined ||
+    //     this.historyData[index].owner == "" ||
+    //     this.historyData[index].owner == null ||
+    //     this.historyData[index].owner == undefined ||
+    //     this.historyData[index].depositOnContracts == "" ||
+    //     this.historyData[index].depositOnContracts == null ||
+    //     this.historyData[index].depositOnContracts == undefined ||
+    //     this.historyData[index].startRentTime == "" ||
+    //     this.historyData[index].startRentTime == null ||
+    //     this.historyData[index].startRentTime == undefined ||
+    //     this.historyData[index].endRentTime == "" ||
+    //     this.historyData[index].endRentTime == null ||
+    //     this.historyData[index].endRentTime == undefined ||
+    //     this.historyData[index].rentPeriod == "" ||
+    //     this.historyData[index].rentPeriod == null ||
+    //     this.historyData[index].rentPeriod == undefined ||
+    //     this.historyData[index].isPayBond == "" ||
+    //     this.historyData[index].isPayBond == null ||
+    //     this.historyData[index].isPayBond == undefined ||
+    //     this.historyData[index].isPayFirst == "" ||
+    //     this.historyData[index].isPayFirst == null ||
+    //     this.historyData[index].isPayFirst == undefined ||
+    //     this.historyData[index].isPaySecond == "" ||
+    //     this.historyData[index].isPaySecond == null ||
+    //     this.historyData[index].isPaySecond == undefined ||
+    //     this.historyData[index].rentCount == "" ||
+    //     this.historyData[index].rentCount == null ||
+    //     this.historyData[index].rentCount == undefined ||
+    //     this.historyData[index].yearTurnoverRange == "" ||
+    //     this.historyData[index].yearTurnoverRange == null ||
+    //     this.historyData[index].yearTurnoverRange == undefined ||
+    //     this.historyData[index].dayAverageRange == "" ||
+    //     this.historyData[index].dayAverageRange == null ||
+    //     this.historyData[index].dayAverageRange == undefined ||
+    //     this.historyData[index].register == "" ||
+    //     this.historyData[index].register == null ||
+    //     this.historyData[index].register == undefined
+    //   ) {
+    //     this.$Message.error("有内容未填写");
+    //   } else {
+    //     _data = this.historyData[index];
+    //     _data.updateTime = this.getFormatDate();
+    //     axios
+    //       .request({
+    //         url: "/lease/updateLeaseList",
+    //         method: "post",
+    //         headers: {
+    //           "Content-Type": "application/json;charset=UTF-8"
+    //         },
+    //         data: _data
+    //       })
+    //       .then(function(response) {
+    //         if (response.data == 1) {
+    //           _this.$Message.success("保存成功");
+    //           _this.getRequestData(_this.pageCurrent);
+    //         } else {
+    //           _this.$Message.error("保存失败");
+    //         }
+    //       });
+    //     this.editIndex = -1;
+    //   }
+    // },
+
     // 确认提交首期租赁数据
     handleSubmitFirst(name) {
       this.$refs[name].validate(valid => {
         if (valid) {
           // 开始向后台发送数据
           let _this = this;
+          this.formValidate.insertTime = this.getFormatDate();
           let _data = this.formValidate;
           axios
             .request({
@@ -2846,6 +2856,7 @@ export default {
         }
       });
     },
+
     // 确认提交第n期租赁数据
     handleSubmitContinue(name) {
       this.$refs[name].validate(valid => {
@@ -2853,6 +2864,7 @@ export default {
           // 开始向后台发送数据
           let _this = this;
           let _data = this.formValidate2;
+          _data.updateTime = this.getFormatDate();
           axios
             .request({
               url: "/lease/insertLeaseListContinue",
@@ -2879,21 +2891,23 @@ export default {
         }
       });
     },
+
     // 首租页面点击取消
     handleResetFirst(name) {
       this.$refs[name].resetFields();
       this.isFirstRent = false;
     },
+
     // 续租页面点击取消
     handleResetContinue(name) {
       this.$refs[name].resetFields();
       this.isContinueRent = false;
     },
+
     // 从后台获取表格数据
     getRequestData(index) {
       let _this = this;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = this.pageSize;
       axios
         .request({
           url: "/lease/getSearchList",
@@ -2901,7 +2915,7 @@ export default {
           params: {
             search: this.searchBuildingName,
             dataStart: this.pageStart,
-            dataEnd: this.pageEnd
+            dataSize: this.pageSize
           }
         })
         .then(function(response) {
@@ -2910,53 +2924,91 @@ export default {
           _this.dataCount = response.data.dataCount;
         });
     },
+
     // 从后台获取办公楼数据
     getBuildingData() {
       let _this = this;
       axios
         .request({
-          url: "/building/getBuildingList",
+          url: "/lease/getBuildingList",
           method: "get"
         })
         .then(function(response) {
           _this.buildingData = response.data;
         });
     },
+
     // 从后台获取空闲办公室数据
     getRoomData() {
       let _this = this;
       axios
         .request({
-          url: "/room/getRoomList",
+          url: "/lease/getEmptyRoomList",
           method: "get"
         })
         .then(function(response) {
           _this.roomData = response.data;
         });
     },
+
     // 从后台获取已租办公室信息
     getAllLease() {
       let _this = this;
       axios
         .request({
-          url: "/room/getRoomListContinue",
+          url: "/lease/getContinueRoomList",
           method: "get"
         })
         .then(function(response) {
           _this.roomDataContinue = response.data;
         });
     },
+
     // 从后台获取系统设置数据
     getSettingData() {
       let _this = this;
       axios
         .request({
-          url: "/setting/getSettingList",
+          url: "/lease/getSettingList",
           method: "get"
         })
         .then(function(response) {
           _this.settingData = response.data;
         });
+    },
+
+    // 获取当前系统时间
+    getFormatDate() {
+      var date = new Date();
+      var month = date.getMonth() + 1;
+      var strDate = date.getDate();
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+      var currentDate =
+        date.getFullYear() +
+        "-" +
+        month +
+        "-" +
+        strDate +
+        " " +
+        date.getHours() +
+        ":" +
+        date.getMinutes() +
+        ":" +
+        date.getSeconds();
+      return currentDate;
+    },
+
+    // 添加当前页和页码数据
+    addPageCurrentAndPageSize(updatePageData) {
+      for (var key in updatePageData) {
+        updatePageData[key].pageCurrent = this.pageCurrent;
+        updatePageData[key].pageSize = this.pageSize;
+      }
     }
   }
 };

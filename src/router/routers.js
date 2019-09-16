@@ -1,4 +1,4 @@
-﻿import Main from '@/components/main'
+import Main from '@/components/main'
 import parentView from '@/components/parent-view'
 
 /**
@@ -91,49 +91,11 @@ export default [{
                 },
                 component: () =>
                     import ('@/view/lease/lease.vue')
-            },
-            {
-                path: 'setting',
-                name: '系统设置',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '系统设置'
-                },
-                component: () =>
-                    import ('@/view/lease/setting.vue')
             }
+
         ]
     },
     {
-        path: '/payment',
-        name: 'payment',
-        meta: {
-            icon: 'logo-buffer',
-            title: '缴费管理'
-        },
-        component: Main,
-        children: [{
-                path: 'payment',
-                name: '缴费管理',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '缴费管理'
-                },
-                component: () =>
-                    import ('@/view/payment/payment.vue')
-            },
-            {
-                path: 'setting',
-                name: '后台设置',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '后台设置'
-                },
-                component: () =>
-                    import ('@/view/payment/setting.vue')
-            }
-        ]
-    }, {
         path: '/dormitorymanage',
         name: 'dormitorymanage',
         meta: {
@@ -142,39 +104,88 @@ export default [{
         },
         component: Main,
         children: [{
-    path: 'dormitorymanage',
-    name: '宿舍合同管理',
-    meta: {
-      icon: 'md-arrow-dropdown-circle',
-      title: '宿舍合同管理'
-    },
-    component: () =>
-      import('@/view/dormitorymanage/dormitorymanage.vue')
-  }
-    ,
-  {
-    path: 'dormitory',
-    name: '宿舍楼设置',
-    meta: {
-      icon: 'md-arrow-dropdown-circle',
-      title: '宿舍楼设置'
-    },
-    component: () =>
-      import('@/view/dormitorymanage/building.vue')
-  },
-  {
-    path: 'dorms',
-    name: '宿舍房间租金设置',
-    meta: {
-      icon: 'md-arrow-dropdown-circle',
-      title: '宿舍房间租金设置'
-    },
-    component: () =>
-      import('@/view/dormitorymanage/room.vue')
-  }
-]
+                path: 'dormitorymanage',
+                name: '宿舍合同管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '宿舍合同管理'
+                },
+                component: () =>
+                    import ('@/view/dormitorymanage/dormitorymanage.vue')
+            },
+            {
+                path: 'dormitory',
+                name: '宿舍楼设置',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '宿舍楼设置'
+                },
+                component: () =>
+                    import ('@/view/dormitorymanage/building.vue')
+            },
+            {
+                path: 'dorms',
+                name: '宿舍房间租金设置',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '宿舍房间租金设置'
+                },
+                component: () =>
+                    import ('@/view/dormitorymanage/room.vue')
+            }
+        ]
 
     },
+    {
+        path: "/payment",
+        name: "payment",
+        meta: {
+            icon: "logo-buffer",
+            title: "缴费管理"
+        },
+        component: Main,
+        children: [{
+            path: "payment",
+            name: "缴费管理",
+            meta: {
+                icon: "md-arrow-dropdown-circle",
+                title: "缴费管理"
+            },
+            component: () =>
+                import ("@/view/payment/payment.vue")
+        }]
+    },
+    {
+        path: '/systemSet',
+        name: 'systemSet',
+        meta: {
+            icon: 'logo-buffer',
+            title: '系统设置'
+        },
+        component: Main,
+        children: [{
+                path: 'user',
+                name: '用户管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '用户管理'
+                },
+                component: () =>
+                    import ('@/view/systemSet/user.vue')
+            },
+            {
+                path: "setting",
+                name: "后台设置",
+                meta: {
+                    icon: "md-arrow-dropdown-circle",
+                    title: "后台设置"
+                },
+                component: () =>
+                    import ("@/view/payment/setting.vue")
+            }
+        ]
+    },
+
 
     {
         path: '/401',
