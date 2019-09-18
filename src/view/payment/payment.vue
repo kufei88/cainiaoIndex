@@ -176,7 +176,10 @@
     <Row>
       <Col span="9">
         <Card shadow>
-          <p slot="title">上期数据</p>
+          <p slot="title">
+            上期数据
+            <span>{{dateTextPrevious}}</span>
+          </p>
           <!-- 数据列表展示 上期数据-->
           <Table height="520" :columns="previousColumns" :data="previousData">
             <template slot-scope="{ row }" slot="waterNumber">
@@ -216,7 +219,11 @@
       </Col>
       <Col span="15" offset>
         <Card shadow>
-          <p slot="title">本期数据</p>
+          <p slot="title">
+            本期数据
+            <span>{{dateText}}</span>
+          </p>
+
           <Table height="520" :columns="columns" :data="data" :loading="tableLoading">
             <template slot-scope="{ row, index }" slot="waterNumber">
               <Input
@@ -487,6 +494,8 @@ export default {
         ]
       },
       timeText: "",
+      dateText: "",
+      dateTextPrevious: "",
       value4: true, //时间数据状态
       value5: true, //水费数据状态
       value6: true, //电费数据状态
@@ -506,11 +515,13 @@ export default {
     this.getPaymentDataPage(this.pageCurrent);
     this.getPaymentPreviousData(this.pageCurrentPrevious);
     this.year();
+    this.timeNow();
   },
   methods: {
     addList() {
       this.value3 = true;
       this.getBuilding();
+      this.addTime();
     },
     //选择的楼栋数据
     building() {
@@ -780,7 +791,17 @@ export default {
       this.value2 = false;
       this.exportLoadingTemplate = true;
       const params = {
-        data: [],
+        data: [
+          {
+            buildingTemplate: "1号楼",
+            roomTemplate: "101",
+            ownerTemplate: "钉钉",
+            waterNumberTemplate: "15",
+            electricityNumberTemplate: "20",
+            startTimeTemplate: "2019/9/8",
+            endTimeTemplate: "2019/10/8"
+          }
+        ],
         title: [
           "楼栋",
           "房号",
@@ -790,7 +811,15 @@ export default {
           "开始时间",
           "结束时间"
         ],
-        key: [],
+        key: [
+          "buildingTemplate",
+          "roomTemplate",
+          "ownerTemplate",
+          "waterNumberTemplate",
+          "electricityNumberTemplate",
+          "startTimeTemplate",
+          "endTimeTemplate"
+        ],
         autoWidth: true,
         filename: "缴费管理模板"
       };
@@ -1063,7 +1092,20 @@ export default {
       this.visible = false;
     },
     //取消
-    cancel() {}
+    cancel() {},
+    //时间
+    timeNow() {
+      this.dateText = new Date().getFullYear() + "/" + new Date().getMonth();
+      this.dateTextPrevious =
+        new Date().getFullYear() + "/" + (new Date().getMonth() - 1);
+    },
+    //新增数据的显示时间
+    addTime() {
+      this.formData.startTime =
+        new Date().getFullYear() + "/" + (new Date().getMonth() + 1);
+      this.formData.endTime =
+        new Date().getFullYear() + "/" + (new Date().getMonth() + 2);
+    }
   }
 };
 </script>
