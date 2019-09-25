@@ -70,10 +70,11 @@
           label="所属宿舍楼"
           prop="buildingName"
         >
+
           <Select
             v-model="formValidate.buildingName"
             style="width:200px"
-            transfer:true
+            transfer:true         
           >
             <Option
               v-for="item in buildingData"
@@ -94,13 +95,21 @@
         </FormItem>
 
         <FormItem
-          label="每月租金"
-          prop="monthRent"
+          label="房间类型"
+          prop="roomType"
         >
-          <Input
-            clearable
-            v-model="formValidate.monthRent"
-          />
+          <Select
+            v-model="formValidate.roomType"
+            style="width:200px"
+            transfer:true
+          >
+            <Option
+              v-for="item in roomTypeDate"
+              :value="item.roomType"
+              :key="item.id"
+            >{{ item.roomType }}</Option>
+          </Select>
+
         </FormItem>
 
 
@@ -174,14 +183,21 @@
 
       <template
         slot-scope="{ row, index }"
-        slot="monthRent"
+        slot="roomType"
       >
-        <Input
-          type="text"
-          v-model="editMonthRent"
-          v-if="editIndex === index"
-        />
-        <span v-else>{{ row.monthRent}}</span>
+      <Select
+            v-model="editRoomType"
+            transfer:true
+            v-if="editIndex === index"
+          >
+            <Option
+              v-for="item in roomTypeDate"
+              :value="item.roomType"
+              :key="item.id"
+            >{{ item.roomType }}</Option>
+          </Select>
+        
+        <span v-else>{{ row.roomType}}</span>
       </template>
 
       <template
@@ -240,12 +256,12 @@ export default {
       isAddNewData: false, //是否新增数据
 
       buildingData: [], // 楼栋数据
-
+      roomTypeDate:[],//房型数据
       // 表单数据设置
       formValidate: {
         roomNumber: "",
         buildingName: "",
-        monthRent:"",
+        roomType:"",
         insertTime: ""
       },
       // 表单数据验证设置
@@ -264,11 +280,11 @@ export default {
             trigger: "change"
           }
         ],
-        monthRent: [
+        roomType: [
           {
             required: true,
-            message: "租金不得为空",
-            trigger: "blur"
+            message: "房间类型不得为空",
+            trigger: "change"
           }
         ]
       },
@@ -283,18 +299,19 @@ export default {
       excelDataModel: [
         {
           roomNumber: "必须是数字，，例如:101",
-          buildingName: "必须是宿舍楼管理里存在的名称",
-          monthRent: "必须是数字，单位(元)",
+          buildingName: "必须是宿舍楼的名称",
+          roomType: "必须是存在的房间类型",
         }
       ],
 
       editIndex: -1, // 当前聚焦的输入框的行数
       editRentArea: "", // 编辑的计租面积
       editBuildingArea: "", // 编辑的建筑面积
-      editMonthRent:"",//编辑的每月租金
+      editRoomType:"",//编辑的房间类型
 
       pageCurrent: 1, // 当前页数
       pageStart: 0,
+      pageEnd: 0,
       dataCount: 0, // 后台数据的总记录
       pageSize: 10, // 每页显示多少条
       pageData: [], // table绑定的数据
@@ -325,9 +342,9 @@ export default {
           slot: "owner"
         },
         {
-          title: "每月租金",
-          key:"monthRent",
-          slot:"monthRent"
+          title: "房间类型",
+          key:"roomType",
+          slot:"roomType"
         },
         {
           title: "添加时间",
@@ -394,12 +411,12 @@ export default {
       for (var key in excelData) {
         excelData[key].roomNumber = excelData[key].房号;
         excelData[key].buildingName = excelData[key].宿舍楼名称;
-        excelData[key].monthRent = excelData[key].每月租金;
+        excelData[key].roomType = excelData[key].房间类型;
         excelData[key].insertTime = this.getFormatDate();
 
         delete excelData[key].房号;
         delete excelData[key].宿舍楼名称;
-        delete excelData[key].每月租金;
+        delete excelData[key].房间类型;
 
       }
       // 验证空数据
@@ -411,9 +428,9 @@ export default {
         excelData[key].buildingName == "" ||
         excelData[key].buildingName == null ||
         excelData[key].buildingName == undefined ||
-        excelData[key].monthRent == "" ||
-        excelData[key].monthRent == null ||
-        excelData[key].monthRent == undefined 
+        excelData[key].roomType == "" ||
+        excelData[key].roomType == null ||
+        excelData[key].roomType == undefined 
 
           ? (isDataEmpty += 1)
           : (isDataEmpty += 0);
@@ -514,8 +531,8 @@ export default {
       if (this.excelDataModel.length) {
         this.exportLoading = true;
         const params = {
-          title: ["房号", "宿舍楼名称", "每月租金"],
-          key: ["roomNumber", "buildingName", "monthRent"],
+          title: ["房号", "宿舍楼名称", "房间类型"],
+          key: ["roomNumber", "buildingName", "roomType"],
           data: this.excelDataModel,
           autoWidth: true,
           filename: "宿舍房间管理信息表模板"
@@ -532,8 +549,8 @@ export default {
       if (this.pageData.length) {
         this.exportLoading = true;
         const params = {
-          title: ["房号", "宿舍楼名称","业主","每月租金"],
-          key: ["roomNumber", "buildingName", "owner", "monthRent"],
+          title: ["房号", "宿舍楼名称","业主","房间类型"],
+          key: ["roomNumber", "buildingName", "owner", "roomType"],
           data: this.pageData,
           autoWidth: true,
           filename: "宿舍房间管理信息表"
@@ -591,7 +608,7 @@ export default {
     handleEdit(row, index) {
       // this.editRentArea = row.rentArea;
       // this.editBuildingArea = row.buildingArea;
-      this.editMonthRent=row.monthRent;
+      this.editRoomType=row.roomType;
       this.editIndex = index;
     },
     // 取消修改记录
@@ -608,12 +625,12 @@ export default {
       // 向后台发送数据
       // this.pageData[index].rentArea = this.editRentArea;
       // this.pageData[index].buildingArea = this.editBuildingArea;
-      this.pageData[index].monthRent=this.editMonthRent;
+      this.pageData[index].roomType=this.editRoomType;
       // 判断是否为空，内容有空值就不发送
       if (
-        this.pageData[index].monthRent == "" ||
-        this.pageData[index].monthRent == null ||
-        this.pageData[index].monthRent == undefined
+        this.pageData[index].roomType == "" ||
+        this.pageData[index].roomType == null ||
+        this.pageData[index].roomType == undefined
         // this.pageData[index].buildingArea == "" ||
         // this.pageData[index].buildingArea == null ||
         // this.pageData[index].buildingArea == undefined
@@ -699,9 +716,21 @@ export default {
         })
         .then(function(response) {
           _this.buildingData = response.data;
+          _this.formValidate.buildingName=_this.buildingData[0].buildingName;
         });
     },
-
+    //获取寝室房间类型
+    getRoomType() {
+      let _this = this;
+      axios
+        .request({
+          url: "/RoomType/getRoomTypes",
+          method: "get"
+        })
+        .then(function(response) {
+          _this.roomTypeDate = response.data;
+        });
+    },
     // 获取当前系统时间
     getFormatDate() {
       var date = new Date();
@@ -739,6 +768,7 @@ export default {
   mounted() {
     this.getRequestData(this.pageCurrent);
     this.getBuildingData();
+    this.getRoomType();
   }
 };
 </script>

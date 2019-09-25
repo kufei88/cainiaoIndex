@@ -45,12 +45,47 @@
             </FormItem>
           </Col>
         </Row>
+      </Form>
+      <div class="demo-drawer-footer">
+        <Button style="margin-right: 8px" @click="value2 = false">取消</Button>
+        <Button type="primary" @click="add">确定</Button>
+      </div>
+    </Drawer>
+    <!-- 修改数据 -->
+    <Drawer title="修改" v-model="value3" width="360" :mask-closable="false" :styles="styles">
+      <Form ref="formData" :model="formData" :rules="ruleformData">
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="能耗公摊单价" label-position="top" prop="energySharingPrice">
+            <FormItem label="水单价" label-position="top" prop="waterUnitPrice">
               <Input
-                v-model="formData.energySharingPrice"
-                placeholder="请输入能耗公摊单价"
+                v-model="formData.waterUnitPrice"
+                placeholder="请输入水单价"
+                clearable
+                precision="2"
+                number
+              />
+            </FormItem>
+          </Col>
+        </Row>
+        <Row :gutter="32">
+          <Col span="18">
+            <FormItem label="电单价" label-position="top" prop="electricityUnitPrice">
+              <Input
+                v-model="formData.electricityUnitPrice"
+                placeholder="请输入电单价"
+                clearable
+                precision="2"
+                number
+              />
+            </FormItem>
+          </Col>
+        </Row>
+        <Row :gutter="32">
+          <Col span="18">
+            <FormItem label="管理单价" label-position="top" prop="leaseUnitPrice">
+              <Input
+                v-model="formData.leaseUnitPrice"
+                placeholder="请输入管理单价"
                 clearable
                 precision="2"
                 number
@@ -60,13 +95,13 @@
         </Row>
       </Form>
       <div class="demo-drawer-footer">
-        <Button style="margin-right: 8px" @click="value2 = false">取消</Button>
-        <Button type="primary" @click="add('formData')">确定</Button>
+        <Button style="margin-right: 8px" @click="value3 = false">取消</Button>
+        <Button type="primary" @click="alter('formData')">确定</Button>
       </div>
     </Drawer>
     <!-- 数据展示 -->
     <Row>
-      <Col span="15">
+      <Col span="11">
         <Card class="div-center">
           <div slot="title">
             <div>
@@ -75,7 +110,7 @@
                 @click="value2 = true"
                 type="primary"
                 size="small"
-                v-if="valueBtn"
+                v-if="value"
               >新增</Button>
             </div>
             <p>收费项目</p>
@@ -94,11 +129,6 @@
             <template slot-scope="{ row, index }" slot="leaseUnitPrice">
               <Input type="text" v-model="editLease" v-if="editIndex === index" />
               <span v-else>{{ row.leaseUnitPrice }}</span>
-            </template>
-
-            <template slot-scope="{ row, index }" slot="energySharingPrice">
-              <Input type="text" v-model="editEnergySharingPrice" v-if="editIndex === index" />
-              <span v-else>{{ row.energySharingPrice }}</span>
             </template>
 
             <template slot-scope="{ row, index }" slot="action">
@@ -126,7 +156,7 @@ export default {
       }
       // 模拟异步验证效果
       setTimeout(() => {
-        if (Number.isNaN(value)) {
+        if (!Number.isInteger(value)) {
           callback(new Error("存在中英文，请重新输入！"));
         } else {
           callback();
@@ -148,22 +178,19 @@ export default {
           slot: "leaseUnitPrice"
         },
         {
-          title: "能耗公摊单价（元）",
-          slot: "energySharingPrice"
-        },
-        {
           title: "操作",
           slot: "action"
         }
       ],
       data: [],
-      valueBtn: false,
+      value: false,
       value2: false,
+      value3: false,
+      value4: false,
       editIndex: -1, // 当前聚焦的输入框的行数
       editWater: "",
       editElectricity: "",
       editLease: "",
-      editEnergySharingPrice: "",
       styles: {
         height: "calc(100% - 55px)",
         overflow: "auto",
@@ -173,8 +200,7 @@ export default {
       formData: {
         waterUnitPrice: "",
         electricityUnitPrice: "",
-        leaseUnitPrice: "",
-        energySharingPrice: ""
+        leaseUnitPrice: ""
       },
       ruleformData: {
         waterUnitPrice: [
@@ -197,13 +223,6 @@ export default {
             validator: validateAge,
             trigger: "blur"
           }
-        ],
-        energySharingPrice: [
-          {
-            required: true,
-            validator: validateAge,
-            trigger: "blur"
-          }
         ]
       }
     };
@@ -216,7 +235,7 @@ export default {
     getHydropowerData() {
       axios
         .request({
-          url: "/payment/getSystemInfoList",
+          url: "/payment/getHydropowerPaymentList",
           method: "get"
         })
         .then(response => {
@@ -224,22 +243,20 @@ export default {
             this.data = response.data;
           }
         });
-      axios
-        .request({
-          url: "/payment/systemInfoIsNull",
-          method: "get"
-        })
-        .then(response => {
-          if (response.data < 1) {
-            this.valueBtn = true;
-          }
-        });
+
+      if (
+        this.data.waterUnitPrice ||
+        this.data.electricityUnitPrice ||
+        this.data.leaseUnitPrice
+      ) {
+        this.value = true;
+      }
     },
     //修改
     alter(index) {
       axios
         .request({
-          url: "/payment/updateSystemInfo",
+          url: "/payment/updateHydropowerPaymentData",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -247,8 +264,7 @@ export default {
           data: {
             waterUnitPrice: this.data[index].waterUnitPrice,
             electricityUnitPrice: this.data[index].electricityUnitPrice,
-            leaseUnitPrice: this.data[index].leaseUnitPrice,
-            energySharingPrice: this.data[index].energySharingPrice
+            leaseUnitPrice: this.data[index].leaseUnitPrice
           }
         })
         .then(response => {
@@ -256,7 +272,7 @@ export default {
             this.$Message.success("修改成功！");
             axios
               .request({
-                url: "/payment/getSystemInfoList",
+                url: "/payment/getHydropowerPaymentList",
                 method: "get"
               })
               .then(response => {
@@ -268,50 +284,48 @@ export default {
         });
     },
     //新增
-    add(name) {
-      this.$refs[name].validate(valid => {
-        if (valid) {
-          axios
-            .request({
-              url: "/payment/addSystemInfo",
-              method: "post",
-              headers: {
-                "Content-Type": "application/json" //设置请求头请求格式为JSON
-              },
-              data: this.formData
-            })
-            .then(response => {
-              if (response.data == 1) {
-                this.$Message.success("添加成功！");
-                axios
-                  .request({
-                    url: "/payment/getSystemInfoList",
-                    method: "get"
-                  })
-                  .then(response => {
-                    this.data = response.data;
-                    this.value2 = false;
-                  });
-              } else {
-                this.$Message.error("添加失败！");
-                this.value2 = false;
-              }
-            });
-        }
-      });
+    add() {
+      axios
+        .request({
+          url: "/payment/addHydropowerPaymentData",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json" //设置请求头请求格式为JSON
+          },
+          data: {
+            waterUnitPrice: this.formData.waterUnitPrice,
+            electricityUnitPrice: this.formData.electricityUnitPrice,
+            leaseUnitPrice: this.formData.leaseUnitPrice
+          }
+        })
+        .then(response => {
+          if (response.data == 1) {
+            this.$Message.success("添加成功！");
+            axios
+              .request({
+                url: "/payment/getHydropowerPaymentList",
+                method: "get"
+              })
+              .then(response => {
+                this.data = response.data;
+              });
+            this.value3 = false;
+          } else {
+            this.$Message.error("添加失败！");
+            this.value3 = false;
+          }
+        });
     },
     handleEdit(row, index) {
       this.editWater = row.waterUnitPrice;
       this.editElectricity = row.electricityUnitPrice;
       this.editLease = row.leaseUnitPrice;
-      this.editEnergySharingPrice = row.energySharingPrice;
       this.editIndex = index;
     },
     handleSave(index) {
       this.data[index].waterUnitPrice = this.editWater;
       this.data[index].electricityUnitPrice = this.editElectricity;
       this.data[index].leaseUnitPrice = this.editLease;
-      this.data[index].energySharingPrice = this.editEnergySharingPrice;
       this.alter(index);
       this.editIndex = -1;
     }

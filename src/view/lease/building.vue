@@ -4,7 +4,7 @@
     <Input
       search
       enter-button="查询"
-      placeholder="请输入查询关键字，如楼栋名称"
+      placeholder="请输入查询关键字，如楼栋名称、楼栋类型"
       style="width:300px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
@@ -71,6 +71,22 @@
             clearable
             v-model="formValidate.buildingName"
           />
+        </FormItem>
+
+        <FormItem
+          label="楼栋类型"
+          prop="buildingType"
+        >
+          <Select
+            v-model="formValidate.buildingType"
+            transfer
+          >
+            <Option
+              v-for="item in buildingTypeList"
+              :value="item.value"
+              :key="item.value"
+            >{{ item.label }}</Option>
+          </Select>
         </FormItem>
       </Form>
       <!-- 对话框页脚 -->
@@ -196,11 +212,14 @@ import excel from "@/libs/excel";
 export default {
   data() {
     return {
-      dataType: "办公",//
       buildingTypeList: [
         {
           value: "办公",
           label: "办公"
+        },
+        {
+          value: "仓办",
+          label: "仓办"
         },
         {
           value: "宿舍",
@@ -210,7 +229,7 @@ export default {
       // 表单数据设置
       formValidate: {
         buildingName: "",
-        buildingType: "办公",//
+        buildingType: "",
         insertTime: this.getFormatDate()
       },
       // 表单数据验证设置
@@ -220,6 +239,13 @@ export default {
             required: true,
             message: "楼栋名称不得为空",
             trigger: "blur"
+          }
+        ],
+        buildingType: [
+          {
+            required: true,
+            message: "楼栋类型不得为空",
+            trigger: "change"
           }
         ]
       },
@@ -233,7 +259,8 @@ export default {
       // excel模板数据格式
       excelModel: [
         {
-          buildingName: "不能有特殊字符且不得为空，例如：1号楼"
+          buildingName: "不能有特殊字符且不得为空，例如：1号楼",
+          buildingType: "不能有特殊字符且不得为空，例如：办公、仓办、宿舍"
         }
       ],
 
@@ -313,9 +340,11 @@ export default {
             .then(function(response) {
               if (response.data == 1) {
                 _this.$Message.success("删除成功");
-                // 判断是否pageData的数据长度<=1,是则页数减1;
+                // 判断是否pageData的数据长度<=1,然后判断是否第1页,是则页数减1;
                 if (_this.pageData.length <= 1) {
-                  _this.pageCurrent = _this.pageCurrent - 1;
+                  if (_this.pageCurrent != 1) {
+                    _this.pageCurrent = _this.pageCurrent - 1;
+                  }
                 }
                 _this.getRequestData(_this.pageCurrent);
               } else {
@@ -374,10 +403,11 @@ export default {
       // 1.先进行数据的处理，转化成符合后台读取的格式
       for (var key in excelData) {
         excelData[key].buildingName = excelData[key].楼栋名称;
-        excelData[key].buildingType = "办公";//
+        excelData[key].buildingType = excelData[key].楼栋类型;
         excelData[key].insertTime = this.getFormatDate();
 
         delete excelData[key].楼栋名称;
+        delete excelData[key].楼栋类型;
       }
       // 验证空数据
       let isDataEmpty = 0;
@@ -503,8 +533,8 @@ export default {
       if (this.excelModel.length) {
         this.exportLoading = true;
         const params = {
-          title: ["楼栋名称"],
-          key: ["buildingName"],
+          title: ["楼栋名称", "楼栋类型"],
+          key: ["buildingName", "buildingType"],
           data: this.excelModel,
           autoWidth: true,
           filename: "办公楼管理表模板"
@@ -605,7 +635,6 @@ export default {
           method: "get",
           params: {
             search: this.searchData,
-            dataType: this.dataType,
             dataStart: this.pageStart,
             dataSize: this.pageSize
           }

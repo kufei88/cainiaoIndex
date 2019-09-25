@@ -49,6 +49,12 @@
       style="float:right"
     >新增</Button>
 
+    <Button
+      type="primary"
+      @click="showEmptyRoom"
+      style="float:right"
+    >空闲房间</Button>
+
     <!-- 清除浮动 -->
     <div style="clear:both"></div>
 
@@ -388,6 +394,12 @@ export default {
     };
   },
   methods: {
+    // 显示空闲房间
+    showEmptyRoom() {
+      this.searchData = "空闲";
+      this.getRequestData(1);
+    },
+
     // 确认提交新增数据
     handleSubmit(name) {
       this.$refs[name].validate(valid => {
@@ -615,12 +627,13 @@ export default {
             .then(function(response) {
               if (response.data == 1) {
                 _this.$Message.success("删除成功");
-                // 判断是否pageData的数据长度<=1,是则页数减1;
+                // 判断是否pageData的数据长度<=1,然后判断是否第1页,是则页数减1;
                 if (_this.pageData.length <= 1) {
-                  _this.getRequestData(_this.pageCurrent - 1);
-                } else {
-                  _this.getRequestData(_this.pageCurrent);
+                  if (_this.pageCurrent != 1) {
+                    _this.pageCurrent = _this.pageCurrent - 1;
+                  }
                 }
+                _this.getRequestData(_this.pageCurrent);
               } else {
                 _this.$Message.error("删除失败");
               }

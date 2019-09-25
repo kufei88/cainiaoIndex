@@ -53,14 +53,14 @@ export default [{
         },
         component: Main,
         children: [{
-                path: 'building',
-                name: '办公楼管理',
+                path: 'enterprise',
+                name: '园区企业管理',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
-                    title: '办公楼管理'
+                    title: '园区企业管理'
                 },
                 component: () =>
-                    import ('@/view/lease/building.vue')
+                    import ('@/view/lease/enterprise.vue')
             },
             {
                 path: 'room',
@@ -73,15 +73,16 @@ export default [{
                     import ('@/view/lease/room.vue')
             },
             {
-                path: 'enterprise',
-                name: '园区企业管理',
+                path: 'warehouse',
+                name: '仓办管理',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
-                    title: '园区企业管理'
+                    title: '仓办管理'
                 },
                 component: () =>
-                    import ('@/view/lease/enterprise.vue')
+                    import ('@/view/lease/warehouse.vue')
             },
+
             {
                 path: 'lease',
                 name: '租赁信息管理',
@@ -115,20 +116,20 @@ export default [{
             },
             {
                 path: 'dormitory',
-                name: '宿舍楼设置',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '宿舍楼设置'
-                },
-                component: () =>
-                    import ('@/view/dormitorymanage/building.vue')
-            },
-            {
-                path: 'dorms',
-                name: '宿舍房间租金设置',
+                name: '宿舍房型租金设置',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
                     title: '宿舍房间租金设置'
+                },
+                component: () =>
+                    import ('@/view/dormitorymanage/roomtype.vue')
+            },
+            {
+                path: 'dorms',
+                name: '宿舍房间设置',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '宿舍房间设置'
                 },
                 component: () =>
                     import ('@/view/dormitorymanage/room.vue')
@@ -164,6 +165,16 @@ export default [{
         },
         component: Main,
         children: [{
+                path: 'building',
+                name: '楼栋管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '楼栋管理'
+                },
+                component: () =>
+                    import ('@/view/lease/building.vue')
+            },
+            {
                 path: 'user',
                 name: '用户管理',
                 meta: {

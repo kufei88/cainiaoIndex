@@ -327,8 +327,7 @@ export default {
       historyData: [], //从后台读取的表格数据
 
       pageCurrent: 1, // 当前页数
-      pageStart: 0,
-      pageEnd: 0,
+      pageStart: 0, // 记录开始位置
       dataCount: 0, // 后台读取的总记录长度
       pageSize: 10, // 每页显示多少条
       pageData: [], // table绑定的数据
@@ -419,6 +418,7 @@ export default {
         this.$Message.error("请先选择记录");
       }
     },
+    // 对选中行的操作
     currentChange(currentRow, oldCurrentRow) {
       // 把选中行的数据赋值给修改表单
       this.updateFormData = currentRow;
@@ -509,30 +509,29 @@ export default {
           break;
       }
     },
-    // 查询数据***
+    // 查询数据
     search_Btn(value) {
       this.searchData = value;
       this.pageCurrent = 1;
       this.getRequestData(this.pageCurrent);
     },
-    // 改变每页条数***
+    // 改变每页条数
     changePageNumber(index) {
       this.pageSize = index;
       if (this.pageCurrent === 1) {
         this.changePage(this.pageCurrent);
       }
     },
-    // 分页***
+    // 分页
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
       this.getRequestData(index);
     },
-    // 从后台查询数据***
+    // 从后台查询数据
     getRequestData(index) {
       let _this = this;
       this.pageStart = (index - 1) * this.pageSize;
-      this.pageEnd = this.pageSize;
       axios
         .request({
           url: "/user/getUserList",
@@ -540,7 +539,7 @@ export default {
           params: {
             search: this.searchData,
             dataStart: this.pageStart,
-            dataEnd: this.pageEnd
+            dataEnd: this.pageSize
           }
         })
         .then(function(response) {

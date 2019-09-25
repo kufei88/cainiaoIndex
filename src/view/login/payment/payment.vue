@@ -8,7 +8,7 @@
         <Button class="btn" @click="value2 = true" type="primary">EXCEL</Button>
       </Tooltip>
       <Tooltip content="添加新数据" placement="top">
-        <Button class="btn" @click="addForm" type="primary">新增数据</Button>
+        <Button class="btn" @click="addList" type="primary">新增数据</Button>
       </Tooltip>
       <!-- <Tooltip content="删除所有数据" placement="top">
         <Button class="btn" @click="removeAll" type="primary">删除所有数据</Button>
@@ -156,6 +156,16 @@
             </FormItem>
           </Col>
         </Row>
+        <!-- <Row>
+          <Col span="18">
+            <FormItem label="缴费" label-position="top" prop="pay">
+              <RadioGroup v-model="formData.pay">
+                <Radio label="已缴">已缴</Radio>
+                <Radio label="未缴">未缴</Radio>
+              </RadioGroup>
+            </FormItem>
+          </Col>
+        </Row>-->
       </Form>
       <div class="demo-drawer-footer">
         <Button style="margin-right: 8px" @click="value3 = false">取消</Button>
@@ -164,10 +174,83 @@
     </Drawer>
     <!-- 数据展示 -->
     <Row>
-      <Col offset>
+      <Col span="9">
         <Card shadow>
-          <p slot="title">数据展示</p>
+          <p slot="title">
+            上期数据
+            <span>{{dateTextPrevious}}</span>
+          </p>
+          <!-- 数据列表展示 上期数据-->
+          <Table height="520" :columns="previousColumns" :data="previousData">
+            <template slot-scope="{ row }" slot="waterNumber">
+              <span>{{ row.waterNumber }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="electricityNumber">
+              <span>{{ row.electricityNumber }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="owner">
+              <span>{{ row.owner }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="buildingName">
+              <span>{{ row.buildingName }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="roomNumber">
+              <span>{{ row.roomNumber }}</span>
+            </template>
+          </Table>
+          <!-- 分页-->
+
+          <Page
+            :total="dataCountPrevious"
+            show-total
+            show-sizer
+            :page-size="pageSizePrevious"
+            :page-size-opts="[10,20,50,100]"
+            :current="pageCurrentPrevious"
+            @on-change="changePreviousPage"
+            @on-page-size-change="changePreviousPageNumber"
+            class="margin-top-10"
+          />
+        </Card>
+      </Col>
+      <Col span="15" offset>
+        <Card shadow>
+          <p slot="title">
+            本期数据
+            <span>{{dateText}}</span>
+          </p>
+
           <Table height="520" :columns="columns" :data="data" :loading="tableLoading">
+            <template slot-scope="{ row, index }" slot="waterNumber">
+              <Input
+                clearable
+                precision="2"
+                :maxlength="15"
+                v-model="editWaterNumber"
+                v-if="editIndex === index"
+              />
+              <span border:true v-else>{{ row.waterNumber }}</span>
+            </template>
+
+            <template slot-scope="{ row, index }" slot="electricityNumber">
+              <Input
+                clearable
+                v-model="editElectricityNumber"
+                v-if="editIndex === index"
+                precision="2"
+                :maxlength="15"
+              />
+              <span v-else>{{ row.electricityNumber }}</span>
+            </template>
+
+            <template slot-scope="{ row }" slot="owner">
+              <span>{{ row.owner }}</span>
+            </template>
+
             <template slot-scope="{ row }" slot="buildingName">
               <span>{{ row.buildingName }}</span>
             </template>
@@ -176,44 +259,24 @@
               <span>{{ row.roomNumber }}</span>
             </template>
 
-            <template slot-scope="{ row }" slot="owner">
-              <span>{{ row.owner }}</span>
-            </template>
+            <template slot-scope="{ row, index }" slot="action">
+              <div v-if="editIndex === index">
+                <Button type="info" @click="handleSave(index)" class="btn" size="small">保存</Button>
+                <Button @click="editIndex = -1" size="small">取消</Button>
+              </div>
 
-            <template slot-scope="{ row }" slot="waterNumber">
-              <span>{{ row.waterNumber }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="waterNumberPrevious">
-              <span>{{ row.waterNumberPrevious }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="waterDifference">
-              <span>{{ row.waterDifference }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="waterCost">
-              <span>{{ row.waterCost }}</span>
-            </template>
-
-            <template slot-scope="{ row}" slot="electricityNumber">
-              <span>{{ row.electricityNumber }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="electricityNumberPrevious">
-              <span>{{ row.electricityNumberPrevious }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="electricityDifference">
-              <span>{{ row.electricityDifference }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="electricityCost">
-              <span>{{ row.electricityCost }}</span>
-            </template>
-
-            <template slot-scope="{ row }" slot="total">
-              <span>{{ row.total }}</span>
+              <div v-else>
+                <Button type="info" @click="handleEdit(row,index)" class="btn" size="small">修改</Button>
+                <Poptip
+                  confirm
+                  title="是否要删除该行?"
+                  @on-ok="remove(index)"
+                  @on-cancel="cancel"
+                  placement="left-end"
+                >
+                  <Button type="error" size="small">删除</Button>
+                </Poptip>
+              </div>
             </template>
           </Table>
           <!-- 分页-->
@@ -279,7 +342,7 @@ export default {
       }
       // 模拟异步验证效果
       setTimeout(() => {
-        if (Number.isNaN(value)) {
+        if (!Number.isInteger(value)) {
           callback(new Error("存在中英文，请重新输入数字！"));
         } else {
           callback();
@@ -294,92 +357,76 @@ export default {
       },
       columns: [
         {
-          type: "index",
-          width: 60,
-          align: "center"
+          title: "水表读数（吨）",
+          slot: "waterNumber",
+          key: "waterNumber"
         },
         {
-          title: "楼栋名",
-          slot: "buildingName",
-          key: "buildingName",
-          align: "center"
-        },
-        {
-          title: "房号",
-          slot: "roomNumber",
-          key: "roomNumber",
-          align: "center"
+          title: "电表读数（度）",
+          slot: "electricityNumber",
+          key: "electricityNumber"
         },
         {
           title: "企业",
           slot: "owner",
-          key: "owner",
-          align: "center"
+          key: "owner"
         },
         {
-          title: "上期水表读数（吨）",
-          slot: "waterNumberPrevious",
-          key: "waterNumberPrevious",
-          align: "center"
+          title: "楼栋名",
+          slot: "buildingName",
+          key: "buildingName"
         },
         {
-          title: "本期水表读数（吨）",
-          slot: "waterNumber",
-          key: "waterNumber",
-          align: "center"
+          title: "房号",
+          slot: "roomNumber",
+          key: "roomNumber"
         },
+
         {
-          title: "水表读数差值（吨）",
-          slot: "waterDifference",
-          key: "waterDifference",
-          align: "center"
-        },
-        {
-          title: "水费（元）",
-          slot: "waterCost",
-          key: "waterCost",
-          align: "center"
-        },
-        {
-          title: "上期电表读数（度）",
-          slot: "electricityNumberPrevious",
-          key: "electricityNumberPrevious",
-          align: "center"
-        },
-        {
-          title: "本期电表读数（度）",
-          slot: "electricityNumber",
-          key: "electricityNumber",
-          align: "center"
-        },
-        {
-          title: "电表读数差值（度）",
-          slot: "electricityDifference",
-          key: "electricityDifference",
-          align: "center"
-        },
-        {
-          title: "电费（元）",
-          slot: "electricityCost",
-          key: "electricityCost",
-          align: "center"
-        },
-        {
-          title: "水电费总金额（元）",
-          slot: "total",
-          key: "total",
-          align: "center"
+          title: "操作",
+          slot: "action"
         }
       ],
-      data: [], //数据
+      // {
+      //     title: "缴费",
+      //     slot: "pay",
+      //     key: "pay"
+      //   },
+      previousColumns: [
+        {
+          title: "水表读数（吨）",
+          slot: "waterNumber"
+        },
+        {
+          title: "电表读数（度）",
+          slot: "electricityNumber"
+        },
+        {
+          title: "企业",
+          slot: "owner"
+        },
+        {
+          title: "楼栋名",
+          slot: "buildingName"
+        },
+        {
+          title: "房号",
+          slot: "roomNumber"
+        }
+      ],
+      data: [], //本期数据
+      previousData: [], //上期数据
+      editIndex: -1, // 当前聚焦的输入框的行数
+      editWaterNumber: "", // 水表输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
+      editElectricityNumber: "", // 电表列输入框
       uploadLoading: false, //上传状态
       progressPercent: 0,
       showProgress: false,
-      showRemoveFile: false, //文件删除状态
-      file: null, //文件状态
-      tableLoading: false, //列表状态
-      exportLoading: false, //导出状态
-      exportLoadingTemplate: false, //导出模板状态
+      showRemoveFile: false,
+      file: null,
+      tableLoading: false,
+      exportLoading: false,
+      exportLoadingTemplate: false,
       value2: false, //左抽屉
       value3: false, //右抽屉
       styles: {
@@ -389,29 +436,30 @@ export default {
         position: "static"
       },
       formData: {
-        waterNumber: "", //水表读数
-        electricityNumber: "", //电表读数
-        owner: "", //企业
-        buildingName: "", //楼栋
-        roomNumber: "", //房号
-        startTime: "", //开始时间
-        endTime: "", //结束时间
+        waterNumber: "",
+        electricityNumber: "",
+        owner: "",
+        buildingName: "",
+        roomNumber: "",
+        startTime: "",
+        endTime: "",
         buildingList: [], //楼栋表
-        roomList: [] //房间表
+        roomList: [], //房间表
+        pay: ""
       },
       ruleformData: {
         buildingName: [
           {
             required: true,
             message: "请选择楼栋",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
         roomNumber: [
           {
             required: true,
             message: "请选择房号",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
         waterNumber: [
@@ -446,6 +494,8 @@ export default {
         ]
       },
       timeText: "",
+      dateText: "",
+      dateTextPrevious: "",
       value4: true, //时间数据状态
       value5: true, //水费数据状态
       value6: true, //电费数据状态
@@ -454,27 +504,27 @@ export default {
       pageStart: 0,
       dataCount: 0, //后台数据的总记录
       pageSize: 10, //每页显示多少条
-      errorCount: 0, // excel 导入错误几条记录
-      excelLoading: 1 // excel 等待
+      pageCurrentPrevious: 1, //当前页数
+      pageStartPrevious: 0,
+      dataCountPrevious: 0, //后台数据的总记录
+      pageSizePrevious: 10, //每页显示多少条
+      errorCount: 0 // excel 导入错误几条记录
     };
   },
   mounted() {
     this.getPaymentDataPage(this.pageCurrent);
+    this.getPaymentPreviousData(this.pageCurrentPrevious);
     this.year();
+    this.timeNow();
   },
   methods: {
-    initAddForm() {
-      this.formData.owner = "";
-      this.formData.roomNumber = "";
-    },
-    addForm() {
+    addList() {
       this.value3 = true;
       this.getBuilding();
-      this.initAddForm();
+      this.addTime();
     },
     //选择的楼栋数据
     building() {
-      this.addTime();
       this.getRoomList();
       this.formData.owner = "";
       this.formData.roomNumber = "";
@@ -531,6 +581,126 @@ export default {
           this.formData.owner = response.data;
         });
     },
+    handleEdit(row, index) {
+      this.editWaterNumber = row.waterNumber;
+      this.editElectricityNumber = row.electricityNumber;
+      this.editEnterpriseNumber = row.enterpriseNumber;
+      this.editIndex = index;
+    },
+    //删除所有数据
+    removeAll() {
+      let i,
+        _this = this;
+      axios
+        .request({
+          url: "/payment/deletePaymentDataAll",
+          method: "post"
+        })
+        .then(function(response) {
+          _this.data = response.data;
+        });
+      this.$Message.success("已删除所有数据！");
+    },
+    //保存数据
+    handleSave(index) {
+      if (this.editWaterNumber != "" && this.editElectricityNumber != "") {
+        this.data[index].waterNumber = this.editWaterNumber;
+        this.data[index].electricityNumber = this.editElectricityNumber;
+        this.editIndex = -1;
+        if (
+          this.data[index].waterNumber != "" &&
+          this.data[index].electricityNumber != ""
+        ) {
+          //修改
+          axios
+            .request({
+              url: "/payment/updatePaymentData",
+              method: "post",
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
+                id: this.data[index].id,
+                waterNumber: this.data[index].waterNumber,
+                electricityNumber: this.data[index].electricityNumber
+              }
+            })
+            .then(response => {
+              if (response.data == 1) {
+                this.$Message.success("修改成功！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+              }
+            })
+            .catch(error => {
+              if (error) {
+                this.$Message.error("修改失败！");
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+              }
+            });
+        }
+      } else {
+        this.$Message.error("存在空数据或者中英文！请重新修改数据！");
+      }
+    },
+    //得到上期数据
+    getPaymentPreviousData(index) {
+      this.pageNumPrevious = index;
+      this.pageStartPrevious = (index - 1) * this.pageSizePrevious;
+      axios
+        .request({
+          url: "/payment/getPreviousPaymentList",
+          method: "get",
+          params: {
+            dataStart: this.pageStartPrevious,
+            dataEnd: this.pageSizePrevious
+          }
+        })
+        .then(response => {
+          this.previousData = response.data.paymentInfos;
+          this.dataCountPrevious = response.data.dataCount;
+        });
+    },
+    // 改变上期数据每页条数
+    changePreviousPageNumber(index) {
+      this.pageSizePrevious = index;
+      if (this.pageCurrentPrevious === 1) {
+        this.changePreviousPage(this.pageCurrentPrevious);
+      }
+    },
+    // 上期数据分页
+    changePreviousPage(index) {
+      // 获得当前页数，以及发送数据请求
+      this.pageCurrentPrevious = index;
+      this.getPaymentPreviousData(index);
+    },
+    //删除数据
+    remove(index) {
+      //删除
+      axios
+        .request({
+          url: "/payment/deletePaymentData",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json" //设置请求头请求格式为JSON
+          },
+          data: {
+            id: this.data[index].id
+          }
+        })
+        .then(response => {
+          if (response.data == 1) {
+            this.$Message.success("已删除当前行！");
+            this.getPaymentDataPage(this.pageCurrent);
+            this.getPaymentPreviousData(this.pageCurrentPrevious);
+          } else {
+            this.$Message.error("删除失败！");
+          }
+        });
+    },
     //添加数据
     add(name) {
       this.$refs[name].validate(valid => {
@@ -544,27 +714,40 @@ export default {
               headers: {
                 "Content-Type": "application/json" //设置请求头请求格式为JSON
               },
-              data: this.formData
+              data: {
+                waterNumber: this.formData.waterNumber,
+                electricityNumber: this.formData.electricityNumber,
+                owner: this.formData.owner,
+                buildingName: this.formData.buildingName,
+                roomNumber: this.formData.roomNumber,
+                startTime: this.formData.startTime,
+                endTime: this.formData.endTime
+              }
             })
             .then(response => {
               if (response.data == 1) {
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
                 this.$Message.success("添加成功！");
               }
-              if (response.data == 0) {
+              if (response.data == 2) {
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
-                this.$Message.error("添加失败！数据小于上期数据！");
+                this.$Message.error("数据已存在！");
               }
             })
             .catch(error => {
               if (error) {
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
-                this.$Message.error("添加失败，服务器错误！");
+                this.$Message.error("添加失败！");
               }
             });
+        } else {
+          this.$Message.error("存在空数据或者中英文！请重新输入数据!");
         }
       });
     },
@@ -579,15 +762,8 @@ export default {
             "楼栋",
             "房号",
             "企业",
-            "上期水表读数（吨）",
-            "本期水表读数（吨）",
-            "水表读数差值（吨）",
-            "水费（元）",
-            "上期电表读数（度）",
-            "本期电表读数（度）",
-            "电表读数差值（度）",
-            "电费（元）",
-            "水电总金额（元）",
+            "水表读数",
+            "电表读数",
             "开始时间",
             "结束时间"
           ],
@@ -595,20 +771,13 @@ export default {
             "buildingName",
             "roomNumber",
             "owner",
-            "waterNumberPrevious",
             "waterNumber",
-            "waterDifference",
-            "waterCost",
-            "electricityNumberPrevious",
             "electricityNumber",
-            "electricityDifference",
-            "electricityCost",
-            "total",
             "startTime",
             "endTime"
           ],
           autoWidth: true,
-          filename: "缴费管理数据总汇"
+          filename: "缴费管理"
         };
         excel.export_array_to_excel(params);
         this.exportLoading = false;
@@ -629,17 +798,8 @@ export default {
             ownerTemplate: "钉钉",
             waterNumberTemplate: "15",
             electricityNumberTemplate: "20",
-            startTimeTemplate: "2018-09-08",
-            endTimeTemplate: "2018-10-08"
-          },
-          {
-            buildingTemplate: "2号楼",
-            roomTemplate: "101",
-            ownerTemplate: "钉钉",
-            waterNumberTemplate: "15",
-            electricityNumberTemplate: "20",
-            startTimeTemplate: "2019-09-08",
-            endTimeTemplate: "2019-10-08"
+            startTimeTemplate: "2019/9/8",
+            endTimeTemplate: "2019/10/8"
           }
         ],
         title: [
@@ -719,7 +879,7 @@ export default {
       reader.onload = e => {
         const readerData = e.target.result;
         const { header, results } = excel.read(readerData, "array");
-        this.excelLoading = results.length;
+
         for (var key in results) {
           results[key].waterNumber = results[key].水表读数;
           results[key].electricityNumber = results[key].电表读数;
@@ -739,8 +899,6 @@ export default {
           results[key].startTime != "" &&
           results[key].endTime != ""
         ) {
-          this.handleSpinCustom();
-          this.value2 = false;
           axios
             .request({
               url: "/payment/insertPaymentDataExcel",
@@ -754,52 +912,48 @@ export default {
               if (response.data.excelFlag == 1) {
                 this.$Message.success("上传成功！");
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
+                this.value2 = false;
               }
               if (response.data.excelFlag == 0) {
                 this.$Message.error(
-                  "上传失败，excel中存在本期期数据小于上期数据!"
+                  "上传失败," + response.data.errorCount + "条数据！"
                 );
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
+                this.value2 = false;
+              }
+              if (response.data.excelFlag == 2) {
+                this.$Message.error(
+                  "上传失败,存在重复数据！已删除本次上传的" +
+                    response.data.errorCount +
+                    "条重复数据！"
+                );
+                this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
+                this.year();
+                this.value2 = false;
               }
             })
             .catch(error => {
               if (error) {
-                this.$Message.error("上传失败,服务器错误！");
+                this.$Message.error("上传失败！");
                 this.getPaymentDataPage(this.pageCurrent);
+                this.getPaymentPreviousData(this.pageCurrentPrevious);
                 this.year();
                 this.value2 = false;
               }
             });
         }
+
         this.uploadLoading = false;
         this.tableLoading = false;
         this.showRemoveFile = true;
       };
     },
-    //等待
-    handleSpinCustom() {
-      let time = 115 * this.excelLoading;
-      this.$Spin.show({
-        render: h => {
-          return h("div", [
-            h("Icon", {
-              class: "demo-spin-icon-load",
-              props: {
-                type: "ios-loading",
-                size: 28
-              }
-            }),
-            h("div", "Loading")
-          ]);
-        }
-      });
-      setTimeout(() => {
-        this.$Spin.hide();
-      }, time);
-    },
-    //得到数据及条数
+    //得到本期数据及条数
     getPaymentDataPage(index) {
       this.pageNum = index;
       this.pageStart = (index - 1) * this.pageSize;
@@ -817,14 +971,14 @@ export default {
           this.dataCount = response.data.dataCount;
         });
     },
-    // 数据改变每页条数
+    // 本期数据改变每页条数
     changePageNumber(index) {
       this.pageSize = index;
       if (this.pageCurrent === 1) {
         this.changePage(this.pageCurrent);
       }
     },
-    // 数据分页
+    // 本期数据分页
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
@@ -939,7 +1093,13 @@ export default {
     },
     //取消
     cancel() {},
-    //新增数据时自动显示的时间
+    //时间
+    timeNow() {
+      this.dateText = new Date().getFullYear() + "/" + new Date().getMonth();
+      this.dateTextPrevious =
+        new Date().getFullYear() + "/" + (new Date().getMonth() - 1);
+    },
+    //新增数据的显示时间
     addTime() {
       this.formData.startTime =
         new Date().getFullYear() + "/" + (new Date().getMonth() + 1);
