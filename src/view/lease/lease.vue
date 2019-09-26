@@ -49,19 +49,22 @@
       title="合同详情信息"
     >
 
-      <p style="margin-top:10px;margin-bottom:10px">
-        <span style="font-size:14px"><strong>公司名称:</strong> {{selectContract.owner}}</span>
-        <span style="font-size:14px;margin-left:45px"><strong>所属楼栋:</strong> {{selectContract.buildingName}}</span>
-        <span style="font-size:14px;margin-left:45px"><strong>房间号:</strong> {{selectContract.roomNumber}}</span>
-        <span style="font-size:14px;margin-left:45px"><strong>合同保证金:</strong> {{selectContract.depositOnContracts}}</span>
-        <span style="font-size:14px;margin-left:45px"><strong>签订时间:</strong> {{selectContract.insertTime}}</span>
+      <p style="margin-top:10px;margin-bottom:10px;display:flex">
+        <span style="font-size:14px;flex:1"><strong>所属楼栋:</strong> {{selectContract.buildingName}}</span>
+        <span style="font-size:14px;margin-left:35px;flex:1"><strong>房间号:</strong> {{selectContract.roomNumber}}</span>
+        <span style="font-size:14px;margin-left:35px;flex:2"><strong>公司名称:</strong> {{selectContract.owner}}</span>
+      </p>
+      <p style="margin-top:10px;margin-bottom:10px;display:flex">
+      <span style="font-size:14px;flex:1"><strong>租金单价:</strong> {{selectContract.depositOnContracts}} 元/月/㎡</span>
+        <span style="font-size:14px;margin-left:35px;flex:1"><strong>合同保证金:</strong> {{selectContract.depositOnContracts}} 元</span>
+        <span style="font-size:14px;margin-left:35px;flex:1"><strong>签订时间:</strong> {{selectContract.insertTime}}</span>
         <span
           v-if="selectContract.noPayPeriod!=0"
-          style="font-size:14px;margin-left:45px"
+          style="font-size:14px;margin-left:35px;flex:1"
         ><strong>剩余未缴费租期:</strong> {{selectContract.noPayPeriod}} 月</span>
         <span
           v-else
-          style="font-size:14px;margin-left:45px"
+          style="font-size:14px;margin-left:35px;flex:1"
         ><strong>合同费用:</strong> 已缴清</span>
       </p>
 
@@ -168,6 +171,7 @@
             v-model="payFormData.roomNumber"
             style="width:200px"
             transfer:true
+            @on-change="getPayUnitPrice"
           >
             <Option
               v-for="item in selectRoomNumber(payRoomData,payFormData)"
@@ -185,23 +189,22 @@
         </FormItem>
 
         <FormItem
-          label="租金单价(元/月/平米):"
-          prop="unitPrice"
-        >
-          <Input
-            clearable
-            v-model="payFormData.unitPrice"
-          />
-        </FormItem>
-
-        <FormItem
           label="租期周期(月):"
           prop="period"
         >
           <Input
             clearable
             v-model="payFormData.period"
+            style="width:200px"
           />
+        </FormItem>
+
+        <FormItem
+          label="租金单价:"
+          prop="unitPrice"
+        >
+          <p v-if="payFormData.unitPrice==''"> 0 (元/月/平米)</p>
+          <p v-else> {{payFormData.unitPrice}} (元/月/平米)</p>
         </FormItem>
 
         <FormItem
@@ -560,13 +563,6 @@ export default {
             trigger: "change"
           }
         ],
-        unitPrice: [
-          {
-            required: true,
-            message: "租金单价不得为空",
-            trigger: "blur"
-          }
-        ],
         period: [
           {
             required: true,
@@ -736,6 +732,24 @@ export default {
   },
 
   methods: {
+    // 获取租金单价
+    getPayUnitPrice() {
+      let _this = this;
+      let _data = this.payFormData;
+      axios
+        .request({
+          url: "/lease/getPayUnitPrice",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+          },
+          data: _data
+        })
+        .then(function(response) {
+          _this.payFormData.unitPrice = response.data;
+        });
+    },
+
     // 查询按钮点击事件
     searchButton(value) {
       this.searchData = value;

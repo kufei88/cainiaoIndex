@@ -1,20 +1,21 @@
 import axios from '@/libs/api.request'
-
 export const login = ({
   userName,
   password
 }) => {
-  const data = {
+  const _data = {
     username: userName,
     password: password
   }
 
   return axios.request({
-    url: 'user/login',
-    params: data,
-    method: 'get'
+    url: 'Login/log',
+    headers: {
+      "Content-Type": "application/json", //设置请求头请求格式为JSON
+    },
+    data: _data,
+    method: 'post'
   })
-
 }
 
 export const getUserInfo = (token) => {

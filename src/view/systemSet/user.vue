@@ -240,6 +240,7 @@
 
 <script>
 import axios from "@/libs/api.request";
+import md5 from "js-md5";
 export default {
   data() {
     return {
@@ -340,7 +341,8 @@ export default {
         },
         {
           title: "密码",
-          key: "password"
+          key: "password",
+          tooltip:true
         },
         {
           title: "用户名",
@@ -410,6 +412,7 @@ export default {
         this.$Message.error("请先选择记录");
       }
     },
+
     // 修改按钮
     updateButton() {
       if (this.isSelectRow == true) {
@@ -418,6 +421,7 @@ export default {
         this.$Message.error("请先选择记录");
       }
     },
+
     // 对选中行的操作
     currentChange(currentRow, oldCurrentRow) {
       // 把选中行的数据赋值给修改表单
@@ -425,6 +429,7 @@ export default {
       // 修改选中状态
       this.isSelectRow = true;
     },
+
     // 确认提交新增数据
     handleSubmit(name) {
       this.$refs[name].validate(valid => {
@@ -435,6 +440,7 @@ export default {
             case "insertForm":
               //处理数据，添加新增时间
               this.insertFormData.insertTime = this.getFormatDate();
+              this.insertFormData.password = md5(this.insertFormData.password);
               // 开始向后台发送数据
               axios
                 .request({
@@ -494,6 +500,7 @@ export default {
         }
       });
     },
+
     // 弹窗取消按钮
     handleReset(name) {
       switch (name) {
@@ -509,12 +516,14 @@ export default {
           break;
       }
     },
+
     // 查询数据
     search_Btn(value) {
       this.searchData = value;
       this.pageCurrent = 1;
       this.getRequestData(this.pageCurrent);
     },
+
     // 改变每页条数
     changePageNumber(index) {
       this.pageSize = index;
@@ -522,12 +531,14 @@ export default {
         this.changePage(this.pageCurrent);
       }
     },
+
     // 分页
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
       this.getRequestData(index);
     },
+
     // 从后台查询数据
     getRequestData(index) {
       let _this = this;
@@ -548,6 +559,7 @@ export default {
           _this.isSelectRow = false;
         });
     },
+
     // 获取当前系统时间
     getFormatDate() {
       var date = new Date();
@@ -574,6 +586,7 @@ export default {
       return currentDate;
     }
   },
+
   mounted() {
     this.getRequestData(this.pageCurrent);
   }

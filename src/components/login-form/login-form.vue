@@ -20,6 +20,7 @@
   </Form>
 </template>
 <script>
+import crypto from 'crypto'
 export default {
   name: "LoginForm",
   props: {
@@ -27,6 +28,12 @@ export default {
       type: Array,
       default: () => {
         return [{ required: true, message: "账号不能为空", trigger: "blur" }];
+      }
+    },
+    passwordRules: {
+      type: Array,
+      default: () => {
+        return [{ required: true, message: "密码不能为空", trigger: "blur" }];
       }
     }
   },
@@ -48,15 +55,25 @@ export default {
   },
   methods: {
     handleSubmit() {
+      let _this=this;
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.$emit("on-success-valid", {
             userName: this.form.userName,
-            password: this.form.password
+            password: _this.getmd5(this.form.password)
           });
         }
       });
+    },
+    getmd5(str){
+      var a;
+      var md5 = crypto.createHash("md5");
+      md5.update(str);
+      var a = md5.digest('hex');
+
+      return a;
     }
+
   }
 };
 </script>

@@ -27,13 +27,11 @@ export default {
     handleSubmit({ userName, password }) {
       let _this = this;
       this.handleLogin({ userName, password }).then(res => {
-        console.log(res);
-        if (res.returnCode == 404) {
+        if (res == 404) {
           this.$Message.error("用户名不存在");
-        } else if (res.returnCode == 500) {
+        } else if (res == 500) {
           this.$Message.error("密码错误");
-        } else if (res.returnCode == 100) {
-          console.log(111);
+        } else if (res == 100) {
           _this.$store.commit("setToken", userName);
           _this.$store.commit("setAccess", res.msg);
           _this.$store.commit(
@@ -44,12 +42,13 @@ export default {
             name: "home"
           });
         }
-        /*
-        this.getUserInfo().then(res => {
-          this.$router.push({
-            name: "home"
-          });
-        }); */
+        
+        // this.getUserInfo().then(res => {
+        //   this.$router.push({
+        //     name: "home"
+        //   });
+        // }); 
+
       });
     }
   }
