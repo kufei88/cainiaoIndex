@@ -261,15 +261,31 @@ export default {
         account: [
           {
             required: true,
-            message: "账号不得为空",
-            trigger: "blur"
+            message: "账号长度4到16位，可以使用字母、数字、下划线、减号",
+            trigger: "blur",
+            transform(value) {
+              var uPattern = /^[a-zA-Z0-9_-]{4,16}$/;
+              if (!uPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ],
         password: [
           {
             required: true,
-            message: "密码不得为空",
-            trigger: "blur"
+            message: "密码长度6到16位，可以使用字母、数字、下划线、特殊字符",
+            trigger: "blur",
+            transform(value) {
+              var pPattern = /^[a-zA-Z0-9+-=_/!@#$%^&*?]{4,16}$/;
+              if (!pPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ],
         userName: [
@@ -283,7 +299,7 @@ export default {
           {
             required: true,
             message: "性别不得为空",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
         telephone: [
@@ -342,7 +358,7 @@ export default {
         {
           title: "密码",
           key: "password",
-          tooltip:true
+          tooltip: true
         },
         {
           title: "用户名",
@@ -426,6 +442,7 @@ export default {
     currentChange(currentRow, oldCurrentRow) {
       // 把选中行的数据赋值给修改表单
       this.updateFormData = currentRow;
+      this.updateFormData.password = "";
       // 修改选中状态
       this.isSelectRow = true;
     },
@@ -469,6 +486,7 @@ export default {
             case "updateForm":
               //处理数据，添加修改时间
               this.updateFormData.updateTime = this.getFormatDate();
+              this.updateFormData.password = md5(this.updateFormData.password);
               // 开始向后台发送数据
               axios
                 .request({

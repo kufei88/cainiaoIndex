@@ -1,10 +1,48 @@
 <template>
   <div>
-    <Button type="primary" @click="showadd()" ghost>新增合同</Button>
-    <Button type="primary" @click="shownext()" ghost>合同详情</Button>
-    <Button type="primary" @click="showRadd()" ghost>续租</Button>
-    <Button type="primary" @click="showChange()" ghost>合同变更</Button>
-    <Button type="primary" :loading="exportLoading" @click="exportExcel" ghost>导出</Button>
+    <Input
+      search
+      enter-button
+      placeholder="请输入公司名"
+      @on-search="getNameCount()"
+      v-model="cname.name"
+      style="width: 300px;float:left"
+    />
+    <Button
+      type="primary"
+      :loading="exportLoading"
+      @click="exportExcel"
+      ghost
+      style="float:right"
+    >导出</Button>
+    <Button
+      type="primary"
+      @click="showChange()"
+      ghost
+      style="float:right"
+    >合同变更</Button>
+
+    <Button
+      type="primary"
+      @click="showRadd()"
+      ghost
+      style="float:right"
+    >续租</Button>
+
+    <Button
+      type="primary"
+      @click="shownext()"
+      ghost
+      style="float:right"
+    >合同详情</Button>
+
+    <Button
+      type="primary"
+      @click="showadd()"
+      ghost
+      style="float:right"
+    >新增合同</Button>
+    <div style="clear:both"></div>
     <!-- <Button type="primary" :loading="exportLoading1" @click="exportExcel1" ghost>模板下载</Button> -->
     <!-- <Upload action :before-upload="handleBeforeUpload" accept=".xls, .xlsx">
       <Button
@@ -13,78 +51,175 @@
         @click="handleUploadFile"
       >上传文件</Button>
     </Upload> -->
-    <Modal v-model="modal7" title="变更合同">
-      <Form ref="changeData" :model="changeData" :rules="changeDatarules" :label-width="80">
-        <FormItem label="变更业主名" prop="owner">
-          <Input type="text" v-model="changeData.owner" />
+    <Modal
+      v-model="modal7"
+      title="变更合同"
+    >
+      <Form
+        ref="changeData"
+        :model="changeData"
+        :rules="changeDatarules"
+        :label-width="80"
+      >
+        <FormItem
+          label="变更业主名"
+          prop="owner"
+        >
+          <Input
+            type="text"
+            v-model="changeData.owner"
+          />
         </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="text" size="large" @click="modal7=false">取消</Button>
-        <Button type="primary" size="large" @click="changeContract()">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="modal7=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="changeContract()"
+        >确定</Button>
       </div>
     </Modal>
 
-    <Modal v-model="modal2" title="合同详情" width="800">
+    <Modal
+      v-model="modal2"
+      title="合同详情"
+      width="800"
+    >
       <div style="text-align:center">
         <h2>公司:{{ selectRowData.owner }}</h2>
       </div>
       <div>
-        <h3>租赁宿舍:{{selectRowData.buildingName}}</h3>
+        <h3>租赁宿舍:{{selectRowData.buildingName}}
+          <span>租赁房间号:{{selectRowData.roomNumber}}</span>
+          <span>房间类型:{{rt}}</span>
+        </h3>
+
         <span style="margin-right:20px">联系人:{{ ownerdata.enterprisePerson}}</span>
 
         <span>联系电话:{{ ownerdata.contactNumber}}</span>
       </div>
-      <Table border :columns="renewalColumns" :data="rewData" ref="table" height="300">
-        <template slot-scope="{ row, index }" slot="owner">
+      <Table
+        border
+        :columns="renewalColumns"
+        :data="rewData"
+        ref="table"
+        height="300"
+      >
+        <template
+          slot-scope="{ row, index }"
+          slot="owner"
+        >
           <span>{{ rewData[index].owner }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="contractType">
+        <template
+          slot-scope="{ row, index }"
+          slot="contractType"
+        >
           <span>{{ rewData[index].contractType }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="startDate">
+        <template
+          slot-scope="{ row, index }"
+          slot="startDate"
+        >
           <span>{{ rewData[index].continueStartTime }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="endDate">
+        <template
+          slot-scope="{ row, index }"
+          slot="endDate"
+        >
           <span>{{ rewData[index].continueEndTime }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="leasePeriod">
+        <template
+          slot-scope="{ row, index }"
+          slot="leasePeriod"
+        >
           <span>{{ rewData[index].continuePeriod }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="remark">
+        <template
+          slot-scope="{ row, index }"
+          slot="remark"
+        >
           <span>{{ rewData[index].totalCost }}</span>
         </template>
 
-        <template slot-scope="{ row, index }" slot="insertTime">
+        <template
+          slot-scope="{ row, index }"
+          slot="insertTime"
+        >
           <span>{{ rewData[index].insertTime }}</span>
         </template>
       </Table>
       <!-- <Button type="primary" @click="showfangjian()" ghost>查看租赁房号</Button> -->
     </Modal>
 
-    <Modal v-model="modal5" title="租赁房号">
-      <Table border :columns="fangjianColumns" :data="fangjianData" ref="table" height="300">
-        <template slot-scope="{ row, index }" slot="roomNumber">
+    <Modal
+      v-model="modal5"
+      title="租赁房号"
+    >
+      <Table
+        border
+        :columns="fangjianColumns"
+        :data="fangjianData"
+        ref="table"
+        height="300"
+      >
+        <template
+          slot-scope="{ row, index }"
+          slot="roomNumber"
+        >
           <span>{{ fangjianData[index].roomNumber }}</span>
         </template>
       </Table>
       <span>共{{roomAll}}条</span>
-      <Page :total="roomAll" :page-size="5" @on-change="roompage" />
+      <Page
+        :total="roomAll"
+        :page-size="5"
+        @on-change="roompage"
+      />
       <div slot="footer">
-        <Button type="text" size="large" @click="modal5=false">取消</Button>
-        <Button type="primary" size="large" @click="modal5=false">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="modal5=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="modal5=false"
+        >确定</Button>
       </div>
     </Modal>
 
-    <Modal v-model="modal1" title="新增合同" :mask-closable="false" @on-cancel="conceldata()">
-      <Form ref="formCustom" :model="editDtae" :rules="ruleCustom" :label-width="80">
-        <FormItem label="公司名称" prop="companyName">
-          <Input type="text" v-model="editDtae.companyName" />
+    <Modal
+      v-model="modal1"
+      title="新增合同"
+      :mask-closable="false"
+      @on-cancel="conceldata()"
+    >
+      <Form
+        ref="formCustom"
+        :model="editDtae"
+        :rules="ruleCustom"
+        :label-width="80"
+      >
+        <FormItem
+          label="公司名称"
+          prop="companyName"
+        >
+          <Input
+            type="text"
+            v-model="editDtae.companyName"
+          />
         </FormItem>
         <!-- <FormItem label="联系人" prop="contact">
           <Input type="text" v-model="editDtae.contact" />
@@ -100,7 +235,6 @@
             v-model="editDtae.buildingName"
             style="width:200px"
             transfer:true
-            
           >
             <Option
               v-for="item in dormitorydata"
@@ -110,8 +244,14 @@
           </Select>
         </FormItem>
 
-        <FormItem label="房间类型" prop="roomType">
-          <Select v-model="editDtae.roomType" style="width:200px">
+        <FormItem
+          label="房间类型"
+          prop="roomType"
+        >
+          <Select
+            v-model="editDtae.roomType"
+            style="width:200px"
+          >
             <Option
               v-for="item in roomTypeData"
               :value="item.roomType"
@@ -119,13 +259,27 @@
               @click.native="chioce(item)"
             >{{ item.roomType }}</Option>
           </Select>
-          <Button type="primary" @click="showdorms()" :disabled="buttonflag" ghost>选择寝室</Button>
+          <Button
+            type="primary"
+            @click="showdorms()"
+            :disabled="buttonflag"
+            ghost
+          >选择寝室</Button>
         </FormItem>
-        <FormItem label="租期" prop="leasePeriod">
-          <Input type="text" v-model="editDtae.leasePeriod" />
+        <FormItem
+          label="租期"
+          prop="leasePeriod"
+        >
+          <Input
+            type="text"
+            v-model="editDtae.leasePeriod"
+          />
         </FormItem>
 
-        <FormItem label="开始日期" prop="startDate">
+        <FormItem
+          label="开始日期"
+          prop="startDate"
+        >
           <DatePicker
             type="datetime"
             format="yyyy-MM-dd"
@@ -135,7 +289,10 @@
           ></DatePicker>
         </FormItem>
 
-        <FormItem label="结束日期" prop="endDate">
+        <FormItem
+          label="结束日期"
+          prop="endDate"
+        >
           <DatePicker
             type="datetime"
             format="yyyy-MM-dd"
@@ -147,24 +304,57 @@
         </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="text" size="large" @click="conceldata()">取消</Button>
-        <Button type="primary" size="large" @click="pushdata('formCustom')">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="conceldata()"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="pushdata('formCustom')"
+        >确定</Button>
       </div>
     </Modal>
 
-    <Modal v-model="modal3" title="续租合同">
-      <Form ref="xuzuData" :model="xuzuData" :rules="xuzuDatarules" :label-width="80">
-        <FormItem label="租期" prop="continuePeriod">
-          <Input type="text" v-model="xuzuData.continuePeriod" />
+    <Modal
+      v-model="modal3"
+      title="续租合同"
+    >
+      <Form
+        ref="xuzuData"
+        :model="xuzuData"
+        :rules="xuzuDatarules"
+        :label-width="80"
+      >
+        <FormItem
+          label="租期"
+          prop="continuePeriod"
+        >
+          <Input
+            type="text"
+            v-model="xuzuData.continuePeriod"
+          />
         </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="text" size="large" @click="modal3=false">取消</Button>
-        <Button type="primary" size="large" @click="saveXuzu()">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="modal3=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="saveXuzu()"
+        >确定</Button>
       </div>
     </Modal>
 
-    <Modal v-model="modal4" title="选择房号">
+    <Modal
+      v-model="modal4"
+      title="选择房号"
+    >
       <Table
         border
         height="300"
@@ -176,72 +366,114 @@
         @on-select-cancel="cancelSelect"
         @on-select-all-cancel="cancelAll"
       >
-        <template slot-scope="{ row, index }" slot="roomNumber">
+        <template
+          slot-scope="{ row, index }"
+          slot="roomNumber"
+        >
           <span>{{ dormsData[index].roomNumber }}</span>
         </template>
       </Table>
       <span>共{{dormAll}}条</span>
-      <Page :total="dormAll" :page-size="5" @on-change="dormpage" />
+      <Page
+        :total="dormAll"
+        :page-size="5"
+        @on-change="dormpage"
+      />
       <div slot="footer">
-        <Button type="text" size="large" @click="modal4=false">取消</Button>
-        <Button type="primary" size="large" @click="savedorms()">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="modal4=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="savedorms()"
+        >确定</Button>
       </div>
     </Modal>
-    <Modal v-model="modal6" title="提示">
+    <Modal
+      v-model="modal6"
+      title="提示"
+    >
       <p>是否确定删除</p>
       <div slot="footer">
-        <Button type="text" size="large" @click="modal6=false">取消</Button>
-        <Button type="primary" size="large" @click="deleterow()">确定</Button>
+        <Button
+          type="text"
+          size="large"
+          @click="modal6=false"
+        >取消</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="deleterow()"
+        >确定</Button>
       </div>
     </Modal>
-
-    <Input
-      search
-      enter-button
-      placeholder="请输入公司名"
-      @on-search="getNameCount()"
-      v-model="cname.name"
-      style="width: 300px"
-    />
 
     <Table
       border
+      :row-class-name="rowClassName"
       :columns="accountColumns"
       :data="accountData"
       ref="table"
       height="520"
       highlight-row
-      @on-current-change="rowSelect"
+      @on-row-click="rowSelect"
     >
-      <template slot-scope="{ row, index }" slot="companyName">
+      <template
+        slot-scope="{ row, index }"
+        slot="companyName"
+      >
         <span>{{ accountData[index].owner }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="roomNumber">
+      <template
+        slot-scope="{ row, index }"
+        slot="roomNumber"
+      >
         <span>{{ accountData[index].roomNumber }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="startDate">
+      <template
+        slot-scope="{ row, index }"
+        slot="startDate"
+      >
         <span>{{ accountData[index].startRentTime }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="endDate">
+      <template
+        slot-scope="{ row, index }"
+        slot="endDate"
+      >
         <span>{{ accountData[index].endRentTime }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="totalLeasePeriod">
+      <template
+        slot-scope="{ row, index }"
+        slot="totalLeasePeriod"
+      >
         <span>{{ accountData[index].totalPeriod }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="totalCost">
+      <template
+        slot-scope="{ row, index }"
+        slot="totalCost"
+      >
         <span>{{ accountData[index].totalCost }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="insertTime">
+      <template
+        slot-scope="{ row, index }"
+        slot="insertTime"
+      >
         <span>{{ accountData[index].insertTime }}</span>
       </template>
 
-      <template slot-scope="{ row, index }" slot="action">
+      <template
+        slot-scope="{ row, index }"
+        slot="action"
+      >
         <div v-if="editIndex === index">
           <Button @click="save(row)">保存</Button>
           <Button @click="concel()">取消</Button>
@@ -253,11 +485,22 @@
       </template>
     </Table>
     <span>共{{dormCounts}}条</span>
-    <Page :total="dormCounts" show-sizer @on-change="handlePage" @on-page-size-change="pagesize" :current="pagenum.startnum"/>
+    <Page
+      :total="dormCounts"
+      show-sizer
+      @on-change="handlePage"
+      @on-page-size-change="pagesize"
+      :current="pagenum.startnum"
+    />
   </div>
 </template>
 
-
+<style>
+.ivu-table .demo-table-error-row td {
+  background-color: #ff6600;
+  color: #000000;
+}
+</style>
 <script>
 import axios from "@/libs/api.request";
 import excel from "@/libs/excel";
@@ -272,7 +515,7 @@ export default {
     };
     var validateowner = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("业主称不能为空"));
+        callback(new Error("业主不能为空"));
       } else {
         callback();
       }
@@ -320,6 +563,8 @@ export default {
       }
     };
     return {
+      showIndex: -1, // 被选中的行数据序号
+
       ownerdata: {
         enterprisePerson: "",
         contactNumber: ""
@@ -362,9 +607,9 @@ export default {
           width: 60,
           align: "center",
           render: (h, params) => {
-        return h('span', params.index + 1);
-      } 
-      },
+            return h("span", params.index + 1);
+          }
+        },
         { title: "业主", slot: "owner", key: "owner" },
         { title: "合同类型", slot: "contractType", key: "contractType" },
         { title: "起始日期", slot: "startDate", key: "startDate" },
@@ -380,9 +625,9 @@ export default {
           align: "center",
 
           indexMethod(row) {
-             return row._index + 1 + (row.pageCurrent - 1) * row.pageSize;
-          } 
-      },
+            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize;
+          }
+        },
         { title: "公司名称", slot: "companyName", key: "companyName" },
 
         { title: "寝室房间号", slot: "roomNumber", key: "roomNumber" },
@@ -459,7 +704,7 @@ export default {
         insertTime: ""
       },
       rooms: {
-        buildingName:"",
+        buildingName: "",
         roomtype: "",
         pagedom: 1
       },
@@ -518,6 +763,9 @@ export default {
       ],
       exportLoading: false,
       exportLoading1: false,
+      year: "",
+      month: "",
+      day: ""
     };
   },
   components: {},
@@ -533,6 +781,32 @@ export default {
   },
 
   methods: {
+    rowClassName(row, index) {
+      this.getFormatDate();
+
+      var datearr = row.endRentTime.toString().split("-");
+      var eyear = parseInt(datearr[0]) * 360;
+      var emonth = parseInt(datearr[1]) * 30;
+      var eday = parseInt(datearr[2]);
+
+      var d = (
+        eyear -
+        this.year +
+        emonth -
+        this.month +
+        eday -
+        this.day
+      ).toString();
+
+      if (d <= 30) {
+        if (this.showIndex == index) {
+          return "";
+        } else {
+          return "demo-table-error-row";
+        }
+      }
+      return "";
+    },
     getRoomType() {
       let _this = this;
       axios
@@ -777,7 +1051,7 @@ export default {
         if (valid) {
           this.xuzuData.contractType = "续租";
           this.xuzuData.totalCost =
-            parseInt(this.xuzuData.continuePeriod) *this.xuzuData.unityPrice;
+            parseInt(this.xuzuData.continuePeriod) * this.xuzuData.unityPrice;
           this.xuzuData.continueStartTime = this.rewData[0].continueEndTime;
           this.xuzuData.insertTime = this.getFormatDate();
           this.insertRenewal(this.xuzuData);
@@ -806,12 +1080,13 @@ export default {
           _this.xuzuData.continuePeriod = "";
         });
     },
-    rowSelect(currentRow, oldCurrentRow) {
+    rowSelect(currentRow, index) {
+      this.showIndex = index;
       this.isSelectrow = true;
       let _this = this;
       this.selectRowData = currentRow;
-      for(var key in currentRow){
-        if(currentRow[key]==null && key.toString() !="updateTime"){
+      for (var key in currentRow) {
+        if (currentRow[key] == null && key.toString() != "updateTime") {
           return false;
         }
       }
@@ -824,27 +1099,26 @@ export default {
           },
           data: currentRow
         })
-        .then(function(response){
-          _this.getRoomMonthRent(response.data)
-        })
+        .then(function(response) {
+          _this.rt = response.data;
+          _this.getRoomMonthRent(response.data);
+        });
 
       this.renewalData.nid = currentRow.contractId;
 
       this.changeData.contractId = currentRow.contractId;
       this.changeData.totalCost = currentRow.totalCost;
-      this.changeData.continueStartTime=currentRow.startRentTime;
+      this.changeData.continueStartTime = currentRow.startRentTime;
       this.changeData.continueEndTime = currentRow.endRentTime;
-      
+
       this.changeData.continuePeriod = currentRow.totalPeriod;
 
       this.xuzuData.owner = currentRow.owner;
       this.xuzuData.contractId = currentRow.contractId;
-
-      
     },
-    getRoomMonthRent(roomTp){
-      let _this=this;
-        axios
+    getRoomMonthRent(roomTp) {
+      let _this = this;
+      axios
         .request({
           url: "/RoomType/getMonthRent",
           method: "post",
@@ -852,12 +1126,12 @@ export default {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
           },
           data: {
-            roomType:roomTp
+            roomType: roomTp
           }
         })
-        .then(function(response){
-          _this.xuzuData.unityPrice=response.data
-        })
+        .then(function(response) {
+          _this.xuzuData.unityPrice = response.data;
+        });
     },
     dateChange(date) {
       this.editDtae.startDate = date;
@@ -976,19 +1250,18 @@ export default {
         .then(function(response) {
           if (response.data == 1) {
             _this.$Message.success("合同变更成功");
-            axios
-              .request({
-                url: "/Renewal/updateRoom",
-                method: "post",
-                headers: {
-                  "Content-Type": "application/json" //设置请求头请求格式为JSON
-                },
-                data:{
-                  owner:_this.changeData.owner  ,
-                  buildingName:_this.selectRowData.buildingName,
-                  roomNumber:_this.selectRowData.roomNumber
-                }
-              });
+            axios.request({
+              url: "/Renewal/updateRoom",
+              method: "post",
+              headers: {
+                "Content-Type": "application/json" //设置请求头请求格式为JSON
+              },
+              data: {
+                owner: _this.changeData.owner,
+                buildingName: _this.selectRowData.buildingName,
+                roomNumber: _this.selectRowData.roomNumber
+              }
+            });
           } else {
             _this.$Message.error("合同变更失败");
           }
@@ -1043,7 +1316,7 @@ export default {
       this.getRenwealData(_this.renewalData);
       this.getOwnerList();
     },
-    getOwnerList(){
+    getOwnerList() {
       let _this = this;
       axios
         .request({
@@ -1063,7 +1336,7 @@ export default {
     },
     chioce(room) {
       this.rooms.roomtype = room.roomType;
-      this.rooms.buildingName=this.editDtae.buildingName;
+      this.rooms.buildingName = this.editDtae.buildingName;
       this.buttonflag = false;
       this.monthmoney = room.monthRent;
     },
@@ -1191,7 +1464,7 @@ export default {
         })
         .then(function(response) {
           _this.accountData = response.data;
-          _this.addPageCurrentAndPageSize( _this.accountData);
+          _this.addPageCurrentAndPageSize(_this.accountData);
         });
     },
 
@@ -1205,7 +1478,7 @@ export default {
         })
         .then(function(response) {
           _this.accountData = response.data;
-          _this.addPageCurrentAndPageSize( _this.accountData);
+          _this.addPageCurrentAndPageSize(_this.accountData);
         });
     },
     getListByname() {
@@ -1379,8 +1652,11 @@ export default {
     // 获取当前系统时间
     getFormatDate() {
       var date = new Date();
+      this.year = date.getFullYear() * 360;
       var month = date.getMonth() + 1;
+      this.month = month * 30;
       var strDate = date.getDate();
+      this.day = date.getDate();
       if (month >= 1 && month <= 9) {
         month = "0" + month;
       }

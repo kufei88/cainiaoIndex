@@ -10,9 +10,6 @@
       <Tooltip content="添加新数据" placement="top">
         <Button class="btn" @click="addForm" type="primary">新增数据</Button>
       </Tooltip>
-      <!-- <Tooltip content="删除所有数据" placement="top">
-        <Button class="btn" @click="removeAll" type="primary">删除所有数据</Button>
-      </Tooltip>-->
     </div>
     <!-- EXCEL导入导出 -->
     <Drawer title="EXCEL" placement="left" :closable="false" v-model="value2">
@@ -234,11 +231,7 @@
     <Row>
       <Card shadow>
         单位：元
-        <example
-          style="height: 310px;"
-          v-bind:exampleData="exampleData"
-          v-if="value4 && value5 && value6"
-        />
+        <example style="height: 310px;" v-bind:exampleData="exampleData" v-if="value4" />
         <div slot="title">
           <p>水电费使用数据报表</p>
           <Poptip title="时间线" class="text-center a" v-model="visible">
@@ -246,16 +239,15 @@
               <Icon type="ios-funnel"></Icon>
               选择时间线{{timeText}}
             </a>
-
             <div slot="content" style="height:90px">
               <Divider size="small">
-                <a href="#" @click="year">年</a>
+                <a href="#" @click="getReport(1)">年</a>
               </Divider>
               <Divider size="small">
-                <a href="#" @click="quarter">季</a>
+                <a href="#" @click="getReport(2)">季</a>
               </Divider>
               <Divider size="small">
-                <a href="#" @click="month">月</a>
+                <a href="#" @click="getReport(3)">月</a>
               </Divider>
             </div>
           </Poptip>
@@ -446,9 +438,7 @@ export default {
         ]
       },
       timeText: "",
-      value4: true, //时间数据状态
-      value5: true, //水费数据状态
-      value6: true, //电费数据状态
+      value4: true, //报表展示状态
       visible: false,
       pageCurrent: 1, //当前页数
       pageStart: 0,
@@ -460,7 +450,7 @@ export default {
   },
   mounted() {
     this.getPaymentDataPage(this.pageCurrent);
-    this.year();
+    this.getReport(1);
   },
   methods: {
     initAddForm() {
@@ -549,19 +539,19 @@ export default {
             .then(response => {
               if (response.data == 1) {
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
                 this.$Message.success("添加成功！");
               }
               if (response.data == 0) {
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
                 this.$Message.error("添加失败！数据小于上期数据！");
               }
             })
             .catch(error => {
               if (error) {
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
                 this.$Message.error("添加失败，服务器错误！");
               }
             });
@@ -754,21 +744,21 @@ export default {
               if (response.data.excelFlag == 1) {
                 this.$Message.success("上传成功！");
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
               }
               if (response.data.excelFlag == 0) {
                 this.$Message.error(
                   "上传失败，excel中存在本期期数据小于上期数据!"
                 );
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
               }
             })
             .catch(error => {
               if (error) {
                 this.$Message.error("上传失败,服务器错误！");
                 this.getPaymentDataPage(this.pageCurrent);
-                this.year();
+                this.getReport(1);
                 this.value2 = false;
               }
             });
@@ -830,110 +820,29 @@ export default {
       this.pageCurrent = index;
       this.getPaymentDataPage(index);
     },
-    //年份
-    year() {
-      this.timeText = " > 年";
+    //得到报表数据
+    getReport(reportState) {
+      if (reportState == 1) {
+        this.timeText = " > 年";
+      } else if (reportState == 2) {
+        this.timeText = " > 季";
+      } else if (reportState == 3) {
+        this.timeText = " > 月";
+      }
       this.value4 = false;
-      this.value5 = false;
-      this.value6 = false;
-      let i;
       axios
         .request({
-          url: "/payment/getYearsList",
-          method: "get"
+          url: "/payment/getReportList",
+          method: "get",
+          params: {
+            reportState: reportState
+          }
         })
         .then(response => {
-          this.exampleData.timeData = response.data;
-          axios
-            .request({
-              url: "/payment/getYearsWaterCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.waterData = response.data;
-              this.value5 = true;
-            });
-          axios
-            .request({
-              url: "/payment/getYearsElectricityCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.electricityData = response.data;
-              this.value6 = true;
-            });
-
+          this.exampleData.timeData = response.data.timeList;
+          this.exampleData.waterData = response.data.waterList;
+          this.exampleData.electricityData = response.data.electricityList;
           this.value4 = true;
-        });
-      this.visible = false;
-    },
-    //月份
-    month() {
-      this.timeText = " > 月";
-      this.value4 = false;
-      this.value5 = false;
-      this.value6 = false;
-      axios
-        .request({
-          url: "/payment/getMonthList",
-          method: "get"
-        })
-        .then(response => {
-          this.exampleData.timeData = response.data;
-          this.value4 = true;
-          axios
-            .request({
-              url: "/payment/getMonthWaterCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.waterData = response.data;
-              this.value5 = true;
-            });
-          axios
-            .request({
-              url: "/payment/getMonthElectricityCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.electricityData = response.data;
-              this.value6 = true;
-            });
-        });
-      this.visible = false;
-    },
-    //季度
-    quarter() {
-      this.timeText = " > 季";
-      this.value4 = false;
-      this.value5 = false;
-      this.value6 = false;
-      axios
-        .request({
-          url: "/payment/getQuarterList",
-          method: "get"
-        })
-        .then(response => {
-          this.exampleData.timeData = response.data;
-          this.value4 = true;
-          axios
-            .request({
-              url: "/payment/getQuarterWaterCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.waterData = response.data;
-              this.value5 = true;
-            });
-          axios
-            .request({
-              url: "/payment/getQuarterElectricityCostList",
-              method: "get"
-            })
-            .then(response => {
-              this.exampleData.electricityData = response.data;
-              this.value6 = true;
-            });
         });
       this.visible = false;
     },

@@ -74,7 +74,9 @@
           <Select
             v-model="formValidate.buildingName"
             style="width:200px"
-            transfer:true         
+            transfer:true
+            disabled
+            
           >
             <Option
               v-for="item in buildingData"

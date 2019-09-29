@@ -281,8 +281,16 @@ export default {
         roomNumber: [
           {
             required: true,
-            message: "房号不得为空",
-            trigger: "blur"
+            message: "请输入正确的房间号",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ],
         buildingName: [
@@ -295,15 +303,31 @@ export default {
         rentArea: [
           {
             required: true,
-            message: "计租面积不得为空",
-            trigger: "blur"
+            message: "请输入正确的面积大小",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ],
         buildingArea: [
           {
             required: true,
-            message: "建筑面积不得为空",
-            trigger: "blur"
+            message: "请输入正确的面积大小",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ]
       },
