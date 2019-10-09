@@ -527,10 +527,12 @@ export default {
         callback();
       }
     };
+    
     var validatecontactNumber = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("联系电话不能为空"));
-      } else {
+      }
+       else {
         callback();
       }
     };
@@ -548,10 +550,15 @@ export default {
         callback();
       }
     };
+    var tel=/^[0-9]*$/;
     var validateleasePeriod = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("租期不能为空"));
-      } else {
+      }
+      else if(!tel.test(value)){
+        callback(new Error("请输入数字"));
+      }
+       else {
         callback();
       }
     };
@@ -1491,6 +1498,7 @@ export default {
         })
         .then(function(response) {
           _this.accountData = response.data;
+          _this.addPageCurrentAndPageSize(_this.accountData);
         });
     },
     getNameCount() {

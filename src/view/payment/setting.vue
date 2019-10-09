@@ -291,6 +291,7 @@ export default {
                   .then(response => {
                     this.data = response.data;
                     this.value2 = false;
+                    this.valueBtn = false;
                   });
               } else {
                 this.$Message.error("添加失败！");

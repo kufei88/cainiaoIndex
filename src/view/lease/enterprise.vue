@@ -206,6 +206,7 @@
           >修改</Button>
 
           <Button
+            v-if="row.state!='已入驻'"
             type="error"
             @click="handleDelete(index)"
           >删除</Button>
@@ -257,7 +258,7 @@ export default {
           enterpriseName: "例如：某某有限公司",
           enterprisePerson: "填写公司主要负责人名称",
           contactNumber: "填写负责人电话",
-          state: "企业登记状态，如未注册、已注册、已入驻"
+          state: "企业登记状态，如未注册、已注册"
         }
       ],
 
@@ -396,16 +397,19 @@ export default {
               if (response.data == 1) {
                 _this.$Message.success("添加成功");
                 _this.getRequestData(_this.pageCurrent);
+                _this.isAddNewData = false;
               } else if (response.data == -1) {
                 _this.$Message.error("已有该企业存在");
               } else {
                 _this.$Message.error("添加失败");
+                _this.isAddNewData = false;
               }
             })
             .then(function() {
-              _this.$refs[name].resetFields();
+              if (_this.isAddNewData == false) {
+                _this.$refs[name].resetFields();
+              }
             });
-          this.isAddNewData = false;
         }
       });
     },
@@ -619,7 +623,9 @@ export default {
         this.pageData[index].contactNumber == undefined
       ) {
         this.$Message.error("有内容未填写");
-      } else if (this.isNumberRule(this.pageData[index].contactNumber)==false) {
+      } else if (
+        this.isNumberRule(this.pageData[index].contactNumber) == false
+      ) {
         this.$Message.error("请输入正确的联系方式");
       } else {
         this.pageData[index].updateTime = this.getFormatDate();

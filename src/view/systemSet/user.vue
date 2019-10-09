@@ -4,7 +4,7 @@
     <Input
       search
       enter-button="查询"
-      placeholder="请输入查询账号"
+      placeholder="请输入查询关键字，如账号、用户名"
       style="width:300px;margin-bottom:10px;float:left;"
       @on-search="search_Btn"
       v-model="searchData"
@@ -57,11 +57,11 @@
 
         <FormItem
           label="密码"
-          prop="password"
+          prop="usePassword"
         >
           <Input
             clearable
-            v-model="insertFormData.password"
+            v-model="insertFormData.usePassword"
           />
         </FormItem>
 
@@ -148,7 +148,7 @@
 
         <FormItem
           label="密码"
-          prop="password"
+          prop="usePassword"
         >
           <Input
             clearable
@@ -244,11 +244,12 @@ import md5 from "js-md5";
 export default {
   data() {
     return {
+      updatePassword:"", // 修改时的密码保存
       isSelectRow: false, // 是否选择表格的某一行
       // 修改表单填写
       updateFormData: {
         account: "",
-        password: "",
+        password:"",
         userName: "",
         sex: "",
         telephone: "",
@@ -273,13 +274,14 @@ export default {
             }
           }
         ],
-        password: [
+        usePassword: [
           {
             required: true,
             message: "密码长度6到16位，可以使用字母、数字、下划线、特殊字符",
             trigger: "blur",
             transform(value) {
-              var pPattern = /^[a-zA-Z0-9+-=_/!@#$%^&*?]{4,16}$/;
+              var pPattern = /^[a-zA-Z0-9+-=_/!@#$%^&*?]{4,16}$/; 
+                           
               if (!pPattern.test(value)) {
                 return false;
               } else {
@@ -329,7 +331,7 @@ export default {
       // 新增表单填写
       insertFormData: {
         account: "",
-        password: "",
+        usePassword: "",
         userName: "",
         sex: "",
         telephone: "",
@@ -354,11 +356,6 @@ export default {
         {
           title: "账号",
           key: "account"
-        },
-        {
-          title: "密码",
-          key: "password",
-          tooltip: true
         },
         {
           title: "用户名",
@@ -399,6 +396,7 @@ export default {
           onOk: () => {
             let _this = this;
             let _data = this.updateFormData;
+
             axios
               .request({
                 url: "/user/deleteUserInfo",
@@ -442,7 +440,7 @@ export default {
     currentChange(currentRow, oldCurrentRow) {
       // 把选中行的数据赋值给修改表单
       this.updateFormData = currentRow;
-      this.updateFormData.password = "";
+      this.updatePassword=currentRow.password
       // 修改选中状态
       this.isSelectRow = true;
     },
@@ -457,7 +455,9 @@ export default {
             case "insertForm":
               //处理数据，添加新增时间
               this.insertFormData.insertTime = this.getFormatDate();
-              this.insertFormData.password = md5(this.insertFormData.password);
+              this.insertFormData.password = md5(
+                this.insertFormData.usePassword
+              );
               // 开始向后台发送数据
               axios
                 .request({
@@ -472,21 +472,34 @@ export default {
                   if (response.data == 1) {
                     _this.$Message.success("添加成功");
                     _this.getRequestData(_this.pageCurrent);
+                    _this.isAddNewData = false;
                   } else if (response.data == -1) {
                     _this.$Message.error("已有该账号存在");
                   } else {
-                    _this.$Message.error("添加失败");
+                    _this.$Message.error("未知原因，添加失败");
+                    _this.isAddNewData = false;
                   }
                 })
                 .then(function() {
-                  _this.$refs[name].resetFields();
+                  if (_this.isAddNewData == false) {
+                    _this.$refs[name].resetFields();
+                  } else {
+                    // 如果已有账号存在，输入的账号和密码清空
+                    _this.insertFormData.account = "";
+                    _this.insertFormData.password = "";
+                  }
                 });
-              this.isAddNewData = false;
+
               break;
             case "updateForm":
               //处理数据，添加修改时间
               this.updateFormData.updateTime = this.getFormatDate();
-              this.updateFormData.password = md5(this.updateFormData.password);
+              if (this.updatePassword != this.updateFormData.password) {
+                this.updateFormData.password = md5(
+                this.updateFormData.password
+              );
+              }
+              
               // 开始向后台发送数据
               axios
                 .request({

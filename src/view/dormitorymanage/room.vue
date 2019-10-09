@@ -272,7 +272,7 @@ export default {
           {
             required: true,
             message: "房号不得为空",
-            trigger: "blur"
+            trigger: "blur",
           }
         ],
         buildingName: [

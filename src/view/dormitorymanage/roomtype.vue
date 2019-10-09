@@ -79,11 +79,21 @@ export default {
             trigger: "blur"
           }
         ],
+
         monthRent: [
           {
             required: true,
             message: "每月租金不能为空",
-            trigger: "blur"
+            trigger: "blur",
+            transform(value) {
+              var posPattern =/^[0-9]*$/;
+              if (!posPattern.test(value)) {
+                this.message= "请输入正确的租金";
+                return false;
+              } else {
+                return String(value);
+              }
+            }
           }
         ]
       },

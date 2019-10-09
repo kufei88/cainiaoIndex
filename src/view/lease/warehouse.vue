@@ -444,17 +444,20 @@ export default {
             .then(function(response) {
               if (response.data == 1) {
                 _this.$Message.success("添加成功");
+                _this.isAddNewData = false;
                 _this.getRequestData(_this.pageCurrent);
               } else if (response.data == -1) {
-                _this.$Message.error("已有该房间存在");
+                _this.$Message.error("已有该办公室存在");
               } else {
+                _this.isAddNewData = false;
                 _this.$Message.error("添加失败");
               }
             })
             .then(function() {
-              _this.$refs[name].resetFields();
+              if (_this.isAddNewData == false) {
+                _this.$refs[name].resetFields();
+              }
             });
-          this.isAddNewData = false;
         }
       });
     },

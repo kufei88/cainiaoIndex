@@ -53,7 +53,7 @@
       :closable="false"
       v-model="isAddNewData"
       :mask-closable="false"
-      title="新增办公楼信息填写"
+      title="新增楼栋信息填写"
     >
       <!-- 新增表单填写 -->
       <Form
@@ -320,7 +320,7 @@ export default {
     };
   },
   methods: {
-    // 删除记录***
+    // 删除记录
     handleDelete(index) {
       this.$Modal.confirm({
         title: "删除提示",
@@ -378,17 +378,20 @@ export default {
             .then(function(response) {
               if (response.data == 1) {
                 _this.$Message.success("添加成功");
+                _this.isAddNewData = false;
                 _this.getRequestData(_this.pageCurrent);
               } else if (response.data == -1) {
                 _this.$Message.error("已有该楼栋存在");
               } else {
                 _this.$Message.error("添加失败");
+                _this.isAddNewData = false;
               }
             })
             .then(function() {
-              _this.$refs[name].resetFields();
+              if (!_this.isAddNewData) {
+                _this.$refs[name].resetFields();
+              }
             });
-          this.isAddNewData = false;
         }
       });
     },

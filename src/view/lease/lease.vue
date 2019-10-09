@@ -12,7 +12,7 @@
       v-model="searchData"
     />
 
-    <!-- 缴费按钮 -->
+    <!-- 退租按钮 -->
 
     <Button
       type="error"
@@ -28,11 +28,19 @@
       style="float:right;margin-left:10px"
     >合同变更</Button>
 
+    <!-- 合同详情按钮 -->
+
+    <Button
+      type="primary"
+      @click="handleDetailed"
+      style="float:right;margin-left:10px"
+    >合同详情</Button>
+
     <!-- 缴费按钮 -->
 
     <Button
       type="primary"
-      @click="isPayRent=true"
+      @click="handlePay"
       style="float:right;margin-left:10px"
     >合同缴费</Button>
 
@@ -131,6 +139,7 @@
         :model="changeFormData"
         :rules="changeFormRule"
         :label-width="100"
+        @submit.native.prevent
       >
 
         <FormItem
@@ -188,8 +197,12 @@
           label="所属楼栋:"
           prop="buildingName"
         >
-
-          <Select
+          <Input
+            readonly
+            v-model="payFormData.buildingName"
+            style="width:200px"
+          />
+          <!-- <Select
             v-model="payFormData.buildingName"
             style="width:200px"
             transfer:true
@@ -201,7 +214,7 @@
               :key="item.buildingName"
             >{{ item.buildingName }}</Option>
 
-          </Select>
+          </Select> -->
 
         </FormItem>
 
@@ -209,8 +222,12 @@
           label="房号:"
           prop="roomNumber"
         >
-
-          <Select
+          <Input
+            readonly
+            v-model="payFormData.roomNumber"
+            style="width:200px"
+          />
+          <!-- <Select
             v-model="payFormData.roomNumber"
             style="width:200px"
             transfer:true
@@ -223,7 +240,7 @@
               :key="item.roomNumber"
             >{{ item.roomNumber }}</Option>
 
-          </Select>
+          </Select> -->
 
         </FormItem>
 
@@ -245,7 +262,36 @@
             clearable
             v-model="payFormData.period"
             style="width:200px"
+            @on-change="selectEndDate(payFormData.startPayTime)"
           />
+
+        </FormItem>
+
+        <FormItem
+          label="缴费起始租期:"
+          prop="startPayTime"
+        >
+
+          <DatePicker
+            type="date"
+            format="yyyy-MM-dd"
+            v-model="payFormData.startPayTime"
+            readonly
+          ></DatePicker>
+
+        </FormItem>
+
+        <FormItem
+          label="缴费终止租期:"
+          prop="endPayTime"
+        >
+
+          <DatePicker
+            type="date"
+            format="yyyy-MM-dd"
+            readonly
+            v-model="payFormData.endPayTime"
+          ></DatePicker>
 
         </FormItem>
 
@@ -526,7 +572,6 @@
       ref="currentRowTable"
       height="522"
       @on-row-click="currentChange"
-      @on-row-dblclick="showContract"
     >
 
     </Table>
@@ -579,6 +624,16 @@ export default {
         {
           title: "缴费金额",
           key: "totalCost",
+          align: "center"
+        },
+        {
+          title: "缴费起始租期",
+          key: "startPayTime",
+          align: "center"
+        },
+        {
+          title: "缴费终止租期",
+          key: "endPayTime",
           align: "center"
         },
         {
@@ -644,7 +699,9 @@ export default {
         propertyFee: "",
         energySharing: "",
         totalCost: "",
-        insertTime: ""
+        insertTime: "",
+        startPayTime: "",
+        endPayTime: ""
       },
 
       // 合同缴费的表单验证规则
@@ -932,6 +989,26 @@ export default {
       this.getRequestData(this.pageCurrent);
     },
 
+    // 合同详情
+    handleDetailed() {
+      if (this.isSelectRow == true) {
+        // 开启【合同详情】弹窗
+        this.isDetailed = true;
+      } else {
+        this.$Message.error("请先选择记录");
+      }
+    },
+
+    // 合同缴费
+    handlePay() {
+      if (this.isSelectRow == true) {
+        // 开启【合同缴费】弹窗
+        this.isPayRent = true;
+      } else {
+        this.$Message.error("请先选择记录");
+      }
+    },
+
     // 合同变更
     handleChange() {
       if (this.isSelectRow == true) {
@@ -1043,15 +1120,29 @@ export default {
 
     // 对选中行的操作
     currentChange(currentRow, index) {
-      console.log("current", currentRow);
       // 把选中行的序号暂存
       this.showIndex = index;
+      // 【合同详情】的数据处理
+      this.showContract(currentRow, index);
+      // 把选中行的数据赋值给【合同缴费表单】
+      this.payFormData = this.getPayForm(currentRow);
       // 把选中行的数据赋值给【退租】表单
       this.deleteFormData = currentRow;
       // 把选中行的数据赋值给【合同变更】表单
       this.changeFormData = currentRow;
       // 修改选中状态
       this.isSelectRow = true;
+    },
+
+    // 转换表单数据，赋值给payForm
+    getPayForm(currentRow) {
+      var newForm = {};
+      newForm.owner = currentRow.owner;
+      newForm.roomNumber = currentRow.roomNumber;
+      newForm.buildingName = currentRow.buildingName;
+      newForm.startPayTime = currentRow.lastPayTime;
+      newForm.unitPrice = currentRow.unitPrice;
+      return newForm;
     },
 
     // 删除记录
@@ -1082,6 +1173,8 @@ export default {
                     }
                   }
                   _this.getRequestData(_this.pageCurrent);
+                } else if (response.data == -1) {
+                  _this.$Message.error("合同未缴清费用");
                 } else {
                   _this.$Message.error("退租失败");
                 }
@@ -1109,6 +1202,7 @@ export default {
     // 弹窗确认按钮
     handleSubmit(name) {
       switch (name) {
+        //合同缴费
         case "payForm":
           this.$refs[name].validate(valid => {
             if (valid) {
@@ -1129,19 +1223,23 @@ export default {
                   if (response.data == 1) {
                     _this.$Message.success("缴费成功");
                     _this.getRequestData(_this.pageCurrent);
+                    _this.isPayRent = false;
                   } else if (response.data == -1) {
                     _this.$Message.error("缴费租期超出未缴费租期");
                   } else {
                     _this.$Message.error("缴费失败");
+                    _this.isPayRent = false;
                   }
                 })
                 .then(function() {
-                  _this.$refs[name].resetFields();
+                  if (_this.isPayRent == false) {
+                    _this.$refs[name].resetFields();
+                  }
                 });
-              this.isPayRent = false;
             }
           });
           break;
+        //新增合同
         case "addForm":
           this.$refs[name].validate(valid => {
             if (valid) {
@@ -1161,17 +1259,20 @@ export default {
                 .then(function(response) {
                   if (response.data == 1) {
                     _this.$Message.success("添加成功");
+                    _this.isAddNewData = false;
                     _this.getRequestData(_this.pageCurrent);
                   } else if (response.data == -1) {
                     _this.$Message.error("该公司未登记");
                   } else {
                     _this.$Message.error("添加失败");
+                    _this.isAddNewData = false;
                   }
                 })
                 .then(function() {
-                  _this.$refs[name].resetFields();
+                  if (_this.isAddNewData == false) {
+                    _this.$refs[name].resetFields();
+                  }
                 });
-              this.isAddNewData = false;
             }
           });
           break;
@@ -1195,22 +1296,29 @@ export default {
                 .then(function(response) {
                   if (response.data == 1) {
                     _this.$Message.success("修改成功");
+                    _this.isChangeOwner = false;
                     _this.getRequestData(_this.pageCurrent);
                   } else if (response.data == -1) {
                     _this.$Message.error("被转让合同所属人未登记");
                   } else {
                     _this.$Message.error("修改失败");
+                    _this.isChangeOwner = false;
                   }
                 })
                 .then(function() {
-                  _this.$refs[name].resetFields();
+                  if (_this.isChangeOwner == false) {
+                    _this.$refs[name].resetFields();
+                  }
                 });
-              this.isChangeOwner = false;
             }
           });
           break;
         case "showTable":
+          // 清除高亮行
+          this.$refs.currentRowTable.clearCurrentRow();
+          // 关闭弹窗
           this.isDetailed = false;
+          this.isSelectRow = false;
           break;
         default:
           break;
@@ -1218,13 +1326,13 @@ export default {
     },
 
     // 加月
-    addMonth(stratTime, n) {
-      var s = stratTime.split("-");
+    addMonth(startTime, n) {
+      var s = startTime.split("-");
       var yy = parseInt(s[0]);
       var mm = parseInt(s[1] - 1);
       var dd = parseInt(s[2]);
-
       var dt = new Date(yy, mm, dd);
+
       dt.setMonth(dt.getMonth() + n);
 
       if (dt.getFullYear() * 12 + dt.getMonth() > yy * 12 + mm + n) {
@@ -1234,7 +1342,31 @@ export default {
       var month = dt.getMonth() + 1;
       var days = dt.getDate();
       var dd = year + "-" + month + "-" + days;
+
       return dd;
+    },
+
+    // 填写缴费租期,计算缴费终止租期
+    selectEndDate(date) {
+      if (typeof date != "string") {
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var days = date.getDate();
+        var dd = year + "-" + month + "-" + days;
+      } else {
+        var dd = date;
+      }
+
+      if (
+        this.payFormData.period != "" ||
+        this.payFormData.period != null ||
+        this.payFormData.period != undefined
+      ) {
+        this.payFormData.endPayTime = this.addMonth(
+          dd,
+          parseInt(this.payFormData.period)
+        );
+      }
     },
 
     // 选择起租期,租期不为空,计算终止期
@@ -1252,7 +1384,7 @@ export default {
       this.addFormData.startRentTime = date;
     },
 
-    // 双击某一行的点击事件（显示合同详情）
+    // 点击事件（显示合同详情）
     showContract(currentRow, index) {
       // 被选择数据赋值
       this.selectContract = currentRow;
@@ -1271,8 +1403,6 @@ export default {
         .then(function(response) {
           _this.showTableData = response.data;
           _this.addPageCurrentAndPageSize(_this.showTableData);
-          // 开启合同详情弹窗
-          _this.isDetailed = true;
         });
     },
 
@@ -1319,6 +1449,8 @@ export default {
     // 弹窗取消按钮
     handleReset(name) {
       this.$refs[name].resetFields();
+      this.$refs.currentRowTable.clearCurrentRow();
+      this.isSelectRow = false;
       switch (name) {
         case "addForm":
           this.isAddNewData = false;

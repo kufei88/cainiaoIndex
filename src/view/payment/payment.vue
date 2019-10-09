@@ -164,6 +164,13 @@
       <Col offset>
         <Card shadow>
           <p slot="title">数据展示</p>
+          <Input v-model="searchValue" class="searchInput" placeholder="请输入关键字">
+            <Select v-model="selectValue" slot="prepend" style="width: 80px">
+              <Option value="企业">企业</Option>
+              <Option value="房号">房号</Option>
+            </Select>
+            <Button slot="append" icon="ios-search" @click="search(pageCurrent)"></Button>
+          </Input>
           <Table height="520" :columns="columns" :data="data" :loading="tableLoading">
             <template slot-scope="{ row }" slot="buildingName">
               <span>{{ row.buildingName }}</span>
@@ -445,7 +452,9 @@ export default {
       dataCount: 0, //后台数据的总记录
       pageSize: 10, //每页显示多少条
       errorCount: 0, // excel 导入错误几条记录
-      excelLoading: 1 // excel 等待
+      excelLoading: 1, // excel 等待
+      searchValue: "", //搜索值
+      selectValue: "企业" //搜索选择状态
     };
   },
   mounted() {
@@ -453,10 +462,32 @@ export default {
     this.getReport(1);
   },
   methods: {
+    //搜索
+    search(index) {
+      this.pageNum = index;
+      this.pageStart = (index - 1) * this.pageSize;
+      axios
+        .request({
+          url: "/payment/getSearchList",
+          method: "get",
+          params: {
+            searchValue: this.searchValue,
+            selectValue: this.selectValue,
+            dataStart: this.pageStart,
+            dataEnd: this.pageSize
+          }
+        })
+        .then(response => {
+          this.data = response.data.paymentInfos;
+          this.dataCount = response.data.dataCount;
+        });
+    },
+    //初始新增表单
     initAddForm() {
       this.formData.owner = "";
       this.formData.roomNumber = "";
     },
+    //加载表单
     addForm() {
       this.value3 = true;
       this.getBuilding();
@@ -523,40 +554,44 @@ export default {
     },
     //添加数据
     add(name) {
-      this.$refs[name].validate(valid => {
-        if (valid) {
-          this.value3 = false;
-          //增加
-          axios
-            .request({
-              url: "/payment/insertPaymentData",
-              method: "post",
-              headers: {
-                "Content-Type": "application/json" //设置请求头请求格式为JSON
-              },
-              data: this.formData
-            })
-            .then(response => {
-              if (response.data == 1) {
-                this.getPaymentDataPage(this.pageCurrent);
-                this.getReport(1);
-                this.$Message.success("添加成功！");
-              }
-              if (response.data == 0) {
-                this.getPaymentDataPage(this.pageCurrent);
-                this.getReport(1);
-                this.$Message.error("添加失败！数据小于上期数据！");
-              }
-            })
-            .catch(error => {
-              if (error) {
-                this.getPaymentDataPage(this.pageCurrent);
-                this.getReport(1);
-                this.$Message.error("添加失败，服务器错误！");
-              }
-            });
-        }
-      });
+      if (this.formData.buildingName != "" && this.formData.roomNumber != "") {
+        this.$refs[name].validate(valid => {
+          if (valid) {
+            this.value3 = false;
+            //增加
+            axios
+              .request({
+                url: "/payment/insertPaymentData",
+                method: "post",
+                headers: {
+                  "Content-Type": "application/json" //设置请求头请求格式为JSON
+                },
+                data: this.formData
+              })
+              .then(response => {
+                if (response.data == 1) {
+                  this.getPaymentDataPage(this.pageCurrent);
+                  this.getReport(1);
+                  this.$Message.success("添加成功！");
+                }
+                if (response.data == 0) {
+                  this.getPaymentDataPage(this.pageCurrent);
+                  this.getReport(1);
+                  this.$Message.error("添加失败！数据小于上期数据！");
+                }
+              })
+              .catch(error => {
+                if (error) {
+                  this.getPaymentDataPage(this.pageCurrent);
+                  this.getReport(1);
+                  this.$Message.error("添加失败，服务器错误！");
+                }
+              });
+          }
+        });
+      } else {
+        this.$Message.error("楼栋或者房号未选择");
+      }
     },
     //导出excel
     exportExcel() {
