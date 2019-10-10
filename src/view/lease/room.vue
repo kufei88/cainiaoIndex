@@ -73,7 +73,7 @@
       >
 
         <FormItem
-          label="所属办公楼"
+          label="所属楼栋"
           prop="buildingName"
         >
           <Select
@@ -473,13 +473,13 @@ export default {
       // 1.先进行数据的处理，转化成符合后台读取的格式
       for (var key in excelData) {
         excelData[key].roomNumber = excelData[key].房号;
-        excelData[key].buildingName = excelData[key].办公楼名称;
+        excelData[key].buildingName = excelData[key].所属楼栋;
         excelData[key].rentArea = excelData[key].计租面积;
-        excelData[key].builtUpArea = excelData[key].建筑面积;
+        excelData[key].buildingArea = excelData[key].建筑面积;
         excelData[key].insertTime = this.getFormatDate();
 
         delete excelData[key].房号;
-        delete excelData[key].办公楼名称;
+        delete excelData[key].所属楼栋;
         delete excelData[key].计租面积;
         delete excelData[key].建筑面积;
       }
@@ -495,9 +495,9 @@ export default {
         excelData[key].rentArea == "" ||
         excelData[key].rentArea == null ||
         excelData[key].rentArea == undefined ||
-        excelData[key].builtUpArea == "" ||
-        excelData[key].builtUpArea == null ||
-        excelData[key].builtUpArea == undefined
+        excelData[key].buildingArea == "" ||
+        excelData[key].buildingArea == null ||
+        excelData[key].buildingArea == undefined
           ? (isDataEmpty += 1)
           : (isDataEmpty += 0);
       }
@@ -597,7 +597,7 @@ export default {
       if (this.excelDataModel.length) {
         this.exportLoading = true;
         const params = {
-          title: ["房号", "办公楼名称", "计租面积", "建筑面积"],
+          title: ["房号", "所属楼栋", "计租面积", "建筑面积"],
           key: ["roomNumber", "buildingName", "rentArea", "buildingArea"],
           data: this.excelDataModel,
           autoWidth: true,
@@ -615,7 +615,7 @@ export default {
       if (this.pageData.length) {
         this.exportLoading = true;
         const params = {
-          title: ["房号", "办公楼名称", "计租面积", "建筑面积"],
+          title: ["房号", "所属楼栋", "计租面积", "建筑面积"],
           key: ["roomNumber", "buildingName", "rentArea", "buildingArea"],
           data: this.pageData,
           autoWidth: true,

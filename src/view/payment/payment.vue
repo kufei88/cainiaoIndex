@@ -454,7 +454,8 @@ export default {
       errorCount: 0, // excel 导入错误几条记录
       excelLoading: 1, // excel 等待
       searchValue: "", //搜索值
-      selectValue: "企业" //搜索选择状态
+      selectValue: "企业", //搜索选择状态
+      select: false
     };
   },
   mounted() {
@@ -464,23 +465,29 @@ export default {
   methods: {
     //搜索
     search(index) {
-      this.pageNum = index;
-      this.pageStart = (index - 1) * this.pageSize;
-      axios
-        .request({
-          url: "/payment/getSearchList",
-          method: "get",
-          params: {
-            searchValue: this.searchValue,
-            selectValue: this.selectValue,
-            dataStart: this.pageStart,
-            dataEnd: this.pageSize
-          }
-        })
-        .then(response => {
-          this.data = response.data.paymentInfos;
-          this.dataCount = response.data.dataCount;
-        });
+      if (this.searchValue != "") {
+        this.select = true;
+        this.pageNum = index;
+        this.pageStart = (index - 1) * this.pageSize;
+        axios
+          .request({
+            url: "/payment/getSearchList",
+            method: "get",
+            params: {
+              searchValue: this.searchValue,
+              selectValue: this.selectValue,
+              dataStart: this.pageStart,
+              dataEnd: this.pageSize
+            }
+          })
+          .then(response => {
+            this.data = response.data.paymentInfos;
+            this.dataCount = response.data.dataCount;
+          });
+      }
+      if (this.searchValue == "") {
+        this.getPaymentDataPage(1);
+      }
     },
     //初始新增表单
     initAddForm() {
@@ -853,7 +860,12 @@ export default {
     changePage(index) {
       // 获得当前页数，以及发送数据请求
       this.pageCurrent = index;
-      this.getPaymentDataPage(index);
+      if (this.select == false) {
+        this.getPaymentDataPage(index);
+      }
+      if (this.select == true) {
+        this.search(index);
+      }
     },
     //得到报表数据
     getReport(reportState) {

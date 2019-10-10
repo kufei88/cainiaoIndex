@@ -962,6 +962,7 @@ export default {
       var range2 = 0;
       range = this.getDaterange(currentDate, rowDate);
       range2 = this.getDaterange(currentDate, rowDate2);
+      console.log("range2", range2);
 
       if (range <= 30) {
         if (this.showIndex == index) {
@@ -970,7 +971,7 @@ export default {
           return "demo-table-error-row";
         }
       } else {
-        if (range2 <= 30) {
+        if (range2 <= 30 && range2 > 0 && row.firstRent != undefined) {
           if (this.showIndex == index) {
             return "";
           } else {
@@ -1579,11 +1580,16 @@ export default {
 <style>
 .ivu-table .demo-table-error-row td {
   background-color: #ed4014;
-  color: #000000;
+  color: #ffffff;
 }
 
 .ivu-table .demo-table-warning-row td {
   background-color: #ff9900;
-  color: #000000;
+  color: #ffffff;
+}
+
+.ivu-table .demo-table-success-row td {
+  background-color: #19be6b;
+  color: #ffffff;
 }
 </style>

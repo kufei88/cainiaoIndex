@@ -522,7 +522,7 @@ export default {
           key: ["buildingName", "buildingType", "insertTime", "updateTime"],
           data: this.pageData,
           autoWidth: true,
-          filename: "办公楼管理表"
+          filename: "楼栋管理表"
         };
         excel.export_array_to_excel(params);
         this.exportLoading = false;
@@ -540,7 +540,7 @@ export default {
           key: ["buildingName", "buildingType"],
           data: this.excelModel,
           autoWidth: true,
-          filename: "办公楼管理表模板"
+          filename: "楼栋管理表模板"
         };
         excel.export_array_to_excel(params);
         this.exportLoading = false;

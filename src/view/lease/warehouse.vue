@@ -73,7 +73,7 @@
       >
 
         <FormItem
-          label="所属办公楼"
+          label="所属楼栋"
           prop="buildingName"
         >
           <Select
@@ -296,7 +296,7 @@ export default {
         buildingName: [
           {
             required: true,
-            message: "所属办公楼不得为空",
+            message: "所属楼栋不得为空",
             trigger: "change"
           }
         ],
@@ -447,7 +447,7 @@ export default {
                 _this.isAddNewData = false;
                 _this.getRequestData(_this.pageCurrent);
               } else if (response.data == -1) {
-                _this.$Message.error("已有该办公室存在");
+                _this.$Message.error("已有该房间存在");
               } else {
                 _this.isAddNewData = false;
                 _this.$Message.error("添加失败");
