@@ -216,10 +216,22 @@
           label="公司名称"
           prop="companyName"
         >
-          <Input
+        <Select
+            v-model="editDtae.companyName"
+            style="width:200px"
+            filterable
+            @on-query-change="getcompanyData"
+          >
+            <Option
+              v-for="item in companyData"
+              :value="item.enterpriseName"
+              :key="item.id"
+            >{{ item.enterpriseName }}</Option>
+          </Select>
+          <!-- <Input
             type="text"
             v-model="editDtae.companyName"
-          />
+          /> -->
         </FormItem>
         <!-- <FormItem label="联系人" prop="contact">
           <Input type="text" v-model="editDtae.contact" />
@@ -653,6 +665,7 @@ export default {
         }
       ],
       accountData: [],
+      companyData:[],
       editIndex: -1,
       cname: {
         name: "",
@@ -785,9 +798,33 @@ export default {
     this.getdormCount();
 
     this.getRoomType();
+
+    // this.getcompanyData();
   },
 
-  methods: {
+  methods: { 
+    getcompanyData(query){
+      
+      let _this=this;
+      if(query!=''&&query!=undefined&&query!=null)
+      (
+        axios
+        .request({
+          
+          url: "/Account/getAllCompany",
+          method: "get",
+          
+          params: {
+            companyName: query
+          }
+          
+        })
+        .then(function(response) {
+
+          _this.companyData=response.data;
+        })
+        )
+    },
     rowClassName(row, index) {
       this.getFormatDate();
 

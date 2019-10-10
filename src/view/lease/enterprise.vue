@@ -5,7 +5,7 @@
       search
       enter-button="查询"
       placeholder="请输入查询关键字，如公司名称、联系人、登记状态"
-      style="width:350px;margin-bottom:10px;float:left;"
+      style="width:400px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
     />
@@ -104,6 +104,19 @@
           </Select>
         </FormItem>
 
+        <FormItem
+          label="备注信息"
+          prop="other"
+        >
+          <Input
+            v-model="formValidate.other"
+            maxlength="200"
+            show-word-limit
+            type="textarea"
+            :rows="5"
+          />
+        </FormItem>
+
       </Form>
 
       <div slot="footer">
@@ -180,6 +193,29 @@
 
       <template
         slot-scope="{ row, index }"
+        slot="other"
+      >
+        <Input
+          type="text"
+          v-model="editOther"
+          v-if="editIndex === index"
+          @on-focus="editOtherText"
+        />
+
+        <Tooltip
+          v-else
+          max-width="450"
+        >
+          <div slot="content">
+            <span>{{ row.other }}</span>
+          </div>
+          <span>{{ showOtherLess(row.other) }}</span>
+        </Tooltip>
+
+      </template>
+
+      <template
+        slot-scope="{ row, index }"
         slot="action"
       >
         <div v-if="editIndex === index">
@@ -214,6 +250,61 @@
         </div>
       </template>
     </Table>
+
+    <!-- 修改备注信息弹窗 -->
+    <Modal
+      width=40
+      :closable="false"
+      v-model="isUpdateOther"
+      :mask-closable="false"
+      :scrollable="true"
+      title="修改备注信息"
+    >
+
+      <!-- 表单填写 -->
+
+      <Form
+        ref="updateOther"
+        :label-width="100"
+        @submit.native.prevent
+      >
+
+        <FormItem
+          label="备注信息:"
+          prop="owner"
+        >
+
+          <Input
+            v-model="editOther"
+            maxlength="200"
+            show-word-limit
+            type="textarea"
+            :rows="7"
+          />
+        </FormItem>
+
+      </Form>
+
+      <!-- 确定取消框 -->
+
+      <div slot="footer">
+
+        <Button
+          type="text"
+          size="large"
+          @click="otherReset('updateOther')"
+        >取消</Button>
+
+        <Button
+          type="primary"
+          size="large"
+          @click="otherSubmit('updateOther')"
+        >确定</Button>
+
+      </div>
+
+    </Modal>
+
     <!-- 分页功能 -->
     <span>记录总共 {{this.dataCount}} 条</span>
     <Page
@@ -234,6 +325,8 @@ import excel from "@/libs/excel";
 export default {
   data() {
     return {
+      saveOther: "", // 暂存编辑修改备注内容
+      isUpdateOther: false, // 是否修改备注信息
       // 登记状态下拉列表
       stateList: [
         {
@@ -258,7 +351,8 @@ export default {
           enterpriseName: "例如：某某有限公司",
           enterprisePerson: "填写公司主要负责人名称",
           contactNumber: "填写负责人电话",
-          state: "企业登记状态，如未注册、已注册"
+          state: "企业登记状态，如未注册、已注册",
+          other: "备注信息填写"
         }
       ],
 
@@ -266,6 +360,7 @@ export default {
       editEnterprisePerson: "", // 编辑的企业联系人
       editContactNumber: "", // 编辑的企业联系电话
       editState: "", // 编辑的企业登记状态
+      editOther: "", // 编辑的备注信息
 
       searchData: "", // 查询内容
 
@@ -309,6 +404,12 @@ export default {
           slot: "state"
         },
         {
+          title: "备注",
+          key: "other",
+          align: "center",
+          slot: "other"
+        },
+        {
           title: "添加时间",
           key: "insertTime",
           align: "center"
@@ -331,6 +432,7 @@ export default {
         enterpriseName: "",
         enterprisePerson: "",
         enterpriseTelphone: "",
+        other: "",
         state: "未注册"
       },
 
@@ -376,6 +478,32 @@ export default {
     };
   },
   methods: {
+    // 备注信息省略显示
+    showOtherLess(value) {
+      var str = "";
+      if (value != "" && value != undefined && value != null) {
+        str = value.substring(0, 6);
+        if (value.length > 6) {
+          str += "...";
+        }
+      }
+      return str;
+    },
+    // 确认修改备注信息
+    otherSubmit() {
+      this.isUpdateOther = false;
+    },
+    // 取消修改备注信息
+    otherReset() {
+      this.isUpdateOther = false;
+      this.editOther = this.saveOther;
+    },
+    // 修改备注信息
+    editOtherText(value) {
+      this.isUpdateOther = true;
+      this.saveOther = this.editOther;
+    },
+
     // 确认提交新增数据
     handleSubmit(name) {
       this.$refs[name].validate(valid => {
@@ -435,12 +563,14 @@ export default {
         excelData[key].enterprisePerson = excelData[key].联系人;
         excelData[key].contactNumber = excelData[key].联系电话;
         excelData[key].state = excelData[key].登记状态;
+        excelData[key].other = excelData[key].备注;
         excelData[key].insertTime = this.getFormatDate();
 
         delete excelData[key].公司名称;
         delete excelData[key].联系人;
         delete excelData[key].联系电话;
         delete excelData[key].登记状态;
+        delete excelData[key].备注;
       }
 
       // 验证空数据
@@ -557,8 +687,14 @@ export default {
       if (this.excelDataModel.length) {
         this.exportLoading = true;
         const params = {
-          title: ["公司名称", "联系人", "联系电话", "登记状态"],
-          key: ["enterpriseName", "enterprisePerson", "contactNumber", "state"],
+          title: ["公司名称", "联系人", "联系电话", "登记状态", "备注"],
+          key: [
+            "enterpriseName",
+            "enterprisePerson",
+            "contactNumber",
+            "state",
+            "other"
+          ],
           data: this.excelDataModel,
           autoWidth: true,
           filename: "园区企业管理信息表模板"
@@ -575,8 +711,14 @@ export default {
       if (this.pageData.length) {
         this.exportLoading = true;
         const params = {
-          title: ["公司名称", "联系人", "联系电话", "登记状态"],
-          key: ["enterpriseName", "enterprisePerson", "contactNumber", "state"],
+          title: ["公司名称", "联系人", "联系电话", "登记状态", "备注"],
+          key: [
+            "enterpriseName",
+            "enterprisePerson",
+            "contactNumber",
+            "state",
+            "other"
+          ],
           data: this.pageData,
           autoWidth: true,
           filename: "园区企业管理信息表"
@@ -593,6 +735,7 @@ export default {
       this.editEnterprisePerson = row.enterprisePerson;
       this.editContactNumber = row.contactNumber;
       this.editState = row.state;
+      this.editOther = row.other;
       this.editIndex = index;
     },
 
@@ -610,6 +753,7 @@ export default {
       this.pageData[index].enterprisePerson = this.editEnterprisePerson;
       this.pageData[index].contactNumber = this.editContactNumber;
       this.pageData[index].state = this.editState;
+      this.pageData[index].other = this.editOther;
 
       if (
         this.pageData[index].enterpriseName == undefined ||

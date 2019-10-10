@@ -60,7 +60,8 @@
           prop="usePassword"
         >
           <Input
-            clearable
+            type="password"
+            password
             v-model="insertFormData.usePassword"
           />
         </FormItem>
@@ -151,7 +152,8 @@
           prop="usePassword"
         >
           <Input
-            clearable
+            type="password"
+            password
             v-model="updateFormData.password"
           />
         </FormItem>
@@ -244,12 +246,12 @@ import md5 from "js-md5";
 export default {
   data() {
     return {
-      updatePassword:"", // 修改时的密码保存
+      updatePassword: "", // 修改时的密码保存
       isSelectRow: false, // 是否选择表格的某一行
       // 修改表单填写
       updateFormData: {
         account: "",
-        password:"",
+        password: "",
         userName: "",
         sex: "",
         telephone: "",
@@ -280,8 +282,8 @@ export default {
             message: "密码长度6到16位，可以使用字母、数字、下划线、特殊字符",
             trigger: "blur",
             transform(value) {
-              var pPattern = /^[a-zA-Z0-9+-=_/!@#$%^&*?]{4,16}$/; 
-                           
+              var pPattern = /^[a-zA-Z0-9+-=_/!@#$%^&*?]{4,16}$/;
+
               if (!pPattern.test(value)) {
                 return false;
               } else {
@@ -440,7 +442,7 @@ export default {
     currentChange(currentRow, oldCurrentRow) {
       // 把选中行的数据赋值给修改表单
       this.updateFormData = currentRow;
-      this.updatePassword=currentRow.password
+      this.updatePassword = currentRow.password;
       // 修改选中状态
       this.isSelectRow = true;
     },
@@ -496,10 +498,10 @@ export default {
               this.updateFormData.updateTime = this.getFormatDate();
               if (this.updatePassword != this.updateFormData.password) {
                 this.updateFormData.password = md5(
-                this.updateFormData.password
-              );
+                  this.updateFormData.password
+                );
               }
-              
+
               // 开始向后台发送数据
               axios
                 .request({

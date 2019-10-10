@@ -7,7 +7,7 @@
       search
       enter-button="查询"
       placeholder="请输入查询关键字,如公司名称、楼栋名称、房间号"
-      style="width:350px;margin-bottom:10px;float:left;"
+      style="width:400px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
     />
@@ -429,11 +429,18 @@
           label="业主:"
           prop="owner"
         >
-
-          <Input
-            clearable
+          <Select
             v-model="addFormData.owner"
-          />
+            filterable
+            not-found-text="请输入公司名称"
+            @on-query-change="getCompanyData"
+          >
+            <Option
+              v-for="item in companyData"
+              :value="item.enterpriseName"
+              :key="item.id"
+            >{{ item.enterpriseName }}</Option>
+          </Select>
 
         </FormItem>
 
@@ -598,6 +605,8 @@ import axios from "@/libs/api.request";
 export default {
   data() {
     return {
+      companyData: [], // 获取的公司名称
+
       showIndex: -1, // 被选中的行数据序号
       selectContract: {}, // 被选择的合同数据
 
@@ -788,7 +797,7 @@ export default {
           {
             required: true,
             message: "业主不得为空",
-            trigger: "blur"
+            trigger: "change"
           }
         ],
         depositOnContracts: [
@@ -921,22 +930,52 @@ export default {
   },
 
   methods: {
+    // 获取公司名称
+    getCompanyData(query) {
+      let _this = this;
+      if (query != "" && query != undefined && query != null)
+        axios
+          .request({
+            url: "/Account/getAllCompany",
+            method: "get",
+
+            params: {
+              companyName: query
+            }
+          })
+          .then(function(response) {
+            _this.companyData = response.data;
+          });
+    },
+
     // 使合同到期天数小于30天的记录，渲染特定样式
     rowClassName(row, index) {
       // 获取系统时间
-      var currentDate = this.getFormatDate();
+      var currentDate = this.getFormatDate().split(" ")[0];
       // 获取当前行的记录到期时间
+      // 合同到期时间
       var rowDate = row.endRentTime.toString();
-
+      // 缴费到期时间
+      var rowDate2 = row.lastPayTime.toString();
       // 计算相差月份是否小于等于30天
       var range = 0;
+      var range2 = 0;
       range = this.getDaterange(currentDate, rowDate);
+      range2 = this.getDaterange(currentDate, rowDate2);
 
       if (range <= 30) {
         if (this.showIndex == index) {
           return "";
         } else {
           return "demo-table-error-row";
+        }
+      } else {
+        if (range2 <= 30) {
+          if (this.showIndex == index) {
+            return "";
+          } else {
+            return "demo-table-warning-row";
+          }
         }
       }
       return "";
@@ -956,11 +995,14 @@ export default {
       var dt1 = new Date(y1, m1, 0);
 
       if (y2 * 12 + m2 - y1 * 12 - m1 < 2) {
-        range = dt1.getDate() - d1 + d2;
+        if (m2 == m1) {
+          range = d2 - d1;
+        } else {
+          range = dt1.getDate() - d1 + d2;
+        }
       } else {
         range = 32;
       }
-
       return range;
     },
 
@@ -1315,10 +1357,10 @@ export default {
           break;
         case "showTable":
           // 清除高亮行
-          this.$refs.currentRowTable.clearCurrentRow();
+          // this.$refs.currentRowTable.clearCurrentRow();
           // 关闭弹窗
           this.isDetailed = false;
-          this.isSelectRow = false;
+          // this.isSelectRow = false;
           break;
         default:
           break;
@@ -1358,8 +1400,8 @@ export default {
       }
 
       if (
-        this.payFormData.period != "" ||
-        this.payFormData.period != null ||
+        this.payFormData.period != "" &&
+        this.payFormData.period != null &&
         this.payFormData.period != undefined
       ) {
         this.payFormData.endPayTime = this.addMonth(
@@ -1372,8 +1414,8 @@ export default {
     // 选择起租期,租期不为空,计算终止期
     selectStartDate(date) {
       if (
-        this.addFormData.rentPeriod != "" ||
-        this.addFormData.rentPeriod != null ||
+        this.addFormData.rentPeriod != "" &&
+        this.addFormData.rentPeriod != null &&
         this.addFormData.rentPeriod != undefined
       ) {
         this.addFormData.endRentTime = this.addMonth(
@@ -1448,11 +1490,11 @@ export default {
 
     // 弹窗取消按钮
     handleReset(name) {
-      this.$refs[name].resetFields();
-      this.$refs.currentRowTable.clearCurrentRow();
-      this.isSelectRow = false;
+      // this.$refs.currentRowTable.clearCurrentRow();
+      // this.isSelectRow = false;
       switch (name) {
         case "addForm":
+          this.$refs[name].resetFields();
           this.isAddNewData = false;
           break;
         case "payForm":
@@ -1536,7 +1578,12 @@ export default {
 
 <style>
 .ivu-table .demo-table-error-row td {
-  background-color: #ff6600;
+  background-color: #ed4014;
+  color: #000000;
+}
+
+.ivu-table .demo-table-warning-row td {
+  background-color: #ff9900;
   color: #000000;
 }
 </style>

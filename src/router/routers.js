@@ -81,17 +81,6 @@ export default [{
                 },
                 component: () =>
                     import ('@/view/lease/warehouse.vue')
-            },
-
-            {
-                path: 'lease',
-                name: '租赁信息管理',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '租赁信息管理'
-                },
-                component: () =>
-                    import ('@/view/lease/lease.vue')
             }
 
         ]
@@ -105,16 +94,6 @@ export default [{
         },
         component: Main,
         children: [{
-                path: 'dormitorymanage',
-                name: '宿舍合同管理',
-                meta: {
-                    icon: 'md-arrow-dropdown-circle',
-                    title: '宿舍合同管理'
-                },
-                component: () =>
-                    import ('@/view/dormitorymanage/dormitorymanage.vue')
-            },
-            {
                 path: 'dormitory',
                 name: '宿舍房型租金设置',
                 meta: {
@@ -136,6 +115,37 @@ export default [{
             }
         ]
 
+    },
+    {
+        path: '/contract',
+        name: 'contract',
+        meta: {
+            icon: 'logo-buffer',
+            title: '合同管理'
+        },
+        component: Main,
+        children: [{
+                path: 'dormitorymanage',
+                name: '宿舍合同管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '宿舍合同管理'
+                },
+                component: () =>
+                    import ('@/view/dormitorymanage/dormitorymanage.vue')
+            },
+            {
+                path: 'lease',
+                name: '租赁信息管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '租赁信息管理'
+                },
+                component: () =>
+                    import ('@/view/lease/lease.vue')
+            }
+
+        ]
     },
     {
         path: "/payment",

@@ -5,7 +5,7 @@
       search
       enter-button="查询"
       placeholder="请输入查询关键字，如楼栋名称、楼栋类型"
-      style="width:300px;margin-bottom:10px;float:left;"
+      style="width:350px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
     />
