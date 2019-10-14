@@ -1,30 +1,60 @@
 <template>
-  <Layout style="height: 100%" class="main">
-    <Sider hide-trigger collapsible :width="200" :collapsed-width="64" v-model="collapsed" class="left-sider" :style="{overflow: 'hidden'}">
-      <side-menu accordion ref="sideMenu" :active-name="$route.name" :collapsed="collapsed" @on-select="turnToPage" :menu-list="menuList">
+  <Layout
+    style="height: 100%"
+    class="main"
+  >
+    <Sider
+      hide-trigger
+      collapsible
+      :width="200"
+      :collapsed-width="64"
+      v-model="collapsed"
+      class="left-sider"
+      :style="{overflow: 'hidden'}"
+    >
+      <side-menu
+        accordion
+        ref="sideMenu"
+        :active-name="$route.name"
+        :collapsed="collapsed"
+        @on-select="turnToPage"
+        :menu-list="menuList"
+      >
         <!-- 需要放在菜单上面的内容，如Logo，写在side-menu标签内部，如下 -->
         <div class="logo-con">
-          <img v-show="!collapsed" :src="maxLogo" key="max-logo" />
-          <img v-show="collapsed" :src="minLogo" key="min-logo" />
+          <!-- <img v-show="!collapsed" :src="maxLogo" key="max-logo" />
+          <img v-show="collapsed" :src="minLogo" key="min-logo" /> -->
+          <div style="fontSize:1.375rem /* 22/16 */;text-align:center;background-color:#5cadff;color:#fff">菜鸟·金华<br>电商产业园</div>
         </div>
       </side-menu>
     </Sider>
     <Layout>
       <Header class="header-con">
-        <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange">
-          <user :user-avator="userAvator"/>
-         <!-- <language @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/> -->
-          <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/>
+        <header-bar
+          :collapsed="collapsed"
+          @on-coll-change="handleCollapsedChange"
+        >
+          <user :user-avator="userAvator" />
+          <!-- <language @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/> -->
+          <fullscreen
+            v-model="isFullscreen"
+            style="margin-right: 10px;"
+          />
         </header-bar>
       </Header>
       <Content class="main-content-con">
         <Layout class="main-layout-con">
           <div class="tag-nav-wrapper">
-            <tags-nav :value="$route" @input="handleClick" :list="tagNavList" @on-close="handleCloseTag"/>
+            <tags-nav
+              :value="$route"
+              @input="handleClick"
+              :list="tagNavList"
+              @on-close="handleCloseTag"
+            />
           </div>
           <Content class="content-wrapper">
             <keep-alive :include="cacheList">
-              <router-view/>
+              <router-view />
             </keep-alive>
           </Content>
         </Layout>
