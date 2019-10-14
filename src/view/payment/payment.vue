@@ -661,7 +661,6 @@ export default {
     },
     //选择的楼栋数据
     building() {
-      this.addTime();
       this.getRoomList();
       this.formData.owner = "";
       this.formData.roomNumber = "";
@@ -1053,14 +1052,7 @@ export default {
       this.visible = false;
     },
     //取消
-    cancel() {},
-    //新增数据时自动显示的时间
-    addTime() {
-      this.formData.startTime =
-        new Date().getFullYear() + "/" + (new Date().getMonth() + 1);
-      this.formData.endTime =
-        new Date().getFullYear() + "/" + (new Date().getMonth() + 2);
-    }
+    cancel() {}
   }
 };
 </script>
