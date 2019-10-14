@@ -514,7 +514,7 @@ export default {
           _data.insertTime = this.getFormatDate();
           axios
             .request({
-              url: "/enterprise/insertEnterpriseList",
+              url: "enterprise/insertEnterpriseList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -596,7 +596,7 @@ export default {
         let _this = this;
         axios
           .request({
-            url: "/enterprise/uploadEnterpriseList",
+            url: "enterprise/uploadEnterpriseList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -777,7 +777,7 @@ export default {
 
         axios
           .request({
-            url: "/enterprise/updateEnterpriseList",
+            url: "enterprise/updateEnterpriseList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -811,7 +811,7 @@ export default {
           let _data = this.pageData[index];
           axios
             .request({
-              url: "/enterprise/deleteEnterpriseList",
+              url: "enterprise/deleteEnterpriseList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -860,7 +860,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/enterprise/getSearchList",
+          url: "enterprise/getSearchList",
           method: "get",
           params: {
             search: this.searchData,

@@ -5,7 +5,7 @@
       search
       enter-button="查询"
       placeholder="请输入查询关键字，如所属楼栋、业主"
-      style="width:350px;margin-bottom:10px;float:left;"
+      style="width:300px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
     />
@@ -76,6 +76,7 @@
             style="width:200px"
             transfer:true
             disabled
+            
           >
             <Option
               v-for="item in buildingData"
@@ -112,6 +113,7 @@
           </Select>
 
         </FormItem>
+
 
       </Form>
 
@@ -185,18 +187,18 @@
         slot-scope="{ row, index }"
         slot="roomType"
       >
-        <Select
-          v-model="editRoomType"
-          transfer:true
-          v-if="editIndex === index"
-        >
-          <Option
-            v-for="item in roomTypeDate"
-            :value="item.roomType"
-            :key="item.id"
-          >{{ item.roomType }}</Option>
-        </Select>
-
+      <Select
+            v-model="editRoomType"
+            transfer:true
+            v-if="editIndex === index"
+          >
+            <Option
+              v-for="item in roomTypeDate"
+              :value="item.roomType"
+              :key="item.id"
+            >{{ item.roomType }}</Option>
+          </Select>
+        
         <span v-else>{{ row.roomType}}</span>
       </template>
 
@@ -204,7 +206,7 @@
         slot-scope="{ row, index }"
         slot="action"
       >
-
+      
         <div v-if="editIndex === index">
           <Button
             type="primary"
@@ -256,12 +258,12 @@ export default {
       isAddNewData: false, //是否新增数据
 
       buildingData: [], // 楼栋数据
-      roomTypeDate: [], //房型数据
+      roomTypeDate:[],//房型数据
       // 表单数据设置
       formValidate: {
         roomNumber: "",
         buildingName: "",
-        roomType: "",
+        roomType:"",
         insertTime: ""
       },
       // 表单数据验证设置
@@ -270,7 +272,7 @@ export default {
           {
             required: true,
             message: "房号不得为空",
-            trigger: "blur"
+            trigger: "blur",
           }
         ],
         buildingName: [
@@ -300,14 +302,14 @@ export default {
         {
           roomNumber: "必须是数字，，例如:101",
           buildingName: "必须是宿舍楼的名称",
-          roomType: "必须是存在的房间类型"
+          roomType: "必须是存在的房间类型",
         }
       ],
 
       editIndex: -1, // 当前聚焦的输入框的行数
       editRentArea: "", // 编辑的计租面积
       editBuildingArea: "", // 编辑的建筑面积
-      editRoomType: "", //编辑的房间类型
+      editRoomType:"",//编辑的房间类型
 
       pageCurrent: 1, // 当前页数
       pageStart: 0,
@@ -343,8 +345,8 @@ export default {
         },
         {
           title: "房间类型",
-          key: "roomType",
-          slot: "roomType"
+          key:"roomType",
+          slot:"roomType"
         },
         {
           title: "添加时间",
@@ -374,7 +376,7 @@ export default {
           _data.insertTime = this.getFormatDate();
           axios
             .request({
-              url: "/room/insertRoomList",
+              url: "room/insertRoomList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -417,6 +419,7 @@ export default {
         delete excelData[key].房号;
         delete excelData[key].宿舍楼名称;
         delete excelData[key].房间类型;
+
       }
       // 验证空数据
       let isDataEmpty = 0;
@@ -429,7 +432,8 @@ export default {
         excelData[key].buildingName == undefined ||
         excelData[key].roomType == "" ||
         excelData[key].roomType == null ||
-        excelData[key].roomType == undefined
+        excelData[key].roomType == undefined 
+
           ? (isDataEmpty += 1)
           : (isDataEmpty += 0);
       }
@@ -438,7 +442,7 @@ export default {
         let _this = this;
         axios
           .request({
-            url: "/room/uploadRoomList",
+            url: "room/uploadRoomList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -547,7 +551,7 @@ export default {
       if (this.pageData.length) {
         this.exportLoading = true;
         const params = {
-          title: ["房号", "宿舍楼名称", "业主", "房间类型"],
+          title: ["房号", "宿舍楼名称","业主","房间类型"],
           key: ["roomNumber", "buildingName", "owner", "roomType"],
           data: this.pageData,
           autoWidth: true,
@@ -576,7 +580,7 @@ export default {
           let _data = this.pageData[index];
           axios
             .request({
-              url: "/room/deleteRoomList",
+              url: "room/deleteRoomList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -606,7 +610,7 @@ export default {
     handleEdit(row, index) {
       // this.editRentArea = row.rentArea;
       // this.editBuildingArea = row.buildingArea;
-      this.editRoomType = row.roomType;
+      this.editRoomType=row.roomType;
       this.editIndex = index;
     },
     // 取消修改记录
@@ -623,7 +627,7 @@ export default {
       // 向后台发送数据
       // this.pageData[index].rentArea = this.editRentArea;
       // this.pageData[index].buildingArea = this.editBuildingArea;
-      this.pageData[index].roomType = this.editRoomType;
+      this.pageData[index].roomType=this.editRoomType;
       // 判断是否为空，内容有空值就不发送
       if (
         this.pageData[index].roomType == "" ||
@@ -640,7 +644,7 @@ export default {
 
         axios
           .request({
-            url: "/room/updateRoomList",
+            url: "room/updateRoomList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -685,7 +689,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/room/getSearchList",
+          url: "room/getSearchList",
           method: "get",
           params: {
             search: this.searchData,
@@ -706,7 +710,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/room/getBuildingList",
+          url: "room/getBuildingList",
           method: "get",
           params: {
             dataType: this.dataType
@@ -714,7 +718,7 @@ export default {
         })
         .then(function(response) {
           _this.buildingData = response.data;
-          _this.formValidate.buildingName = _this.buildingData[0].buildingName;
+          _this.formValidate.buildingName=_this.buildingData[0].buildingName;
         });
     },
     //获取寝室房间类型
@@ -722,7 +726,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/RoomType/getRoomTypes",
+          url: "RoomType/getRoomTypes",
           method: "get"
         })
         .then(function(response) {

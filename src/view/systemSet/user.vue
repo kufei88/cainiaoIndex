@@ -401,7 +401,7 @@ export default {
 
             axios
               .request({
-                url: "/user/deleteUserInfo",
+                url: "user/deleteUserInfo",
                 method: "post",
                 headers: {
                   "Content-Type": "application/json;charset=UTF-8"
@@ -463,7 +463,7 @@ export default {
               // 开始向后台发送数据
               axios
                 .request({
-                  url: "/user/insertUserInfo",
+                  url: "user/insertUserInfo",
                   method: "post",
                   headers: {
                     "Content-Type": "application/json;charset=UTF-8"
@@ -505,7 +505,7 @@ export default {
               // 开始向后台发送数据
               axios
                 .request({
-                  url: "/user/updateUserInfo",
+                  url: "user/updateUserInfo",
                   method: "post",
                   headers: {
                     "Content-Type": "application/json;charset=UTF-8"
@@ -578,7 +578,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/user/getUserList",
+          url: "user/getUserList",
           method: "get",
           params: {
             search: this.searchData,

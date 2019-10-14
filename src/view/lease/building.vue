@@ -330,7 +330,7 @@ export default {
           let _data = this.pageData[index];
           axios
             .request({
-              url: "/building/deleteBuildingList",
+              url: "building/deleteBuildingList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -368,7 +368,7 @@ export default {
           let _data = this.formValidate;
           axios
             .request({
-              url: "/building/insertBuildingList",
+              url: "building/insertBuildingList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -426,7 +426,7 @@ export default {
         let _this = this;
         axios
           .request({
-            url: "/building/uploadBuildingList",
+            url: "building/uploadBuildingList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -604,7 +604,7 @@ export default {
         _data.updateTime = this.getFormatDate();
         axios
           .request({
-            url: "/building/updateBuildingList",
+            url: "building/updateBuildingList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -634,7 +634,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/building/getSearchList",
+          url: "building/getSearchList",
           method: "get",
           params: {
             search: this.searchData,

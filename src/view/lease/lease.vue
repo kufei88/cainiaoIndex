@@ -936,7 +936,7 @@ export default {
       if (query != "" && query != undefined && query != null)
         axios
           .request({
-            url: "/Account/getAllCompany",
+            url: "Account/getAllCompany",
             method: "get",
 
             params: {
@@ -1013,7 +1013,7 @@ export default {
       let _data = this.payFormData;
       axios
         .request({
-          url: "/lease/getPayUnitPrice",
+          url: "lease/getPayUnitPrice",
           method: "post",
           headers: {
             "Content-Type": "application/json;charset=UTF-8"
@@ -1199,7 +1199,7 @@ export default {
             let _data = this.deleteFormData;
             axios
               .request({
-                url: "/lease/deleteLeaseList",
+                url: "lease/deleteLeaseList",
                 method: "post",
                 headers: {
                   "Content-Type": "application/json;charset=UTF-8"
@@ -1255,7 +1255,7 @@ export default {
               let _data = this.payFormData;
               axios
                 .request({
-                  url: "/lease/insertLeaseCostInfo",
+                  url: "lease/insertLeaseCostInfo",
                   method: "post",
                   headers: {
                     "Content-Type": "application/json;charset=UTF-8"
@@ -1292,7 +1292,7 @@ export default {
               let _data = this.addFormData;
               axios
                 .request({
-                  url: "/lease/insertLeaseList",
+                  url: "lease/insertLeaseList",
                   method: "post",
                   headers: {
                     "Content-Type": "application/json;charset=UTF-8"
@@ -1329,7 +1329,7 @@ export default {
 
               axios
                 .request({
-                  url: "/lease/changeLeaseContractInfo",
+                  url: "lease/changeLeaseContractInfo",
                   method: "post",
                   headers: {
                     "Content-Type": "application/json;charset=UTF-8"
@@ -1436,7 +1436,7 @@ export default {
       let _data = this.selectContract;
       axios
         .request({
-          url: "/lease/getLeaseCostList",
+          url: "lease/getLeaseCostList",
           method: "post",
           headers: {
             "Content-Type": "application/json;charset=UTF-8"
@@ -1470,7 +1470,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/lease/getSearchList",
+          url: "lease/getSearchList",
           method: "get",
           params: {
             search: this.searchData,
@@ -1514,7 +1514,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/lease/getSettingList",
+          url: "lease/getSettingList",
           method: "get"
         })
         .then(function(response) {
@@ -1527,7 +1527,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/lease/getEnergyPrice",
+          url: "lease/getEnergyPrice",
           method: "get"
         })
         .then(function(response) {

@@ -210,15 +210,15 @@
         ref="formCustom"
         :model="editDtae"
         :rules="ruleCustom"
-        :label-width="80"
+        :label-width="100"
       >
         <FormItem
           label="公司名称"
           prop="companyName"
         >
-        <Select
+          <Select
             v-model="editDtae.companyName"
-            style="width:200px"
+            style="width:300px"
             filterable
             @on-query-change="getcompanyData"
           >
@@ -496,12 +496,13 @@
         </div>
       </template>
     </Table>
-    <span>共{{dormCounts}}条</span>
+    <span>记录总共 {{dormCounts}} 条</span>
     <Page
       :total="dormCounts"
       show-sizer
       @on-change="handlePage"
       @on-page-size-change="pagesize"
+      :page-size-opts="[10,20,50,100]"
       :current="pagenum.startnum"
     />
   </div>
@@ -539,12 +540,11 @@ export default {
         callback();
       }
     };
-    
+
     var validatecontactNumber = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("联系电话不能为空"));
-      }
-       else {
+      } else {
         callback();
       }
     };
@@ -562,15 +562,13 @@ export default {
         callback();
       }
     };
-    var tel=/^[0-9]*$/;
+    var tel = /^[0-9]*$/;
     var validateleasePeriod = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("租期不能为空"));
-      }
-      else if(!tel.test(value)){
+      } else if (!tel.test(value)) {
         callback(new Error("请输入数字"));
-      }
-       else {
+      } else {
         callback();
       }
     };
@@ -665,7 +663,7 @@ export default {
         }
       ],
       accountData: [],
-      companyData:[],
+      companyData: [],
       editIndex: -1,
       cname: {
         name: "",
@@ -802,28 +800,22 @@ export default {
     // this.getcompanyData();
   },
 
-  methods: { 
-    getcompanyData(query){
-      
-      let _this=this;
-      if(query!=''&&query!=undefined&&query!=null)
-      (
+  methods: {
+    getcompanyData(query) {
+      let _this = this;
+      if (query != "" && query != undefined && query != null)
         axios
-        .request({
-          
-          url: "/Account/getAllCompany",
-          method: "get",
-          
-          params: {
-            companyName: query
-          }
-          
-        })
-        .then(function(response) {
+          .request({
+            url: "Account/getAllCompany",
+            method: "get",
 
-          _this.companyData=response.data;
-        })
-        )
+            params: {
+              companyName: query
+            }
+          })
+          .then(function(response) {
+            _this.companyData = response.data;
+          });
     },
     rowClassName(row, index) {
       this.getFormatDate();
@@ -855,7 +847,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/RoomType/getRoomTypes",
+          url: "RoomType/getRoomTypes",
           method: "get"
         })
         .then(function(response) {
@@ -985,7 +977,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getRoomListCount",
+          url: "Account/getRoomListCount",
           method: "get",
           params: domid
         })
@@ -1011,7 +1003,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getRoomListCount2",
+          url: "Account/getRoomListCount2",
           method: "get",
           params: _this.dmst
         })
@@ -1023,7 +1015,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getRoomList2",
+          url: "Account/getRoomList2",
           method: "get",
           params: _this.dmst
         })
@@ -1035,7 +1027,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getRoomList",
+          url: "Account/getRoomList",
           method: "get",
           params: domid
         })
@@ -1058,8 +1050,6 @@ export default {
       this.pagenum.pagecount = val;
       this.cname.spgsize = val;
       if (_this.cname.name != "") {
-        console.log(_this.cname);
-
         _this.getNameCount();
       } else {
         this.getdormCount();
@@ -1079,7 +1069,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getAccountCount",
+          url: "Account/getAccountCount",
           method: "post"
         })
         .then(function(response) {
@@ -1107,7 +1097,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Renewal/insertRenewals",
+          url: "Renewal/insertRenewals",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1136,7 +1126,7 @@ export default {
       }
       axios
         .request({
-          url: "/Account/getRoomType",
+          url: "Account/getRoomType",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1164,7 +1154,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/RoomType/getMonthRent",
+          url: "RoomType/getMonthRent",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1219,7 +1209,7 @@ export default {
           }
           axios
             .request({
-              url: "/Account/getCompanyName",
+              url: "Account/getCompanyName",
               method: "get",
               params: {
                 companyName: _this.editDtae.companyName
@@ -1261,7 +1251,7 @@ export default {
         if (valid) {
           axios
             .request({
-              url: "/Account/getCompanyName",
+              url: "Account/getCompanyName",
               method: "get",
               params: {
                 companyName: _this.changeData.owner
@@ -1284,7 +1274,7 @@ export default {
       _this.changeData.contractType = "变更";
       axios
         .request({
-          url: "/Renewal/insertRenewals2",
+          url: "Renewal/insertRenewals2",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1295,7 +1285,7 @@ export default {
           if (response.data == 1) {
             _this.$Message.success("合同变更成功");
             axios.request({
-              url: "/Renewal/updateRoom",
+              url: "Renewal/updateRoom",
               method: "post",
               headers: {
                 "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1330,7 +1320,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Renewal/getRenewalList",
+          url: "Renewal/getRenewalList",
           method: "get",
           params: redata
         })
@@ -1342,7 +1332,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Renewal/getCount",
+          url: "Renewal/getCount",
           method: "get",
           params: renewalData
         })
@@ -1364,7 +1354,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getOwnerList",
+          url: "Account/getOwnerList",
           method: "get",
           params: {
             owner: _this.selectRowData.owner
@@ -1412,7 +1402,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/deleteAccount",
+          url: "Account/deleteAccount",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1421,7 +1411,10 @@ export default {
         })
         .then(function(response) {
           if (_this.dormCounts != 1) {
-            if (_this.dormCounts % 10 == 1) {
+            if (
+              _this.dormCounts % _this.pagenum.pagecount == 1 &&
+              _this.deleterowdata._index == 0
+            ) {
               _this.pagenum.startnum -= 1;
             }
           }
@@ -1437,7 +1430,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/updateAccount",
+          url: "Account/updateAccount",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1457,7 +1450,7 @@ export default {
 
       axios
         .request({
-          url: "/Account/insertAccount",
+          url: "Account/insertAccount",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -1480,7 +1473,7 @@ export default {
 
     uploader(tdata) {
       axios.request({
-        url: "/Account/uploadAccount",
+        url: "Account/uploadAccount",
         method: "post",
         params: tdata
       });
@@ -1490,7 +1483,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getBuildingList",
+          url: "Account/getBuildingList",
           method: "get"
         })
         .then(function(response) {
@@ -1503,7 +1496,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getAccountList0",
+          url: "Account/getAccountList0",
           method: "get"
         })
         .then(function(response) {
@@ -1516,7 +1509,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getAccountList",
+          url: "Account/getAccountList",
           method: "get",
           params: startnum
         })
@@ -1529,7 +1522,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/getNameList",
+          url: "Account/getNameList",
           method: "get",
           params: _this.cname
         })
@@ -1543,7 +1536,7 @@ export default {
 
       axios
         .request({
-          url: "/Account/getNameCount",
+          url: "Account/getNameCount",
           method: "get",
           params: _this.cname
         })
@@ -1673,7 +1666,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/Account/uploadAccount",
+          url: "Account/uploadAccount",
           method: "post",
           headers: {
             "Content-Type": "application/json;charset=UTF-8"

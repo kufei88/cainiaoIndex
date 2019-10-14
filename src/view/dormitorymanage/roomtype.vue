@@ -139,7 +139,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/RoomType/getRoomTypes",
+          url: "RoomType/getRoomTypes",
           method: "get"
         })
         .then(function(response) {
@@ -154,7 +154,7 @@ export default {
           let _data = this.formValidate;
           axios
             .request({
-              url: "/RoomType/insertRoomType",
+              url: "RoomType/insertRoomType",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -184,7 +184,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/RoomType/deleteRoomType",
+          url: "RoomType/deleteRoomType",
           method: "post",
           headers: {
             "Content-Type": "application/json;charset=UTF-8"
@@ -223,7 +223,7 @@ export default {
 
         axios
           .request({
-            url: "/RoomType/updateMonthRent",
+            url: "RoomType/updateMonthRent",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"

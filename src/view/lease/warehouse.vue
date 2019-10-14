@@ -434,7 +434,7 @@ export default {
           _data.insertTime = this.getFormatDate();
           axios
             .request({
-              url: "/room/insertRoomList",
+              url: "room/insertRoomList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -506,7 +506,7 @@ export default {
         let _this = this;
         axios
           .request({
-            url: "/room/uploadRoomList",
+            url: "room/uploadRoomList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -644,7 +644,7 @@ export default {
           let _data = this.pageData[index];
           axios
             .request({
-              url: "/room/deleteRoomList",
+              url: "room/deleteRoomList",
               method: "post",
               headers: {
                 "Content-Type": "application/json;charset=UTF-8"
@@ -707,7 +707,7 @@ export default {
 
         axios
           .request({
-            url: "/room/updateRoomList",
+            url: "room/updateRoomList",
             method: "post",
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
@@ -752,7 +752,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/room/getSearchList",
+          url: "room/getSearchList",
           method: "get",
           params: {
             search: this.searchData,
@@ -773,7 +773,7 @@ export default {
       let _this = this;
       axios
         .request({
-          url: "/room/getBuildingList",
+          url: "room/getBuildingList",
           method: "get",
           params: {
             dataType: this.dataType

@@ -4,18 +4,41 @@
 <template>
   <div>
     <div>
-      <Tooltip content="EXCEL导入导出" placement="top">
-        <Button class="btn" @click="value2 = true" type="primary">EXCEL</Button>
+      <Tooltip
+        content="EXCEL导入导出"
+        placement="top"
+      >
+        <Button
+          class="btn"
+          @click="value2 = true"
+          type="primary"
+        >EXCEL</Button>
       </Tooltip>
-      <Tooltip content="添加新数据" placement="top">
-        <Button class="btn" @click="addForm" type="primary">新增数据</Button>
+      <Tooltip
+        content="添加新数据"
+        placement="top"
+      >
+        <Button
+          class="btn"
+          @click="addForm"
+          type="primary"
+        >新增数据</Button>
       </Tooltip>
     </div>
     <!-- EXCEL导入导出 -->
-    <Drawer title="EXCEL" placement="left" :closable="false" v-model="value2">
+    <Drawer
+      title="EXCEL"
+      placement="left"
+      :closable="false"
+      v-model="value2"
+    >
       <Card title="导入EXCEL">
         <Row>
-          <Upload action :before-upload="handleBeforeUpload" accept=".xls, .xlsx">
+          <Upload
+            action
+            :before-upload="handleBeforeUpload"
+            accept=".xls, .xlsx"
+          >
             <Button
               type="primary"
               icon="ios-cloud-upload-outline"
@@ -25,7 +48,10 @@
           </Upload>
         </Row>
         <Row>
-          <div class="ivu-upload-list-file" v-if="file !== null">
+          <div
+            class="ivu-upload-list-file"
+            v-if="file !== null"
+          >
             <Icon type="ios-stats"></Icon>
             {{ file.name }}
             <Icon
@@ -38,7 +64,11 @@
         </Row>
         <Row>
           <transition name="fade">
-            <Progress v-if="showProgress" :percent="progressPercent" :stroke-width="2">
+            <Progress
+              v-if="showProgress"
+              :percent="progressPercent"
+              :stroke-width="2"
+            >
               <div v-if="progressPercent == 100">
                 <Icon type="ios-checkmark-circle"></Icon>
                 <span>成功</span>
@@ -71,190 +101,318 @@
       </Card>
     </Drawer>
     <!-- 新增数据 -->
-    <Drawer title="新增数据" v-model="value3" width="360" :mask-closable="false" :styles="styles">
-      <Form ref="formData" :model="formData" :rules="ruleformData">
+    <Drawer
+      title="新增数据"
+      v-model="value3"
+      width="360"
+      :mask-closable="false"
+      :styles="styles"
+    >
+      <Form
+        ref="formData"
+        :model="formData"
+        :rules="ruleformData"
+      >
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="楼栋" label-position="top">
-              <Select v-model="formData.buildingName" @on-change="building">
-                <Option
-                  v-for="item in formData.buildingList"
-                  :value="item.value"
-                  :key="item.value"
-                >{{ item.label }}</Option>
-              </Select>
-            </FormItem>
+          <FormItem
+            label="楼栋"
+            label-position="top"
+          >
+            <Select
+              v-model="formData.buildingName"
+              @on-change="building"
+            >
+              <Option
+                v-for="item in formData.buildingList"
+                :value="item.value"
+                :key="item.value"
+              >{{ item.label }}</Option>
+            </Select>
+          </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="房号" label-position="top">
-              <Select v-model="formData.roomNumber" @on-change="room">
-                <Option
-                  v-for="item in formData.roomList"
-                  :value="item.value"
-                  :key="item.value"
-                >{{ item.label }}</Option>
-              </Select>
-            </FormItem>
+          <FormItem
+            label="房号"
+            label-position="top"
+          >
+            <Select
+              v-model="formData.roomNumber"
+              @on-change="room"
+            >
+              <Option
+                v-for="item in formData.roomList"
+                :value="item.value"
+                :key="item.value"
+              >{{ item.label }}</Option>
+            </Select>
+          </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="企业 " label-position="top">
-              <h4>
-                :
-                <span>{{formData.owner}}</span>
-              </h4>
-            </FormItem>
-          </Col>
-        </Row>
-
-        <Row :gutter="32">
-          <Col span="18">
-            <FormItem label="水表读数" label-position="top" prop="waterNumber">
-              <Input
-                v-model="formData.waterNumber"
-                placeholder="请输入水表读数，必须为数字"
-                clearable
-                precision="2"
-                number
-                :maxlength="15"
-              />
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="32">
-          <Col span="18">
-            <FormItem label="电表读数" label-position="top" prop="electricityNumber">
-              <Input
-                v-model="formData.electricityNumber"
-                placeholder="请输入电表读数，必须为数字"
-                clearable
-                precision="2"
-                number
-                :maxlength="15"
-              />
-            </FormItem>
+          <FormItem
+            label="企业 "
+            label-position="top"
+          >
+            <h4>
+              :
+              <span>{{formData.owner}}</span>
+            </h4>
+          </FormItem>
           </Col>
         </Row>
 
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="开始时间" label-position="top" prop="startTime">
-              <DatePicker v-model="formData.startTime" type="month" placeholder="选择开始时间"></DatePicker>
-            </FormItem>
+          <FormItem
+            label="水表读数"
+            label-position="top"
+            prop="waterNumber"
+          >
+            <Input
+              v-model="formData.waterNumber"
+              placeholder="请输入水表读数，必须为数字"
+              clearable
+              precision="2"
+              number
+              :maxlength="15"
+            />
+          </FormItem>
           </Col>
         </Row>
         <Row :gutter="32">
           <Col span="18">
-            <FormItem label="结束时间" label-position="top" prop="endTime">
-              <DatePicker v-model="formData.endTime" type="month" placeholder="选择结束时间"></DatePicker>
-            </FormItem>
+          <FormItem
+            label="电表读数"
+            label-position="top"
+            prop="electricityNumber"
+          >
+            <Input
+              v-model="formData.electricityNumber"
+              placeholder="请输入电表读数，必须为数字"
+              clearable
+              precision="2"
+              number
+              :maxlength="15"
+            />
+          </FormItem>
+          </Col>
+        </Row>
+
+        <Row :gutter="32">
+          <Col span="18">
+          <FormItem
+            label="开始时间"
+            label-position="top"
+            prop="startTime"
+          >
+            <DatePicker
+              v-model="formData.startTime"
+              type="month"
+              placeholder="选择开始时间"
+            ></DatePicker>
+          </FormItem>
+          </Col>
+        </Row>
+        <Row :gutter="32">
+          <Col span="18">
+          <FormItem
+            label="结束时间"
+            label-position="top"
+            prop="endTime"
+          >
+            <DatePicker
+              v-model="formData.endTime"
+              type="month"
+              placeholder="选择结束时间"
+            ></DatePicker>
+          </FormItem>
           </Col>
         </Row>
       </Form>
       <div class="demo-drawer-footer">
-        <Button style="margin-right: 8px" @click="value3 = false">取消</Button>
-        <Button type="primary" @click="add('formData')">确定</Button>
+        <Button
+          style="margin-right: 8px"
+          @click="value3 = false"
+        >取消</Button>
+        <Button
+          type="primary"
+          @click="add('formData')"
+        >确定</Button>
       </div>
     </Drawer>
     <!-- 数据展示 -->
     <Row>
       <Col offset>
-        <Card shadow>
-          <p slot="title">数据展示</p>
-          <Input v-model="searchValue" class="searchInput" placeholder="请输入关键字">
-            <Select v-model="selectValue" slot="prepend" style="width: 80px">
-              <Option value="企业">企业</Option>
-              <Option value="房号">房号</Option>
-            </Select>
-            <Button slot="append" icon="ios-search" @click="search(pageCurrent)"></Button>
-          </Input>
-          <Table height="520" :columns="columns" :data="data" :loading="tableLoading">
-            <template slot-scope="{ row }" slot="buildingName">
-              <span>{{ row.buildingName }}</span>
-            </template>
+      <Card shadow>
+        <p slot="title">数据展示</p>
+        <Input
+          v-model="searchValue"
+          class="searchInput"
+          placeholder="请输入关键字"
+        >
+        <Select
+          v-model="selectValue"
+          slot="prepend"
+          style="width: 80px"
+        >
+          <Option value="企业">企业</Option>
+          <Option value="房号">房号</Option>
+        </Select>
+        <Button
+          slot="append"
+          icon="ios-search"
+          @click="search(pageCurrent)"
+        ></Button>
+        </Input>
+        <Table
+          height="520"
+          :columns="columns"
+          :data="data"
+          :loading="tableLoading"
+        >
+          <template
+            slot-scope="{ row }"
+            slot="buildingName"
+          >
+            <span>{{ row.buildingName }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="roomNumber">
-              <span>{{ row.roomNumber }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="roomNumber"
+          >
+            <span>{{ row.roomNumber }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="owner">
-              <span>{{ row.owner }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="owner"
+          >
+            <span>{{ row.owner }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="waterNumber">
-              <span>{{ row.waterNumber }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="waterNumber"
+          >
+            <span>{{ row.waterNumber }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="waterNumberPrevious">
-              <span>{{ row.waterNumberPrevious }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="waterNumberPrevious"
+          >
+            <span>{{ row.waterNumberPrevious }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="waterDifference">
-              <span>{{ row.waterDifference }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="waterDifference"
+          >
+            <span>{{ row.waterDifference }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="waterCost">
-              <span>{{ row.waterCost }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="waterCost"
+          >
+            <span>{{ row.waterCost }}</span>
+          </template>
 
-            <template slot-scope="{ row}" slot="electricityNumber">
-              <span>{{ row.electricityNumber }}</span>
-            </template>
+          <template
+            slot-scope="{ row}"
+            slot="electricityNumber"
+          >
+            <span>{{ row.electricityNumber }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="electricityNumberPrevious">
-              <span>{{ row.electricityNumberPrevious }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="electricityNumberPrevious"
+          >
+            <span>{{ row.electricityNumberPrevious }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="electricityDifference">
-              <span>{{ row.electricityDifference }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="electricityDifference"
+          >
+            <span>{{ row.electricityDifference }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="electricityCost">
-              <span>{{ row.electricityCost }}</span>
-            </template>
+          <template
+            slot-scope="{ row }"
+            slot="electricityCost"
+          >
+            <span>{{ row.electricityCost }}</span>
+          </template>
 
-            <template slot-scope="{ row }" slot="total">
-              <span>{{ row.total }}</span>
-            </template>
-          </Table>
-          <!-- 分页-->
-          <Page
-            :total="dataCount"
-            show-total
-            show-sizer
-            :page-size="pageSize"
-            :page-size-opts="[10,20,50,100]"
-            :current="pageCurrent"
-            @on-change="changePage"
-            @on-page-size-change="changePageNumber"
-            class="margin-top-10"
-          />
-        </Card>
+          <template
+            slot-scope="{ row }"
+            slot="total"
+          >
+            <span>{{ row.total }}</span>
+          </template>
+        </Table>
+        <!-- 分页-->
+        <span>记录总共 {{this.dataCount}} 条</span>
+        <Page
+          :total="dataCount"
+          show-sizer
+          :page-size="pageSize"
+          :page-size-opts="[10,20,50,100]"
+          :current="pageCurrent"
+          @on-change="changePage"
+          @on-page-size-change="changePageNumber"
+          class="margin-top-10"
+        />
+      </Card>
       </Col>
     </Row>
     <Row>
       <Card shadow>
         单位：元
-        <example style="height: 310px;" v-bind:exampleData="exampleData" v-if="value4" />
+        <example
+          style="height: 310px;"
+          v-bind:exampleData="exampleData"
+          v-if="value4"
+        />
         <div slot="title">
           <p>水电费使用数据报表</p>
-          <Poptip title="时间线" class="text-center a" v-model="visible">
+          <Poptip
+            title="时间线"
+            class="text-center a"
+            v-model="visible"
+          >
             <a href="#">
               <Icon type="ios-funnel"></Icon>
               选择时间线{{timeText}}
             </a>
-            <div slot="content" style="height:90px">
+            <div
+              slot="content"
+              style="height:90px"
+            >
               <Divider size="small">
-                <a href="#" @click="getReport(1)">年</a>
+                <a
+                  href="#"
+                  @click="getReport(1)"
+                >年</a>
               </Divider>
               <Divider size="small">
-                <a href="#" @click="getReport(2)">季</a>
+                <a
+                  href="#"
+                  @click="getReport(2)"
+                >季</a>
               </Divider>
               <Divider size="small">
-                <a href="#" @click="getReport(3)">月</a>
+                <a
+                  href="#"
+                  @click="getReport(3)"
+                >月</a>
               </Divider>
             </div>
           </Poptip>
@@ -471,7 +629,7 @@ export default {
         this.pageStart = (index - 1) * this.pageSize;
         axios
           .request({
-            url: "/payment/getSearchList",
+            url: "payment/getSearchList",
             method: "get",
             params: {
               searchValue: this.searchValue,
@@ -486,6 +644,7 @@ export default {
           });
       }
       if (this.searchValue == "") {
+        this.select = false;
         this.getPaymentDataPage(1);
       }
     },
@@ -515,7 +674,7 @@ export default {
     getBuilding() {
       axios
         .request({
-          url: "/payment/getBuildingList",
+          url: "payment/getBuildingList",
           method: "get"
         })
         .then(response => {
@@ -530,7 +689,7 @@ export default {
     getRoomList() {
       axios
         .request({
-          url: "/payment/getRoomList",
+          url: "payment/getRoomList",
           method: "get",
           params: {
             building: this.formData.buildingName
@@ -548,7 +707,7 @@ export default {
     getEnterpriseNumber() {
       axios
         .request({
-          url: "/payment/getEnterpriseNumber",
+          url: "payment/getEnterpriseNumber",
           method: "get",
           params: {
             building: this.formData.buildingName,
@@ -568,7 +727,7 @@ export default {
             //增加
             axios
               .request({
-                url: "/payment/insertPaymentData",
+                url: "payment/insertPaymentData",
                 method: "post",
                 headers: {
                   "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -775,7 +934,7 @@ export default {
           this.value2 = false;
           axios
             .request({
-              url: "/payment/insertPaymentDataExcel",
+              url: "payment/insertPaymentDataExcel",
               method: "post",
               headers: {
                 "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -837,7 +996,7 @@ export default {
       this.pageStart = (index - 1) * this.pageSize;
       axios
         .request({
-          url: "/payment/getPaymentList",
+          url: "payment/getPaymentList",
           method: "get",
           params: {
             dataStart: this.pageStart,
@@ -879,7 +1038,7 @@ export default {
       this.value4 = false;
       axios
         .request({
-          url: "/payment/getReportList",
+          url: "payment/getReportList",
           method: "get",
           params: {
             reportState: reportState

@@ -216,7 +216,7 @@ export default {
     getHydropowerData() {
       axios
         .request({
-          url: "/payment/getSystemInfoList",
+          url: "payment/getSystemInfoList",
           method: "get"
         })
         .then(response => {
@@ -226,7 +226,7 @@ export default {
         });
       axios
         .request({
-          url: "/payment/systemInfoIsNull",
+          url: "payment/systemInfoIsNull",
           method: "get"
         })
         .then(response => {
@@ -239,7 +239,7 @@ export default {
     alter(index) {
       axios
         .request({
-          url: "/payment/updateSystemInfo",
+          url: "payment/updateSystemInfo",
           method: "post",
           headers: {
             "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -256,7 +256,7 @@ export default {
             this.$Message.success("修改成功！");
             axios
               .request({
-                url: "/payment/getSystemInfoList",
+                url: "payment/getSystemInfoList",
                 method: "get"
               })
               .then(response => {
@@ -273,7 +273,7 @@ export default {
         if (valid) {
           axios
             .request({
-              url: "/payment/addSystemInfo",
+              url: "payment/addSystemInfo",
               method: "post",
               headers: {
                 "Content-Type": "application/json" //设置请求头请求格式为JSON
@@ -285,7 +285,7 @@ export default {
                 this.$Message.success("添加成功！");
                 axios
                   .request({
-                    url: "/payment/getSystemInfoList",
+                    url: "payment/getSystemInfoList",
                     method: "get"
                   })
                   .then(response => {
