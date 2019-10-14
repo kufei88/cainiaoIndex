@@ -720,7 +720,7 @@ export default {
     },
     //添加数据
     add(name) {
-      if (this.formData.buildingName != "" && this.formData.roomNumber != "") {
+      if (this.formData.owner != "") {
         this.$refs[name].validate(valid => {
           if (valid) {
             this.value3 = false;
