@@ -661,7 +661,6 @@ export default {
     },
     //选择的楼栋数据
     building() {
-      this.addTime();
       this.getRoomList();
       this.formData.owner = "";
       this.formData.roomNumber = "";
@@ -720,10 +719,10 @@ export default {
     },
     //添加数据
     add(name) {
-      if (this.formData.buildingName != "" && this.formData.roomNumber != "") {
+      if (this.formData.owner != "") {
         this.$refs[name].validate(valid => {
           if (valid) {
-            this.value3 = false;
+            
             //增加
             axios
               .request({
@@ -738,7 +737,9 @@ export default {
                 if (response.data == 1) {
                   this.getPaymentDataPage(this.pageCurrent);
                   this.getReport(1);
+                  this.value3 = false;
                   this.$Message.success("添加成功！");
+                 
                 }
                 if (response.data == 0) {
                   this.getPaymentDataPage(this.pageCurrent);
@@ -750,6 +751,7 @@ export default {
                 if (error) {
                   this.getPaymentDataPage(this.pageCurrent);
                   this.getReport(1);
+                  this.value3 = false;
                   this.$Message.error("添加失败，服务器错误！");
                 }
               });
@@ -1053,14 +1055,7 @@ export default {
       this.visible = false;
     },
     //取消
-    cancel() {},
-    //新增数据时自动显示的时间
-    addTime() {
-      this.formData.startTime =
-        new Date().getFullYear() + "/" + (new Date().getMonth() + 1);
-      this.formData.endTime =
-        new Date().getFullYear() + "/" + (new Date().getMonth() + 2);
-    }
+    cancel() {}
   }
 };
 </script>
