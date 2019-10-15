@@ -228,15 +228,20 @@
           >取消</Button>
         </div>
         <div v-else>
-          <Button
-            type="primary"
-            style="margin-right: 5px"
-            @click="handleEdit(row, index)"
-          >修改</Button>
-          <Button
-            type="error"
-            @click="handleDelete(index)"
-          >删除</Button>
+          <div v-if="row.owner=='空闲'">
+            <Button
+              type="primary"
+              style="margin-right: 5px"
+              @click="handleEdit(row, index)"
+            >修改</Button>
+            <Button
+              type="error"
+              @click="handleDelete(index)"
+            >删除</Button>
+          </div>
+          <div v-else>
+            <Button type="error">该房间已出租</Button>
+          </div>
         </div>
       </template>
     </Table>

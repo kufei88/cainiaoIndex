@@ -962,7 +962,6 @@ export default {
       var range2 = 0;
       range = this.getDaterange(currentDate, rowDate);
       range2 = this.getDaterange(currentDate, rowDate2);
-      console.log("range2", range2);
 
       if (range <= 30) {
         if (this.showIndex == index) {
@@ -1173,6 +1172,7 @@ export default {
       this.deleteFormData = currentRow;
       // 把选中行的数据赋值给【合同变更】表单
       this.changeFormData = currentRow;
+
       // 修改选中状态
       this.isSelectRow = true;
     },
@@ -1277,6 +1277,7 @@ export default {
                 .then(function() {
                   if (_this.isPayRent == false) {
                     _this.$refs[name].resetFields();
+                    _this.isSelectRow = false;
                   }
                 });
             }
@@ -1322,37 +1323,46 @@ export default {
         case "changeForm":
           this.$refs[name].validate(valid => {
             if (valid) {
-              // 开始向后台发送数据
-              let _this = this;
-              this.changeFormData.updateTime = this.getFormatDate();
-              let _data = this.changeFormData;
+              if (this.changeFormData.owner == this.payFormData.owner) {
+                this.$Message.error("不得变更为原合同所有人");
+              } else {
+                if (this.changeFormData.firstRent == null) {
+                  this.$Message.error("首期租金未缴，不得变更");
+                } else {
+                  // 开始向后台发送数据
+                  let _this = this;
+                  this.changeFormData.updateTime = this.getFormatDate();
+                  let _data = this.changeFormData;
 
-              axios
-                .request({
-                  url: "lease/changeLeaseContractInfo",
-                  method: "post",
-                  headers: {
-                    "Content-Type": "application/json;charset=UTF-8"
-                  },
-                  data: _data
-                })
-                .then(function(response) {
-                  if (response.data == 1) {
-                    _this.$Message.success("修改成功");
-                    _this.isChangeOwner = false;
-                    _this.getRequestData(_this.pageCurrent);
-                  } else if (response.data == -1) {
-                    _this.$Message.error("被转让合同所属人未登记");
-                  } else {
-                    _this.$Message.error("修改失败");
-                    _this.isChangeOwner = false;
-                  }
-                })
-                .then(function() {
-                  if (_this.isChangeOwner == false) {
-                    _this.$refs[name].resetFields();
-                  }
-                });
+                  axios
+                    .request({
+                      url: "lease/changeLeaseContractInfo",
+                      method: "post",
+                      headers: {
+                        "Content-Type": "application/json;charset=UTF-8"
+                      },
+                      data: _data
+                    })
+                    .then(function(response) {
+                      if (response.data == 1) {
+                        _this.$Message.success("修改成功");
+                        _this.isChangeOwner = false;
+                        _this.getRequestData(_this.pageCurrent);
+                      } else if (response.data == -1) {
+                        _this.$Message.error("被转让合同所属人未登记");
+                      } else {
+                        _this.$Message.error("修改失败");
+                        _this.isChangeOwner = false;
+                      }
+                    })
+                    .then(function() {
+                      if (_this.isChangeOwner == false) {
+                        _this.$refs[name].resetFields();
+                        _this.isSelectRow = false;
+                      }
+                    });
+                }
+              }
             }
           });
           break;
