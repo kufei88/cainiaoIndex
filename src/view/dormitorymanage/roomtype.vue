@@ -1,6 +1,6 @@
 <template>
   <div>
-    
+
     <Button icon="md-add" @click="isAddNewData = true">新增</Button>
 
     <!-- 新增房间类型弹窗 -->
@@ -59,195 +59,205 @@
 </template>
 
 <script>
-import axios from "@/libs/api.request";
-import excel from "@/libs/excel";
+import axios from '@/libs/api.request'
+import excel from '@/libs/excel'
 export default {
-  data() {
+  data () {
     return {
-      dataType: "宿舍", //
+      dataType: '宿舍', //
       // 表单数据设置
       formValidate: {
-        roomType: "",
-        monthRent: ""
+        roomType: '',
+        monthRent: ''
       },
       // 表单数据验证设置
       ruleValidate: {
         roomType: [
           {
             required: true,
-            message: "房间类型不能为空",
-            trigger: "blur"
+            message: '房间类型不能为空',
+            trigger: 'blur'
           }
         ],
 
         monthRent: [
           {
             required: true,
-            message: "每月租金不能为空",
-            trigger: "blur",
-            transform(value) {
-              var posPattern =/^[0-9]*$/;
+            message: '每月租金不能为空',
+            trigger: 'blur',
+            transform (value) {
+              var posPattern = /^[0-9]*$/
               if (!posPattern.test(value)) {
-                this.message= "请输入正确的租金";
-                return false;
+                this.message = '请输入正确的租金'
+                return false
               } else {
-                return String(value);
+                return String(value)
               }
             }
           }
         ]
       },
-      isAddNewData:false,
-      deleteData: "",
+      isAddNewData: false,
+      deleteData: '',
       editIndex: -1, // 当前聚焦的输入框的行数
-      editMonthRent: "",
+      editMonthRent: '',
 
       pageData: [], // table绑定的数据
       model2: false,
       // 表格显示的列名数据
       dataColumns: [
         {
-          type: "index",
+          type: 'index',
           width: 60,
-          align: "center",
-          indexMethod(row) {
+          align: 'center',
+          indexMethod (row) {
             return row._index + 1
           }
         },
         {
-          title: "房间类型",
-          key: "roomType",
-          slot: "roomType"
+          title: '房间类型',
+          key: 'roomType',
+          slot: 'roomType'
         },
         {
-          title: "每月租金",
-          key: "monthRent",
-          slot: "monthRent"
+          title: '每月租金',
+          key: 'monthRent',
+          slot: 'monthRent'
         },
         {
-          title: "操作",
-          slot: "action",
+          title: '操作',
+          slot: 'action',
           width: 180,
-          align: "center"
+          align: 'center'
         }
       ]
-    };
+    }
   },
 
   methods: {
-    getRoomType() {
-      let _this = this;
+    // 取消修改
+    handleCancel () {
+      this.editIndex = -1
+      this.getRoomType()
+    },
+    // 获取房间类型全部信息
+    getRoomType () {
+      let _this = this
       axios
         .request({
-          url: "RoomType/getRoomTypes",
-          method: "get"
+          url: 'RoomType/getRoomTypes',
+          method: 'get'
         })
-        .then(function(response) {
-          _this.pageData = response.data;
-        });
+        .then(function (response) {
+          _this.pageData = response.data
+        })
     },
-    handleSubmit(name) {
+    // 提交新增房型
+    handleSubmit (name) {
       this.$refs[name].validate(valid => {
         if (valid) {
           // 开始向后台发送数据
-          let _this = this;
-          let _data = this.formValidate;
+          let _this = this
+          let _data = this.formValidate
           axios
             .request({
-              url: "RoomType/insertRoomType",
-              method: "post",
+              url: 'RoomType/insertRoomType',
+              method: 'post',
               headers: {
-                "Content-Type": "application/json;charset=UTF-8"
+                'Content-Type': 'application/json;charset=UTF-8'
               },
               data: _data
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.data == 1) {
-                _this.$Message.success("添加成功");
-                _this.getRoomType();
+                _this.$Message.success('添加成功')
+                _this.getRoomType()
               } else {
-                _this.$Message.error("添加失败");
+                _this.$Message.error('添加失败')
               }
             })
-            .then(function() {
-              _this.$refs[name].resetFields();
-            });
-          _this.isAddNewData = false;
+            .then(function () {
+              _this.$refs[name].resetFields()
+            })
+          _this.isAddNewData = false
         }
-      });
+      })
     },
-    handleDelete(index) {
-      this.deleteData = this.pageData[index];
-      this.model2 = true;
+    // 删除房型提示框弹出
+    handleDelete (index) {
+      this.deleteData = this.pageData[index]
+      this.model2 = true
     },
-    deleterow() {
-      let _this = this;
+    // 删除房型
+    deleterow () {
+      let _this = this
       axios
         .request({
-          url: "RoomType/deleteRoomType",
-          method: "post",
+          url: 'RoomType/deleteRoomType',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json;charset=UTF-8"
+            'Content-Type': 'application/json;charset=UTF-8'
           },
           data: _this.deleteData
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.data == 1) {
-            _this.$Message.success("删除成功");
-            _this.getRoomType();
+            _this.$Message.success('删除成功')
+            _this.getRoomType()
           } else {
-            _this.$Message.error("删除失败");
+            _this.$Message.error('删除失败')
           }
-        });
+        })
     },
-    handleEdit(row, index) {
-      
-      this.editMonthRent=row.monthRent;
-      this.editIndex = index;
+    // 修改
+    handleEdit (row, index) {
+      this.editMonthRent = row.monthRent
+      this.editIndex = index
     },
-    handleSave(index) {
-      let _this = this;
-      let _data = this.pageData;
+    // 保存修改
+    handleSave (index) {
+      let _this = this
+      let _data = this.pageData
 
       // 向后台发送数据
-      this.pageData[index].monthRent=this.editMonthRent;
+      this.pageData[index].monthRent = this.editMonthRent
       // 判断是否为空，内容有空值就不发送
       if (
-        this.pageData[index].monthRent == "" ||
+        this.pageData[index].monthRent == '' ||
         this.pageData[index].monthRent == null ||
         this.pageData[index].monthRent == undefined
       ) {
-        this.$Message.error("有内容未填写");
+        this.$Message.error('有内容未填写')
       } else {
-        _data = this.pageData[index];
+        _data = this.pageData[index]
 
         axios
           .request({
-            url: "RoomType/updateMonthRent",
-            method: "post",
+            url: 'RoomType/updateMonthRent',
+            method: 'post',
             headers: {
-              "Content-Type": "application/json;charset=UTF-8"
+              'Content-Type': 'application/json;charset=UTF-8'
             },
             data: _data
           })
-          .then(function(response) {
+          .then(function (response) {
             if (response.data == 1) {
-              _this.$Message.success("保存成功");
-            }else {
-              _this.$Message.error("保存失败");
+              _this.$Message.success('保存成功')
+            } else {
+              _this.$Message.error('保存失败')
             }
-            _this.getRoomType();
+            _this.getRoomType()
           })
-        this.editIndex = -1;
+        this.editIndex = -1
       }
     },
-    handleReset(name) {
-      this.$refs[name].resetFields();
-      this.isAddNewData = false;
-    },
+    handleReset (name) {
+      this.$refs[name].resetFields()
+      this.isAddNewData = false
+    }
   },
-  mounted() {
-    this.getRoomType();
+  mounted () {
+    this.getRoomType()
   }
-};
+}
 </script>

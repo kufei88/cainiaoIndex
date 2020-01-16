@@ -5,7 +5,7 @@
       search
       enter-button="查询"
       placeholder="请输入查询关键字，如所属楼栋、业主"
-      style="width:300px;margin-bottom:10px;float:left;"
+      style="width:350px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
     />
@@ -42,34 +42,80 @@
 
     </Upload>
 
-    <!-- 新增宿舍房间按钮 -->
+    <!-- 新增商业按钮 -->
     <Button
       icon="md-add"
-      @click="isAddNewRoom"
+      @click="isAddNewData = true"
       style="float:right"
     >新增</Button>
 
-    <!-- 查看全部空闲房间按钮 -->
     <Button
-      @click="selectVacancy"
+      type="primary"
+      @click="showEmptyRoom"
       style="float:right"
     >空闲房间</Button>
 
-    <!-- 查看全部全部房间按钮 -->
-    <Button
-      @click="selectAllRoom"
-      style="float:right"
-    >全部房间</Button>
-
     <!-- 清除浮动 -->
     <div style="clear:both"></div>
+    <!-- 修改备注信息弹窗 -->
+    <Modal
+      width=40
+      :closable="false"
+      v-model="isUpdateOther"
+      :mask-closable="false"
+      :scrollable="true"
+      title="修改备注信息"
+    >
 
-    <!-- 新增宿舍房间弹窗 -->
+      <!-- 表单填写 -->
+
+      <Form
+        ref="updateOther"
+        :label-width="100"
+        @submit.native.prevent
+      >
+
+        <FormItem
+          label="备注信息:"
+          prop="owner"
+        >
+
+          <Input
+            v-model="editOther"
+            maxlength="200"
+            show-word-limit
+            type="textarea"
+            :rows="7"
+          />
+        </FormItem>
+
+      </Form>
+
+      <!-- 确定取消框 -->
+
+      <div slot="footer">
+
+        <Button
+          type="text"
+          size="large"
+          @click="otherReset('updateOther')"
+        >取消</Button>
+
+        <Button
+          type="primary"
+          size="large"
+          @click="otherSubmit('updateOther')"
+        >确定</Button>
+
+      </div>
+
+    </Modal>
+    <!-- 新增商业弹窗 -->
     <Modal
       :closable="false"
       v-model="isAddNewData"
       :mask-closable="false"
-      title="新增宿舍房间信息填写"
+      title="新增商业信息填写"
     >
       <Form
         ref="formValidate"
@@ -79,10 +125,9 @@
       >
 
         <FormItem
-          label="所属宿舍楼"
+          label="所属楼栋"
           prop="buildingName"
         >
-
           <Select
             v-model="formValidate.buildingName"
             style="width:200px"
@@ -107,23 +152,50 @@
         </FormItem>
 
         <FormItem
-          label="房间类型"
-          prop="roomType"
+          label="计租面积"
+          prop="rentArea"
         >
-          <Select
-            v-model="formValidate.roomType"
-            style="width:200px"
-            transfer:true
-          >
-            <Option
-              v-for="item in roomTypeDate"
-              :value="item.roomType"
-              :key="item.id"
-            >{{ item.roomType }}</Option>
-          </Select>
-
+          <Input
+            clearable
+            v-model="formValidate.rentArea"
+            placeholder="单位(㎡)"
+          />
         </FormItem>
 
+        <FormItem
+          label="建筑面积"
+          prop="buildingArea"
+        >
+          <Input
+            clearable
+            v-model="formValidate.buildingArea"
+            placeholder="单位(㎡)"
+          />
+        </FormItem>
+
+<FormItem
+          label="跟进人"
+          prop="followUpPeople"
+        >
+          <Input
+            clearable
+            v-model="formValidate.followUpPeople"
+
+          />
+        </FormItem>
+
+        <FormItem
+          label="备注信息"
+          prop="other"
+        >
+          <Input
+            v-model="formValidate.other"
+            maxlength="200"
+            show-word-limit
+            type="textarea"
+            :rows="5"
+          />
+        </FormItem>
       </Form>
 
       <div slot="footer">
@@ -140,7 +212,7 @@
       </div>
     </Modal>
 
-    <!-- 宿舍房间显示表格 -->
+    <!-- 商业显示表格 -->
     <Table
       border
       :columns="dataColumns"
@@ -156,7 +228,7 @@
       </template>
 
       <template
-        slot-scope="{ row}"
+        slot-scope="{ row, index }"
         slot="buildingName"
       >
         <!-- <Select
@@ -174,15 +246,72 @@
       </template>
 
       <template
-        slot-scope="{ row}"
+        slot-scope="{ row, index }"
         slot="roomNumber"
       >
-        <!-- <Input
+        <Input
           type="text"
           v-model="editRoomNumber"
           v-if="editIndex === index"
-        /> -->
-        <span>{{ row.roomNumber }}</span>
+        />
+        <span v-else>{{ row.roomNumber }}</span>
+      </template>
+
+      <template
+        slot-scope="{ row, index }"
+        slot="rentArea"
+      >
+        <Input
+          type="text"
+          v-model="editRentArea"
+          v-if="editIndex === index"
+        />
+        <span v-else>{{ row.rentArea }}</span>
+      </template>
+
+      <template
+        slot-scope="{ row, index }"
+        slot="buildingArea"
+      >
+        <Input
+          type="text"
+          v-model="editBuildingArea"
+          v-if="editIndex === index"
+        />
+        <span v-else>{{ row.buildingArea }}</span>
+      </template>
+      <template
+        slot-scope="{ row, index }"
+        slot="other"
+      >
+        <Input
+          type="text"
+          v-model="editOther"
+          v-if="editIndex === index"
+          @on-focus="editOtherText"
+        />
+
+        <Tooltip
+          v-else
+          max-width="450"
+        >
+          <div slot="content">
+            <span>{{ row.other }}</span>
+          </div>
+          <span>{{ showOtherLess(row.other) }}</span>
+        </Tooltip>
+
+      </template>
+       <template
+        slot-scope="{ row, index }"
+        slot="followUpPeople"
+      >
+        <Input
+          type="text"
+          v-model="editFollowUpPeople"
+          v-if="editIndex === index"
+        />
+        <span v-else>{{ row.followUpPeople }}</span>
       </template>
 
       <template
@@ -194,28 +323,8 @@
 
       <template
         slot-scope="{ row, index }"
-        slot="roomType"
-      >
-        <Select
-          v-model="editRoomType"
-          transfer:true
-          v-if="editIndex === index"
-        >
-          <Option
-            v-for="item in roomTypeDate"
-            :value="item.roomType"
-            :key="item.id"
-          >{{ item.roomType }}</Option>
-        </Select>
-
-        <span v-else>{{ row.roomType}}</span>
-      </template>
-
-      <template
-        slot-scope="{ row, index }"
         slot="action"
       >
-
         <div v-if="editIndex === index">
           <Button
             type="primary"
@@ -267,40 +376,81 @@ export default {
   data () {
     return {
       // 房间类型
-      dataType: '宿舍',
+      dataType: '商业',
 
       isAddNewData: false, // 是否新增数据
 
       buildingData: [], // 楼栋数据
-      roomTypeDate: [], // 房型数据
+
       // 表单数据设置
       formValidate: {
         roomNumber: '',
         buildingName: '',
-        roomType: '',
-        insertTime: ''
+        rentArea: '',
+        buildingArea: '',
+        insertTime: '',
+        followUpPeople: '',
+        other: ''
       },
       // 表单数据验证设置
       ruleValidate: {
         roomNumber: [
           {
             required: true,
-            message: '房号不得为空',
-            trigger: 'blur'
+            message: '请输入正确的房间号',
+            trigger: 'blur',
+            transform (value) {
+              var posPattern = /^\d+$/
+              if (!posPattern.test(value)) {
+                return false
+              } else {
+                return String(value)
+              }
+            }
           }
         ],
         buildingName: [
           {
             required: true,
-            message: '所属宿舍楼不得为空',
+            message: '所属办公楼不得为空',
             trigger: 'change'
           }
         ],
-        roomType: [
+        followUpPeople: [
           {
             required: true,
-            message: '房间类型不得为空',
+            message: '跟进人不得为空',
             trigger: 'change'
+          }
+        ],
+        rentArea: [
+          {
+            required: true,
+            message: '请输入正确的面积大小',
+            trigger: 'blur',
+            transform (value) {
+              var posPattern = /^\d*\.?\d+$/
+              if (!posPattern.test(value)) {
+                return false
+              } else {
+                return String(value)
+              }
+            }
+          }
+        ],
+        buildingArea: [
+          {
+            required: true,
+            message: '请输入正确的面积大小',
+            trigger: 'blur',
+            transform (value) {
+              var posPattern = /^\d*\.?\d+$/
+              if (!posPattern.test(value)) {
+                return false
+              } else {
+                return String(value)
+              }
+            }
           }
         ]
       },
@@ -314,23 +464,32 @@ export default {
       // excel模板数据格式
       excelDataModel: [
         {
-          roomNumber: '必须是数字，，例如:101',
-          buildingName: '必须是宿舍楼的名称',
-          roomType: '必须是存在的房间类型'
+          roomNumber: '必须是数字，例如:101',
+          buildingName: '必须是办公楼管理里存在的名称',
+          rentArea: '必须是数字，单位(㎡)',
+          followUpPeople: '填写跟进人',
+          other: '填写备注',
+          buildingArea: '必须是数字，单位(㎡)'
         }
       ],
 
       editIndex: -1, // 当前聚焦的输入框的行数
       editRentArea: '', // 编辑的计租面积
       editBuildingArea: '', // 编辑的建筑面积
-      editRoomType: '', // 编辑的房间类型
+      editRoomNumber: '', // 编辑的房号
+      editOther: '', // 编辑的备注
+      editFollowUpPeople: '', // 编辑的跟进人
+
+      saveOther: '', // 暂存编辑修改备注内容
+      isUpdateOther: false, // 是否修改备注信息
 
       pageCurrent: 1, // 当前页数
-      pageStart: 0,
-      pageEnd: 0,
+      pageStart: 0, // 记录开始位置
       dataCount: 0, // 后台数据的总记录
       pageSize: 10, // 每页显示多少条
       pageData: [], // table绑定的数据
+
+      tempRoomNumber: '', // 记录旧的房间号
 
       // 表格显示的列名数据
       dataColumns: [
@@ -345,30 +504,55 @@ export default {
         {
           title: '所属楼栋',
           key: 'buildingName',
+          align: 'center',
           slot: 'buildingName'
         },
         {
           title: '房号',
           key: 'roomNumber',
+          align: 'center',
           slot: 'roomNumber'
         },
         {
           title: '业主',
           key: 'owner',
+          align: 'center',
           slot: 'owner'
         },
         {
-          title: '房间类型',
-          key: 'roomType',
-          slot: 'roomType'
+          title: '计租面积(㎡)',
+          key: 'rentArea',
+          align: 'center',
+          slot: 'rentArea'
+        },
+        {
+          title: '建筑面积(㎡)',
+          key: 'buildingArea',
+          align: 'center',
+          slot: 'buildingArea'
         },
         {
           title: '添加时间',
-          key: 'insertTime'
+          key: 'insertTime',
+          align: 'center'
         },
         {
           title: '修改时间',
-          key: 'updateTime'
+          key: 'updateTime',
+          align: 'center'
+        },
+
+        {
+          title: '备注',
+          key: 'other',
+          align: 'center',
+          slot: 'other'
+        },
+        {
+          title: '跟进人',
+          key: 'followUpPeople',
+          align: 'center',
+          slot: 'followUpPeople'
         },
         {
           title: '操作',
@@ -380,21 +564,38 @@ export default {
     }
   },
   methods: {
-    // 查看空闲房间
-    selectVacancy () {
+    // 备注信息省略显示
+    showOtherLess (value) {
+      var str = ''
+      if (value != '' && value != undefined && value != null) {
+        str = value.substring(0, 6)
+        if (value.length > 6) {
+          str += '...'
+        }
+      }
+      return str
+    },
+    // 确认修改备注信息
+    otherSubmit () {
+      this.isUpdateOther = false
+    },
+    // 取消修改备注信息
+    otherReset () {
+      this.isUpdateOther = false
+      this.editOther = this.saveOther
+    },
+    // 修改备注信息
+    editOtherText (value) {
+      this.isUpdateOther = true
+      this.saveOther = this.editOther
+    },
+
+    // 显示空闲房间
+    showEmptyRoom () {
       this.searchData = '空闲'
       this.getRequestData(1)
     },
-    // 查看全部房间
-    selectAllRoom () {
-      this.searchData = ''
-      this.getRequestData(1)
-    },
-    // 点击添加按钮
-    isAddNewRoom () {
-      this.isAddNewData = true
-      this.formValidate.buildingName = this.buildingData[0].buildingName
-    },
+
     // 确认提交新增数据
     handleSubmit (name) {
       this.$refs[name].validate(valid => {
@@ -415,17 +616,20 @@ export default {
             .then(function (response) {
               if (response.data == 1) {
                 _this.$Message.success('添加成功')
+                _this.isAddNewData = false
                 _this.getRequestData(_this.pageCurrent)
               } else if (response.data == -1) {
-                _this.$Message.error('已有该房间存在')
+                _this.$Message.error('已有该商业存在')
               } else {
+                _this.isAddNewData = false
                 _this.$Message.error('添加失败')
               }
             })
             .then(function () {
-              _this.$refs[name].resetFields()
+              if (_this.isAddNewData == false) {
+                _this.$refs[name].resetFields()
+              }
             })
-          this.isAddNewData = false
         }
       })
     },
@@ -441,13 +645,19 @@ export default {
       // 1.先进行数据的处理，转化成符合后台读取的格式
       for (var key in excelData) {
         excelData[key].roomNumber = excelData[key].房号
-        excelData[key].buildingName = excelData[key].宿舍楼名称
-        excelData[key].roomType = excelData[key].房间类型
+        excelData[key].buildingName = excelData[key].所属楼栋
+        excelData[key].rentArea = excelData[key].计租面积
+        excelData[key].buildingArea = excelData[key].建筑面积
+        excelData[key].other = excelData[key].备注
+        excelData[key].followUpPeople = excelData[key].跟进人
         excelData[key].insertTime = this.getFormatDate()
 
         delete excelData[key].房号
-        delete excelData[key].宿舍楼名称
-        delete excelData[key].房间类型
+        delete excelData[key].所属楼栋
+        delete excelData[key].计租面积
+        delete excelData[key].建筑面积
+        delete excelData[key].备注
+        delete excelData[key].跟进人
       }
       // 验证空数据
       let isDataEmpty = 0
@@ -458,9 +668,15 @@ export default {
         excelData[key].buildingName == '' ||
         excelData[key].buildingName == null ||
         excelData[key].buildingName == undefined ||
-        excelData[key].roomType == '' ||
-        excelData[key].roomType == null ||
-        excelData[key].roomType == undefined
+        excelData[key].rentArea == '' ||
+        excelData[key].rentArea == null ||
+        excelData[key].rentArea == undefined ||
+        excelData[key].buildingArea == '' ||
+        excelData[key].buildingArea == null ||
+        excelData[key].buildingArea == undefined ||
+        excelData[key].followUpPeople == '' ||
+        excelData[key].followUpPeople == null ||
+        excelData[key].followUpPeople == undefined
           ? (isDataEmpty += 1)
           : (isDataEmpty += 0)
       }
@@ -560,11 +776,11 @@ export default {
       if (this.excelDataModel.length) {
         this.exportLoading = true
         const params = {
-          title: ['房号', '宿舍楼名称', '房间类型'],
-          key: ['roomNumber', 'buildingName', 'roomType'],
+          title: ['房号', '所属楼栋', '计租面积', '建筑面积', '备注', '跟进人'],
+          key: ['roomNumber', 'buildingName', 'rentArea', 'buildingArea', 'other', 'followUpPeople'],
           data: this.excelDataModel,
           autoWidth: true,
-          filename: '宿舍房间管理信息表模板'
+          filename: '商业管理信息表模板'
         }
         excel.export_array_to_excel(params)
         this.exportLoading = false
@@ -578,11 +794,11 @@ export default {
       if (this.pageData.length) {
         this.exportLoading = true
         const params = {
-          title: ['房号', '宿舍楼名称', '业主', '房间类型'],
-          key: ['roomNumber', 'buildingName', 'owner', 'roomType'],
+          title: ['房号', '所属楼栋', '计租面积', '建筑面积', '备注', '跟进人'],
+          key: ['roomNumber', 'buildingName', 'rentArea', 'buildingArea', 'other', 'followUpPeople'],
           data: this.pageData,
           autoWidth: true,
-          filename: '宿舍房间管理信息表'
+          filename: '商业管理信息表'
         }
         excel.export_array_to_excel(params)
         this.exportLoading = false
@@ -617,12 +833,13 @@ export default {
             .then(function (response) {
               if (response.data == 1) {
                 _this.$Message.success('删除成功')
-                // 判断是否pageData的数据长度<=1,是则页数减1;
+                // 判断是否pageData的数据长度<=1,然后判断是否第1页,是则页数减1;
                 if (_this.pageData.length <= 1) {
-                  _this.getRequestData(_this.pageCurrent - 1)
-                } else {
-                  _this.getRequestData(_this.pageCurrent)
+                  if (_this.pageCurrent != 1) {
+                    _this.pageCurrent = _this.pageCurrent - 1
+                  }
                 }
+                _this.getRequestData(_this.pageCurrent)
               } else {
                 _this.$Message.error('删除失败')
               }
@@ -635,10 +852,13 @@ export default {
     },
     // 编辑修改记录
     handleEdit (row, index) {
-      // this.editRentArea = row.rentArea;
-      // this.editBuildingArea = row.buildingArea;
-      this.editRoomType = row.roomType
+      this.editRentArea = row.rentArea
+      this.editBuildingArea = row.buildingArea
+      this.editFollowUpPeople = row.followUpPeople
+      this.editOther = row.other
+      this.editRoomNumber = row.roomNumber
       this.editIndex = index
+      this.tempRoomNumber = row.roomNumber
     },
     // 取消修改记录
     handleCancel (index) {
@@ -650,18 +870,36 @@ export default {
     handleSave (index) {
       let _this = this
       let _data = this.pageData
-      this.pageData[index].roomType = this.editRoomType
+
+      // 向后台发送数据
+      this.pageData[index].rentArea = this.editRentArea
+      this.pageData[index].buildingArea = this.editBuildingArea
+      this.pageData[index].other = this.editOther
+      this.pageData[index].followUpPeople = this.editFollowUpPeople
+      this.pageData[index].roomNumber = this.editRoomNumber
+      this.pageData[index].tempRoomNumber = this.tempRoomNumber
       // 判断是否为空，内容有空值就不发送
       if (
-        this.pageData[index].roomType == '' ||
-        this.pageData[index].roomType == null ||
-        this.pageData[index].roomType == undefined
+        this.pageData[index].rentArea == '' ||
+        this.pageData[index].rentArea == null ||
+        this.pageData[index].rentArea == undefined ||
+        this.pageData[index].buildingArea == '' ||
+        this.pageData[index].buildingArea == null ||
+        this.pageData[index].buildingArea == undefined ||
+        this.pageData[index].roomNumber == '' ||
+        this.pageData[index].roomNumber == null ||
+        this.pageData[index].roomNumber == undefined ||
+        this.pageData[index].followUpPeople == '' ||
+        this.pageData[index].followUpPeople == null ||
+        this.pageData[index].followUpPeople == undefined
+
       ) {
         this.$Message.error('有内容未填写')
+        _this.getRequestData(_this.pageCurrent)
       } else {
         this.pageData[index].updateTime = this.getFormatDate()
         _data = this.pageData[index]
-        _data.tempRoomNumber = this.pageData[index].roomNumber
+
         axios
           .request({
             url: 'room/updateRoomList',
@@ -722,10 +960,11 @@ export default {
           _this.pageData = response.data.roomList
           _this.dataCount = response.data.dataCount
           _this.addPageCurrentAndPageSize(_this.pageData)
+          console.log(_this.pageData)
         })
     },
 
-    // 从后台获取宿舍楼数据
+    // 从后台获取办公楼数据
     getBuildingData () {
       let _this = this
       axios
@@ -738,21 +977,9 @@ export default {
         })
         .then(function (response) {
           _this.buildingData = response.data
-          _this.formValidate.buildingName = _this.buildingData[0].buildingName
         })
     },
-    // 获取寝室房间类型
-    getRoomType () {
-      let _this = this
-      axios
-        .request({
-          url: 'RoomType/getRoomTypes',
-          method: 'get'
-        })
-        .then(function (response) {
-          _this.roomTypeDate = response.data
-        })
-    },
+
     // 获取当前系统时间
     getFormatDate () {
       var date = new Date()
@@ -790,7 +1017,6 @@ export default {
   mounted () {
     this.getRequestData(this.pageCurrent)
     this.getBuildingData()
-    this.getRoomType()
   }
 }
 </script>

@@ -1,12 +1,11 @@
 <template>
   <div>
-
     <!-- 自定义查询模块 -->
 
     <Input
       search
       enter-button="查询"
-      placeholder="请输入查询关键字,如公司名称、楼栋名称、房间号"
+      placeholder="请输入查询公司名称"
       style="width:400px;margin-bottom:10px;float:left;"
       @on-search="searchButton"
       v-model="searchData"
@@ -14,43 +13,28 @@
 
     <!-- 退租按钮 -->
 
-    <Button
-      type="error"
-      @click="handleDelete"
-      style="float:right;margin-left:10px"
-    >退租</Button>
+    <Button type="error" @click="handleDelete" style="float:right;margin-left:10px">退租</Button>
 
     <!-- 合同变更按钮 -->
 
-    <Button
-      type="warning"
-      @click="handleChange"
-      style="float:right;margin-left:10px"
-    >合同变更</Button>
+    <Button type="warning" @click="handleChange" style="float:right;margin-left:10px">合同变更</Button>
 
     <!-- 合同详情按钮 -->
 
-    <Button
-      type="primary"
-      @click="handleDetailed"
-      style="float:right;margin-left:10px"
-    >合同详情</Button>
+    <Button type="primary" @click="handleDetailed" style="float:right;margin-left:10px">合同详情</Button>
 
     <!-- 缴费按钮 -->
 
-    <Button
-      type="primary"
-      @click="handlePay"
-      style="float:right;margin-left:10px"
-    >合同缴费</Button>
+    <Button type="primary" @click="handlePay" style="float:right;margin-left:10px">合同缴费</Button>
 
     <!-- 新增按钮 -->
 
-    <Button
-      type="primary"
-      @click="isAddNewData = true"
-      style="float:right;margin-left:10px"
-    >新增合同</Button>
+    <Button type="primary" @click="isAddNewData = true" style="float:right;margin-left:10px">新增合同</Button>
+
+    <!-- 过期合同按钮 -->
+    <Button type="primary" @click="getDeleteCount()" style="float:right;margin-left:10px">到期合同</Button>
+    <!-- 未到期合同 -->
+    <Button type="primary" @click="getBeforCount()" style="float:right;margin-left:10px">未到期合同</Button>
 
     <!-- 清除浮动 -->
 
@@ -63,39 +47,98 @@
       v-model="isDetailed"
       :mask-closable="false"
       :scrollable="true"
-      width="70"
+      width="75"
       title="合同详情信息"
     >
+      <Divider>基本信息</Divider>
 
-      <p style="margin-top:10px;margin-bottom:10px;display:flex">
+      <p style="margin-left:20%;margin-top:10px;margin-bottom:10px;display:flex;">
+        <span style="font-size:14px;flex:1">
+          <strong>公司名称:</strong>
+          {{selectContract.owner}}
+        </span>
 
-        <span style="font-size:14px;flex:1"><strong>所属楼栋:</strong> {{selectContract.buildingName}}</span>
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>联系人:</strong>
+          {{ownerInfo.enterprisePerson}}
+        </span>
 
-        <span style="font-size:14px;margin-left:35px;flex:1"><strong>房间号:</strong> {{selectContract.roomNumber}}</span>
-
-        <span style="font-size:14px;margin-left:35px;flex:2"><strong>公司名称:</strong> {{selectContract.owner}}</span>
-
+        <span style="font-size:14px;margin-left:35px;flex:2">
+          <strong>联系电话:</strong>
+          {{ownerInfo.contactNumber}}
+        </span>
       </p>
 
-      <p style="margin-top:10px;margin-bottom:10px;display:flex">
+      <p style="margin-left:20%;margin-top:10px;margin-bottom:10px;display:flex;">
+        <span style="font-size:14px;flex:1">
+          <strong>所属楼栋:</strong>
+          {{selectContract.buildingName}}
+        </span>
 
-        <span style="font-size:14px;flex:1"><strong>租金单价:</strong> {{selectContract.depositOnContracts}} 元/月/㎡</span>
-
-        <span style="font-size:14px;margin-left:35px;flex:1"><strong>合同保证金:</strong> {{selectContract.depositOnContracts}} 元</span>
-
-        <span style="font-size:14px;margin-left:35px;flex:1"><strong>签订时间:</strong> {{selectContract.insertTime}}</span>
-
-        <span
-          v-if="selectContract.noPayPeriod!=0"
-          style="font-size:14px;margin-left:35px;flex:1"
-        ><strong>剩余未缴费租期:</strong> {{selectContract.noPayPeriod}} 月</span>
-
-        <span
-          v-else
-          style="font-size:14px;margin-left:35px;flex:1"
-        ><strong>合同费用:</strong> 已缴清</span>
-
+        <span style="font-size:14px;margin-left:35px;flex:3.2">
+          <strong>房间号:</strong>
+          {{selectContract.roomNumber}}
+        </span>
       </p>
+
+      <Divider>合同清单</Divider>
+
+      <p style="margin-left:10%;margin-top:10px;margin-bottom:10px;display:flex;">
+        <span style="font-size:14px;flex:1">
+          <strong>第一年租金单价:</strong>
+          {{selectContract.firstYear_unitPrice}} 元/月/㎡
+        </span>
+
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>第一年管理单价:</strong>
+          {{selectContract.firstYear_managePrice}} 元/月/㎡
+        </span>
+
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>第一年能耗公摊:</strong>
+          {{selectContract.firstYear_energyPrice}} 元/月/㎡
+        </span>
+      </p>
+
+      <p style="margin-left:10%;margin-top:10px;margin-bottom:10px;display:flex;">
+        <span style="font-size:14px;flex:1">
+          <strong>第二年租金单价:</strong>
+          {{selectContract.secondYear_unitPrice}} 元/月/㎡
+        </span>
+
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>第二年管理单价:</strong>
+          {{selectContract.secondYear_managePrice}} 元/月/㎡
+        </span>
+
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>第二年能耗公摊:</strong>
+          {{selectContract.secondYear_energyPrice}} 元/月/㎡
+        </span>
+      </p>
+
+      <p style="margin-left:10%;margin-top:10px;margin-bottom:10px;display:flex;">
+        <span style="font-size:14px;flex:1">
+          <strong>合同保证金:</strong>
+          {{selectContract.depositOnContracts}} 元
+        </span>
+
+        <span style="font-size:14px;margin-left:35px;flex:1">
+          <strong>签订时间:</strong>
+          {{selectContract.insertTime}}
+        </span>
+
+        <span v-if="selectContract.noPayPeriod!=0" style="font-size:14px;margin-left:35px;flex:1">
+          <strong>剩余未缴费租期:</strong>
+          {{selectContract.noPayPeriod}} 月
+        </span>
+
+        <span v-else style="font-size:14px;margin-left:35px;flex:1">
+          <strong>合同费用:</strong> 已缴清
+        </span>
+      </p>
+
+      <Divider>缴费记录</Divider>
 
       <Table
         border
@@ -103,23 +146,14 @@
         :columns="showColumns"
         :data="showTableData"
         ref="showTable"
-        height="400"
-      >
-
-      </Table>
+        height="250"
+      ></Table>
 
       <!-- 确定取消框 -->
 
       <div slot="footer">
-
-        <Button
-          type="primary"
-          size="large"
-          @click="handleSubmit('showTable')"
-        >确定</Button>
-
+        <Button type="primary" size="large" @click="handleSubmit('showTable')">确定</Button>
       </div>
-
     </Modal>
 
     <!-- 合同变更弹窗 -->
@@ -131,7 +165,6 @@
       :scrollable="true"
       title="合同所属人变更"
     >
-
       <!-- 表单填写 -->
 
       <Form
@@ -141,39 +174,18 @@
         :label-width="100"
         @submit.native.prevent
       >
-
-        <FormItem
-          label="合同所属人:"
-          prop="owner"
-        >
-
-          <Input
-            clearable
-            v-model="changeFormData.owner"
-          />
-
+        <FormItem label="合同所属人:" prop="owner">
+          <Input clearable v-model="changeFormData.owner" />
         </FormItem>
-
       </Form>
 
       <!-- 确定取消框 -->
 
       <div slot="footer">
+        <Button type="text" size="large" @click="handleReset('changeForm')">取消</Button>
 
-        <Button
-          type="text"
-          size="large"
-          @click="handleReset('changeForm')"
-        >取消</Button>
-
-        <Button
-          type="primary"
-          size="large"
-          @click="handleSubmit('changeForm')"
-        >确定</Button>
-
+        <Button type="primary" size="large" @click="handleSubmit('changeForm')">确定</Button>
       </div>
-
     </Modal>
 
     <!-- 合同缴费弹窗 -->
@@ -185,183 +197,74 @@
       :scrollable="true"
       title="缴费业务"
     >
+      <Form ref="payForm" :model="payFormData" :rules="payFormRule" :label-width="130">
+        <Divider>基本信息</Divider>
 
-      <Form
-        ref="payForm"
-        :model="payFormData"
-        :rules="payFormRule"
-        :label-width="130"
-      >
-
-        <FormItem
-          label="所属楼栋:"
-          prop="buildingName"
-        >
-          <Input
-            readonly
-            v-model="payFormData.buildingName"
-            style="width:200px"
-          />
-          <!-- <Select
-            v-model="payFormData.buildingName"
-            style="width:200px"
-            transfer:true
-          >
-
-            <Option
-              v-for="item in payBuildingData"
-              :value="item.buildingName"
-              :key="item.buildingName"
-            >{{ item.buildingName }}</Option>
-
-          </Select> -->
-
+        <FormItem label="所属楼栋:" prop="buildingName">
+          <Input readonly v-model="payFormData.buildingName" style="width:200px" />
         </FormItem>
 
-        <FormItem
-          label="房号:"
-          prop="roomNumber"
-        >
-          <Input
-            readonly
-            v-model="payFormData.roomNumber"
-            style="width:200px"
-          />
-          <!-- <Select
-            v-model="payFormData.roomNumber"
-            style="width:200px"
-            transfer:true
-            @on-change="getPayUnitPrice"
-          >
-
-            <Option
-              v-for="item in selectRoomNumber(payRoomData,payFormData)"
-              :value="item.roomNumber"
-              :key="item.roomNumber"
-            >{{ item.roomNumber }}</Option>
-
-          </Select> -->
-
+        <FormItem label="房号:" prop="roomNumber">
+          <Input readonly v-model="payFormData.roomNumber" style="width:200px" />
         </FormItem>
 
-        <FormItem
-          label="业主:"
-          prop="owner"
-        >
-
+        <FormItem label="业主:" prop="owner">
           <p>{{payFormData.owner=showOwner(payFormData.buildingName,payFormData.roomNumber)}}</p>
-
         </FormItem>
 
-        <FormItem
-          label="租期周期(月):"
-          prop="period"
-        >
-
+        <FormItem label="租期周期(月):" prop="period">
           <Input
-            clearable
+            readonly
             v-model="payFormData.period"
             style="width:200px"
             @on-change="selectEndDate(payFormData.startPayTime)"
           />
-
         </FormItem>
 
-        <FormItem
-          label="缴费起始租期:"
-          prop="startPayTime"
-        >
-
-          <DatePicker
-            type="date"
-            format="yyyy-MM-dd"
-            v-model="payFormData.startPayTime"
-            readonly
-          ></DatePicker>
-
+        <!-- <FormItem label="缴费起始租期:" prop="startPayTime">
+          <DatePicker type="date" format="yyyy-MM-dd" v-model="payFormData.startPayTime" readonly></DatePicker>
         </FormItem>
 
-        <FormItem
-          label="缴费终止租期:"
-          prop="endPayTime"
-        >
+        <FormItem label="缴费终止租期:" prop="endPayTime">
+          <DatePicker type="date" format="yyyy-MM-dd" readonly v-model="payFormData.endPayTime"></DatePicker>
+        </FormItem>-->
 
-          <DatePicker
-            type="date"
-            format="yyyy-MM-dd"
-            readonly
-            v-model="payFormData.endPayTime"
-          ></DatePicker>
+        <Divider>缴费详情</Divider>
 
+        <FormItem label="租金单价:" prop="unitPrice">
+          <p
+            v-if="parseInt(payFormData.noPayPeriod)>12"
+          >{{payFormData.firstYear_unitPrice}} (元/月/平米)</p>
+          <p v-else>{{payFormData.secondYear_unitPrice}} (元/月/平米)</p>
         </FormItem>
 
-        <FormItem
-          label="租金单价:"
-          prop="unitPrice"
-        >
-
-          <p v-if="payFormData.unitPrice==''"> 0 (元/月/平米)</p>
-
-          <p v-else> {{payFormData.unitPrice}} (元/月/平米)</p>
-
+        <FormItem label="管理单价:" prop="managePrice">
+          <p
+            v-if="parseInt(payFormData.noPayPeriod)>12"
+          >{{payFormData.firstYear_managePrice}} (元/月/平米)</p>
+          <p v-else>{{payFormData.secondYear_managePrice}} (元/月/平米)</p>
         </FormItem>
 
-        <FormItem
-          label="租金费用:"
-          prop="rentCost"
-        >
-
-          <p>{{payFormData.rentCost=getRentCost(payFormData.period,payFormData.unitPrice,payRoomData,payFormData)}} 元</p>
-
+        <FormItem label="能耗公摊单价:" prop="energyPrice">
+          <p
+            v-if="parseInt(payFormData.noPayPeriod)>12"
+          >{{payFormData.firstYear_energyPrice}} (元/月/平米)</p>
+          <p v-else>{{payFormData.secondYear_energyPrice}} (元/月/平米)</p>
         </FormItem>
 
-        <FormItem
-          label="物业费用:"
-          prop="propertyFee"
-        >
-
-          <p>{{payFormData.propertyFee=getPropertyFee(payFormData.period,settingData,payRoomData,payFormData)}} 元</p>
-
+        <FormItem label="费用总计:" prop="totalCost">
+          <p v-if="parseInt(payFormData.noPayPeriod)>12">{{payFormData.firstYear_rentCost}} (元)</p>
+          <p v-else>{{payFormData.secondYear_rentCost}} (元)</p>
         </FormItem>
-
-        <FormItem
-          label="能耗公摊:"
-          prop="energySharing"
-        >
-
-          <p>{{payFormData.energySharing=getPropertyFee(payFormData.period,energySharingPrice,payRoomData,payFormData)}} 元</p>
-
-        </FormItem>
-
-        <FormItem
-          label="费用总计:"
-          prop="totalCost"
-        >
-
-          <p>{{payFormData.totalCost=getTotalCost(payFormData.rentCost,payFormData.propertyFee,payFormData.energySharing,"payForm")}} 元</p>
-
-        </FormItem>
-
       </Form>
 
       <!-- 确定取消框 -->
 
       <div slot="footer">
+        <Button type="text" size="large" @click="handleReset('payForm')">取消</Button>
 
-        <Button
-          type="text"
-          size="large"
-          @click="handleReset('payForm')"
-        >取消</Button>
-
-        <Button
-          type="primary"
-          size="large"
-          @click="handleSubmit('payForm')"
-        >确定</Button>
-
+        <Button type="primary" size="large" @click="handleSubmit('payForm')">确定</Button>
       </div>
-
     </Modal>
 
     <!-- 新增租赁合同弹窗 -->
@@ -373,66 +276,37 @@
       :scrollable="true"
       title="租赁合同信息"
     >
-
       <!-- 表单填写 -->
 
-      <Form
-        ref="addForm"
-        :model="addFormData"
-        :rules="addFormRule"
-        :label-width="100"
-      >
+      <Form ref="addForm" :model="addFormData" :rules="addFormRule" :label-width="140">
+        <Divider>基本信息</Divider>
 
-        <FormItem
-          label="所属楼栋:"
-          prop="buildingName"
-        >
-
-          <Select
-            v-model="addFormData.buildingName"
-            style="width:200px"
-            transfer:true
-          >
-
+        <FormItem label="所属楼栋:" prop="buildingName">
+          <Select v-model="addFormData.buildingName" style="width:200px" transfer:true>
             <Option
               v-for="item in buildingData"
               :value="item.buildingName"
               :key="item.buildingName"
             >{{ item.buildingName }}</Option>
-
           </Select>
-
         </FormItem>
 
-        <FormItem
-          label="房号:"
-          prop="roomNumber"
-        >
-
-          <Select
-            v-model="addFormData.roomNumber"
-            style="width:200px"
-            transfer:true
-          >
-
+        <FormItem label="房号:" prop="roomNumber">
+          <Select v-model="addFormData.roomNumber" style="width:200px" transfer:true>
             <Option
               v-for="item in selectRoomNumber(roomData,addFormData)"
               :value="item.roomNumber"
               :key="item.roomNumber"
             >{{ item.roomNumber }}</Option>
-
           </Select>
-
         </FormItem>
 
-        <FormItem
-          label="业主:"
-          prop="owner"
-        >
+        <FormItem label="业主:" prop="owner">
           <Select
             v-model="addFormData.owner"
             filterable
             not-found-text="请输入公司名称"
+            clearable
             @on-query-change="getCompanyData"
           >
             <Option
@@ -441,50 +315,49 @@
               :key="item.id"
             >{{ item.enterpriseName }}</Option>
           </Select>
-
         </FormItem>
 
-        <FormItem
-          label="合同保证金:"
-          prop="depositOnContracts"
-        >
-
-          <Input
-            clearable
-            v-model="addFormData.depositOnContracts"
-          />
-
+        <FormItem label="合同保证金:" prop="depositOnContracts">
+          <Input style="width:250px" clearable v-model="addFormData.depositOnContracts" />
+          <span style="margin-left:10px">(元)</span>
         </FormItem>
 
-        <FormItem
-          label="租金单价(元/月/平米):"
-          prop="unitPrice"
-        >
-
-          <Input
-            clearable
-            v-model="addFormData.unitPrice"
-          />
-
+        <FormItem label="第一年租金单价:" prop="firstYear_unitPrice">
+          <Input style="width:200px" clearable v-model="addFormData.firstYear_unitPrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
         </FormItem>
 
-        <FormItem
-          label="租期(月):"
-          prop="rentPeriod"
-        >
-
-          <Input
-            clearable
-            v-model="addFormData.rentPeriod"
-          />
-
+        <FormItem label="第一年管理单价:" prop="firstYear_managePrice">
+          <Input style="width:200px" clearable v-model="addFormData.firstYear_managePrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
         </FormItem>
 
-        <FormItem
-          label="起租期:"
-          prop="startRentTime"
-        >
+        <FormItem label="第一年能耗公摊:" prop="firstYear_energyPrice">
+          <Input style="width:200px" clearable v-model="addFormData.firstYear_energyPrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
+        </FormItem>
 
+        <FormItem label="第二年租金单价:" prop="secondYear_unitPrice">
+          <Input style="width:200px" clearable v-model="addFormData.secondYear_unitPrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
+        </FormItem>
+
+        <FormItem label="第二年管理单价:" prop="secondYear_managePrice">
+          <Input style="width:200px" clearable v-model="addFormData.secondYear_managePrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
+        </FormItem>
+
+        <FormItem label="第二年能耗公摊:" prop="secondYear_energyPrice">
+          <Input style="width:200px" clearable v-model="addFormData.secondYear_energyPrice" />
+          <span style="margin-left:10px">(元/月/平米)</span>
+        </FormItem>
+
+        <FormItem label="租期:" prop="rentPeriod">
+          <Input style="width:200px" clearable v-model="addFormData.rentPeriod" />
+          <span style="margin-left:10px">(月)</span>
+        </FormItem>
+
+        <FormItem label="起租期:" prop="startRentTime">
           <DatePicker
             type="date"
             placeholder="请选择日期"
@@ -492,14 +365,9 @@
             v-model="addFormData.startRentTime"
             @on-change="selectStartDate"
           ></DatePicker>
-
         </FormItem>
 
-        <FormItem
-          label="终止期:"
-          prop="endRentTime"
-        >
-
+        <FormItem label="终止期:" prop="endRentTime">
           <DatePicker
             type="date"
             placeholder="请选择日期"
@@ -507,65 +375,35 @@
             readonly
             v-model="addFormData.endRentTime"
           ></DatePicker>
-
         </FormItem>
 
-        <FormItem
-          label="租金费用:"
-          prop="rentCost"
-        >
+        <Divider>合同费用</Divider>
 
-          <p>{{addFormData.rentCost=getRentCost(addFormData.rentPeriod,addFormData.unitPrice,roomData,addFormData)}} 元</p>
-
+        <FormItem label="合同保证金:" prop="totalDepositOnContracts">
+          <p v-if="addFormData.depositOnContracts==''">0 元</p>
+          <p v-else>{{addFormData.depositOnContracts}} 元</p>
         </FormItem>
 
-        <FormItem
-          label="物业费用:"
-          prop="propertyFee"
-        >
-
-          <p>{{addFormData.propertyFee=getPropertyFee(addFormData.rentPeriod,settingData,roomData,addFormData)}} 元</p>
-
+        <FormItem label="第一年租金费用:" prop="firstYear_rentCost">
+          <p>{{addFormData.firstYear_rentCost=getSum(addFormData.firstYear_unitPrice,addFormData.firstYear_managePrice,addFormData.firstYear_energyPrice,addFormData.rentPeriod,roomData,addFormData)}} 元</p>
         </FormItem>
 
-        <FormItem
-          label="能耗公摊:"
-          prop="energySharing"
-        >
-
-          <p>{{addFormData.energySharing=getPropertyFee(addFormData.rentPeriod,energySharingPrice,roomData,addFormData)}} 元</p>
-
+        <FormItem label="第二年租金费用:" prop="secondYear_rentCost">
+          <p>{{addFormData.secondYear_rentCost=getSum(addFormData.secondYear_unitPrice,addFormData.secondYear_managePrice,addFormData.secondYear_energyPrice,addFormData.rentPeriod,roomData,addFormData)}} 元</p>
         </FormItem>
 
-        <FormItem
-          label="费用总计:"
-          prop="totalCost"
-        >
-
-          <p>{{addFormData.totalRent=getTotalCost(addFormData.rentCost,addFormData.propertyFee,addFormData.energySharing,"addForm")}} 元</p>
-
+        <FormItem label="租金费用总计:" prop="totalRentCost">
+          <p>{{addFormData.totalRentCost=Add_getTotalCost(addFormData.depositOnContracts,addFormData.firstYear_rentCost,addFormData.secondYear_rentCost)}} 元</p>
         </FormItem>
-
       </Form>
 
       <!-- 确定取消框 -->
 
       <div slot="footer">
+        <Button type="text" size="large" @click="handleReset('addForm')">取消</Button>
 
-        <Button
-          type="text"
-          size="large"
-          @click="handleReset('addForm')"
-        >取消</Button>
-
-        <Button
-          type="primary"
-          size="large"
-          @click="handleSubmit('addForm')"
-        >确定</Button>
-
+        <Button type="primary" size="large" @click="handleSubmit('addForm')">确定</Button>
       </div>
-
     </Modal>
 
     <!-- 租赁表格显示 -->
@@ -579,9 +417,7 @@
       ref="currentRowTable"
       height="522"
       @on-row-click="currentChange"
-    >
-
-    </Table>
+    ></Table>
 
     <!-- 分页功能 -->
 
@@ -596,7 +432,6 @@
       :page-size-opts="[10,20,50,100]"
       align="center"
     />
-
   </div>
 </template>
 
@@ -605,11 +440,17 @@ import axios from "@/libs/api.request";
 export default {
   data() {
     return {
+      ownerInfo: {}, // 获取的公司信息
+
       companyData: [], // 获取的公司名称
 
       showIndex: -1, // 被选中的行数据序号
       selectContract: {}, // 被选择的合同数据
-
+      nowdate: {
+        year: "",
+        month: "",
+        day: ""
+      },
       // 合同详情表格列名
       showColumns: [
         {
@@ -617,7 +458,7 @@ export default {
           width: 60,
           align: "center",
           indexMethod(row) {
-            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize;
+            return row._index + 1;
           }
         },
         {
@@ -635,16 +476,16 @@ export default {
           key: "totalCost",
           align: "center"
         },
-        {
-          title: "缴费起始租期",
-          key: "startPayTime",
-          align: "center"
-        },
-        {
-          title: "缴费终止租期",
-          key: "endPayTime",
-          align: "center"
-        },
+        // {
+        //   title: "缴费起始租期",
+        //   key: "startPayTime",
+        //   align: "center"
+        // },
+        // {
+        //   title: "缴费终止租期",
+        //   key: "endPayTime",
+        //   align: "center"
+        // },
         {
           title: "缴费时间",
           key: "insertTime",
@@ -664,7 +505,7 @@ export default {
 
       showTableData: [], // 合同详情表格数据
 
-      isDetailed: false, //是否开启合同详情弹窗
+      isDetailed: false, // 是否开启合同详情弹窗
 
       // 合同变更的表单验证
       changeFormRule: {
@@ -702,11 +543,9 @@ export default {
         owner: "",
         roomNumber: "",
         buildingName: "",
-        unitPrice: "",
-        period: "",
-        rentCost: "",
-        propertyFee: "",
-        energySharing: "",
+        period: "12",
+        firstYear_rentCost: "",
+        secondYear_rentCost: "",
         totalCost: "",
         insertTime: "",
         startPayTime: "",
@@ -769,11 +608,15 @@ export default {
         rentPeriod: "",
         startRentTime: "",
         endRentTime: "",
-        unitPrice: "",
-        rentCost: "",
-        propertyFee: "",
-        energySharing: "",
-        totalCost: "",
+        firstYear_unitPrice: "",
+        firstYear_managePrice: "",
+        firstYear_energyPrice: "",
+        secondYear_unitPrice: "",
+        secondYear_managePrice: "",
+        secondYear_energyPrice: "",
+        firstYear_rentCost: "",
+        secondYear_rentCost: "",
+        totalRentCost: "",
         insertTime: ""
       },
 
@@ -837,7 +680,82 @@ export default {
             trigger: "blur"
           }
         ],
-        unitPrice: [
+        firstYear_unitPrice: [
+          {
+            required: true,
+            message: "请输入正确的数额",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
+          }
+        ],
+        firstYear_managePrice: [
+          {
+            required: true,
+            message: "请输入正确的数额",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
+          }
+        ],
+        firstYear_energyPrice: [
+          {
+            required: true,
+            message: "请输入正确的数额",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
+          }
+        ],
+        secondYear_unitPrice: [
+          {
+            required: true,
+            message: "请输入正确的数额",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
+          }
+        ],
+        secondYear_managePrice: [
+          {
+            required: true,
+            message: "请输入正确的数额",
+            trigger: "blur",
+            transform(value) {
+              var posPattern = /^\d*\.?\d+$/;
+              if (!posPattern.test(value)) {
+                return false;
+              } else {
+                return String(value);
+              }
+            }
+          }
+        ],
+        secondYear_energyPrice: [
           {
             required: true,
             message: "请输入正确的数额",
@@ -857,12 +775,14 @@ export default {
       isPayRent: false, // 是否显示缴费弹窗
       isAddNewData: false, // 是否显示新增弹窗
 
-      searchData: "", //查询框内容
-
+      searchData: "", // 查询框内容
+      isDelete: false,
       pageCurrent: 1, // 当前页数
       pageStart: 0, // 记录开始位置
+
       dataCount: 0, // 后台读取的总记录长度
       pageSize: 10, // 每页显示多少条
+
       pageData: [], // table绑定的数据
 
       roomData: [], // 新增合同，获取空闲状态的办公、仓办房间
@@ -912,12 +832,12 @@ export default {
         },
         {
           title: "租金总计",
-          key: "totalRent",
+          key: "totalRentCost",
           align: "center"
         },
         {
-          title: "首期租金",
-          key: "firstRent",
+          title: "合同退款",
+          key: "refund",
           align: "center"
         },
         {
@@ -930,10 +850,85 @@ export default {
   },
 
   methods: {
+    // 获取到期期合同信息
+    getDeleteCount() {
+      this.isDelete = true;
+      this.pageCurrent = 1;
+      this.searchData = "";
+      this.getRequestData(this.pageCurrent);
+    },
+    getBeforCount() {
+      this.isDelete = false;
+      this.pageCurrent = 1;
+      this.searchData = "";
+      this.getRequestData(this.pageCurrent);
+    },
+    // 新增合同，费用总计
+    Add_getTotalCost(depositOnContracts, firstYear, secondYear) {
+      var sum = 0;
+      if (
+        depositOnContracts != "" &&
+        depositOnContracts != null &&
+        depositOnContracts != undefined &&
+        firstYear != "" &&
+        firstYear != null &&
+        firstYear != undefined &&
+        secondYear != "" &&
+        secondYear != null &&
+        secondYear != undefined
+      ) {
+        sum =
+          parseFloat(depositOnContracts) +
+          parseFloat(firstYear) +
+          parseFloat(secondYear);
+      }
+
+      return sum;
+    },
+
+    // 新增合同，计算数值总额
+    getSum(unitPrice, managePrice, energyPrice, month, roomData, formData) {
+      let sum = 0;
+      var area = "";
+      for (var key in roomData) {
+        if (
+          roomData[key].buildingName == formData.buildingName &&
+          roomData[key].roomNumber == formData.roomNumber
+        ) {
+          area = roomData[key].rentArea;
+        }
+      }
+      if (
+        unitPrice != "" &&
+        unitPrice != null &&
+        unitPrice != undefined &&
+        managePrice != "" &&
+        managePrice != null &&
+        managePrice != undefined &&
+        energyPrice != "" &&
+        energyPrice != null &&
+        energyPrice != undefined &&
+        month != "" &&
+        month != null &&
+        month != undefined &&
+        area != "" &&
+        area != null &&
+        area != undefined
+      ) {
+        sum =
+          (parseFloat(unitPrice) +
+            parseFloat(managePrice) +
+            parseFloat(energyPrice)) *
+          parseFloat(month) *
+          parseFloat(area);
+      }
+      return sum;
+    },
+
     // 获取公司名称
     getCompanyData(query) {
       let _this = this;
-      if (query != "" && query != undefined && query != null)
+      if (query != "" && query != undefined && query != null) {
         axios
           .request({
             url: "Account/getAllCompany",
@@ -946,6 +941,7 @@ export default {
           .then(function(response) {
             _this.companyData = response.data;
           });
+      }
     },
 
     // 使合同到期天数小于30天的记录，渲染特定样式
@@ -970,7 +966,7 @@ export default {
           return "demo-table-error-row";
         }
       } else {
-        if (range2 <= 30 && range2 > 0 && row.firstRent != undefined) {
+        if (range2 <= 30 && range2 > 0) {
           if (this.showIndex == index) {
             return "";
           } else {
@@ -991,7 +987,7 @@ export default {
       var m2 = parseInt(t2[1]);
       var d1 = parseInt(t1[2]);
       var d2 = parseInt(t2[2]);
-      var range = 0; //返回的相差的天数,32表示超过一个月以上
+      var range = 0; // 返回的相差的天数,32表示超过一个月以上
       var dt1 = new Date(y1, m1, 0);
 
       if (y2 * 12 + m2 - y1 * 12 - m1 < 2) {
@@ -1006,24 +1002,6 @@ export default {
       return range;
     },
 
-    // 获取租金单价
-    getPayUnitPrice() {
-      let _this = this;
-      let _data = this.payFormData;
-      axios
-        .request({
-          url: "lease/getPayUnitPrice",
-          method: "post",
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8"
-          },
-          data: _data
-        })
-        .then(function(response) {
-          _this.payFormData.unitPrice = response.data;
-        });
-    },
-
     // 查询按钮点击事件
     searchButton(value) {
       this.searchData = value;
@@ -1036,6 +1014,22 @@ export default {
       if (this.isSelectRow == true) {
         // 开启【合同详情】弹窗
         this.isDetailed = true;
+        // 开始向后台请求数据，得到联系人
+        let _this = this;
+        let _data = this.selectContract;
+        axios
+          .request({
+            url: "lease/getOwnerInfo",
+            method: "post",
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8"
+            },
+            data: _data
+          })
+          .then(function(response) {
+            _this.ownerInfo = response.data;
+            console.log("hetong:", response.data);
+          });
       } else {
         this.$Message.error("请先选择记录");
       }
@@ -1043,16 +1037,30 @@ export default {
 
     // 合同缴费
     handlePay() {
-      if (this.isSelectRow == true) {
-        // 开启【合同缴费】弹窗
-        this.isPayRent = true;
+      if (this.isDelete == true) {
+        this.$Message.error("合同已退租");
+        return false;
+      }
+      if (parseInt(this.payFormData.noPayPeriod) != 0) {
+        if (this.isSelectRow == true) {
+          // 开启【合同缴费】弹窗
+          this.isPayRent = true;
+          this.selectEndDate(this.payFormData.startPayTime);
+        } else {
+          this.$Message.error("请先选择记录");
+        }
       } else {
-        this.$Message.error("请先选择记录");
+        this.isSelectRow = false;
+        this.$Message.error("该合同已完成缴费");
       }
     },
 
     // 合同变更
     handleChange() {
+      if (this.isDelete == true) {
+        this.$Message.error("合同已退租");
+        return false;
+      }
       if (this.isSelectRow == true) {
         // 开启【合同变更】弹窗
         this.isChangeOwner = true;
@@ -1166,10 +1174,13 @@ export default {
       this.showIndex = index;
       // 【合同详情】的数据处理
       this.showContract(currentRow, index);
+
       // 把选中行的数据赋值给【合同缴费表单】
-      this.payFormData = this.getPayForm(currentRow);
+      this.getPayForm(currentRow);
+
       // 把选中行的数据赋值给【退租】表单
       this.deleteFormData = currentRow;
+
       // 把选中行的数据赋值给【合同变更】表单
       this.changeFormData = currentRow;
 
@@ -1179,21 +1190,77 @@ export default {
 
     // 转换表单数据，赋值给payForm
     getPayForm(currentRow) {
-      var newForm = {};
-      newForm.owner = currentRow.owner;
-      newForm.roomNumber = currentRow.roomNumber;
-      newForm.buildingName = currentRow.buildingName;
-      newForm.startPayTime = currentRow.lastPayTime;
-      newForm.unitPrice = currentRow.unitPrice;
-      return newForm;
+      this.payFormData.owner = currentRow.owner;
+      this.payFormData.roomNumber = currentRow.roomNumber;
+      this.payFormData.buildingName = currentRow.buildingName;
+      this.payFormData.startPayTime = currentRow.lastPayTime;
+      this.payFormData.noPayPeriod = currentRow.noPayPeriod;
+      this.payFormData.firstYear_unitPrice = currentRow.firstYear_unitPrice;
+      this.payFormData.firstYear_managePrice = currentRow.firstYear_managePrice;
+      this.payFormData.firstYear_energyPrice = currentRow.firstYear_energyPrice;
+      this.payFormData.secondYear_unitPrice = currentRow.secondYear_unitPrice;
+      this.payFormData.secondYear_managePrice =
+        currentRow.secondYear_managePrice;
+      this.payFormData.secondYear_energyPrice =
+        currentRow.secondYear_energyPrice;
+      this.payFormData.firstYear_rentCost = currentRow.firstYear_rentCost;
+      this.payFormData.secondYear_rentCost = currentRow.secondYear_rentCost;
     },
-
     // 删除记录
     handleDelete() {
+      if (this.isDelete == true) {
+        this.$Message.error("合同已退租");
+        return false;
+      }
       if (this.isSelectRow == true) {
+        this.getFormatDate();
+        var datearr = this.deleteFormData.startRentTime.toString().split("-");
+        var eyear = parseInt(datearr[0]);
+        var emonth = parseInt(datearr[1]);
+        var eday = parseInt(datearr[2]);
+        var year = this.nowdate.year - eyear;
+        var month = this.nowdate.month - emonth;
+        var day = this.nowdate.day - eday;
+        var cmonth = year * 12 + month;
+        var tuikuan = 0;
+        if (parseInt(this.deleteFormData.noPayPeriod) < 24) {
+          if (day < 0) {
+            cmonth = cmonth - 1 + Math.ceil(((30 + day) / 30) * 100) / 100;
+          } else {
+            cmonth = cmonth + Math.ceil((day / 30) * 100) / 100;
+          }
+
+          if (cmonth < 12) {
+            tuikuan =
+              (this.deleteFormData.firstYear_rentCost / 12) * (12 - cmonth) +
+              parseFloat(this.deleteFormData.depositOnContracts);
+            // console.log(this.deleteFormData.firstYear_rentCost);
+          }
+
+          if (
+            cmonth >= 12 &&
+            cmonth <= 24 &&
+            parseInt(this.deleteFormData.noPayPeriod) < 12
+          ) {
+            tuikuan =
+              (this.deleteFormData.secondYear_rentCost / 12) * (24 - cmonth) +
+              parseFloat(this.deleteFormData.depositOnContracts);
+          } else if (
+            cmonth > 12 &&
+            cmonth < 24 &&
+            parseInt(this.deleteFormData.noPayPeriod) >= 12
+          ) {
+            tuikuan = 0;
+          }
+        } else {
+          this.$Message.error("合同未缴清费用");
+          return false;
+        }
+        this.deleteFormData.refund = tuikuan;
         this.$Modal.confirm({
           title: "退租提示",
-          content: "<p>是否确认将该房间退租？</p>",
+          content:
+            "<p>是否确认将该房间退租？</p><p>退款金额为:" + tuikuan + "元</p>",
           onOk: () => {
             let _this = this;
             let _data = this.deleteFormData;
@@ -1245,14 +1312,18 @@ export default {
     // 弹窗确认按钮
     handleSubmit(name) {
       switch (name) {
-        //合同缴费
+        // 合同缴费
         case "payForm":
           this.$refs[name].validate(valid => {
             if (valid) {
-              // 开始向后台发送数据
               let _this = this;
               this.payFormData.insertTime = this.getFormatDate();
+              this.payFormData.totalCost =
+                parseFloat(this.payFormData.firstYear_rentCost) +
+                parseFloat(this.payFormData.secondYear_rentCost);
               let _data = this.payFormData;
+
+              // 开始向后台发送数据
               axios
                 .request({
                   url: "lease/insertLeaseCostInfo",
@@ -1283,7 +1354,7 @@ export default {
             }
           });
           break;
-        //新增合同
+        // 新增合同
         case "addForm":
           this.$refs[name].validate(valid => {
             if (valid) {
@@ -1401,7 +1472,7 @@ export default {
 
     // 填写缴费租期,计算缴费终止租期
     selectEndDate(date) {
-      if (typeof date != "string") {
+      if (typeof date !== "string") {
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
         var days = date.getDate();
@@ -1455,7 +1526,16 @@ export default {
         })
         .then(function(response) {
           _this.showTableData = response.data;
-          _this.addPageCurrentAndPageSize(_this.showTableData);
+          // 对每条数据的缴费总额进行不同的赋值
+          for (const key in _this.showTableData) {
+            if (key == 0) {
+              _this.showTableData[key].totalCost =
+                _this.showTableData[key].firstYear_rentCost;
+            } else {
+              _this.showTableData[key].totalCost =
+                _this.showTableData[key].secondYear_rentCost;
+            }
+          }
         });
     },
 
@@ -1485,16 +1565,20 @@ export default {
           params: {
             search: this.searchData,
             start: this.pageStart,
-            count: this.pageSize
+            count: this.pageSize,
+            isDelete: this.isDelete
           }
         })
         .then(function(response) {
           _this.pageData = response.data.leaseContractList;
           _this.dataCount = response.data.dataCount;
+
           _this.buildingData = response.data.buildingList;
           _this.roomData = response.data.roomList;
+
           _this.payBuildingData = response.data.payBuildingList;
           _this.payRoomData = response.data.payRoomList;
+
           _this.addPageCurrentAndPageSize(_this.pageData);
         });
     },
@@ -1519,37 +1603,14 @@ export default {
       }
     },
 
-    // 从后台获取管理单价数据
-    getSettingData() {
-      let _this = this;
-      axios
-        .request({
-          url: "lease/getSettingList",
-          method: "get"
-        })
-        .then(function(response) {
-          _this.settingData = response.data;
-        });
-    },
-
-    // 从后台获取能耗公摊单价数据
-    getEnergyPrice() {
-      let _this = this;
-      axios
-        .request({
-          url: "lease/getEnergyPrice",
-          method: "get"
-        })
-        .then(function(response) {
-          _this.energySharingPrice = response.data;
-        });
-    },
-
     // 获取当前系统时间
     getFormatDate() {
       var date = new Date();
+      this.nowdate.year = date.getFullYear();
       var month = date.getMonth() + 1;
+      this.nowdate.month = month;
       var strDate = date.getDate();
+      this.nowdate.day = date.getDate();
       if (month >= 1 && month <= 9) {
         month = "0" + month;
       }
@@ -1570,7 +1631,6 @@ export default {
         date.getSeconds();
       return currentDate;
     },
-
     // 添加当前页和页码数据
     addPageCurrentAndPageSize(updatePageData) {
       for (var key in updatePageData) {
@@ -1581,8 +1641,6 @@ export default {
   },
   mounted() {
     this.getRequestData(this.pageCurrent);
-    this.getSettingData();
-    this.getEnergyPrice();
   }
 };
 </script>

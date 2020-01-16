@@ -81,6 +81,16 @@ export default [{
                 },
                 component: () =>
                     import ('@/view/lease/warehouse.vue')
+            },
+            {
+                path: 'business',
+                name: '商业管理',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '商业管理'
+                },
+                component: () =>
+                    import ('@/view/lease/business.vue')
             }
 
         ]
@@ -94,7 +104,7 @@ export default [{
         },
         component: Main,
         children: [{
-                path: 'dormitory',
+                path: 'roomtype',
                 name: '宿舍房型租金设置',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
@@ -104,7 +114,7 @@ export default [{
                     import ('@/view/dormitorymanage/roomtype.vue')
             },
             {
-                path: 'dorms',
+                path: 'room',
                 name: '宿舍房间设置',
                 meta: {
                     icon: 'md-arrow-dropdown-circle',
@@ -116,6 +126,7 @@ export default [{
         ]
 
     },
+    
     {
         path: '/contract',
         name: 'contract',
@@ -146,6 +157,37 @@ export default [{
             }
 
         ]
+    },
+    {
+        path: '/sousoumanage',
+        name: 'sousoumanage',
+        meta: {
+            icon: 'logo-buffer',
+            title: '嗖嗖鸟管理'
+        },
+        component: Main,
+        children: [{
+                path: 'sousouclient',
+                name: '嗖嗖鸟客户',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '嗖嗖鸟客户'
+                },
+                component: () =>
+                    import ('@/view/sousoumanage/sousouclient.vue')
+            },
+            {
+                path: 'sousouallcontract',
+                name: '嗖嗖鸟合同',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '嗖嗖鸟合同'
+                },
+                component: () =>
+                    import ('@/view/sousoumanage/sousouallcontract.vue')
+            }
+        ]
+
     },
     {
         path: "/payment",

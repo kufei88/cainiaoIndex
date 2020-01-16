@@ -32,7 +32,7 @@
             </FormItem>
           </Col>
         </Row>
-        <Row :gutter="32">
+        <!-- <Row :gutter="32">
           <Col span="18">
             <FormItem label="管理单价" label-position="top" prop="leaseUnitPrice">
               <Input
@@ -44,8 +44,8 @@
               />
             </FormItem>
           </Col>
-        </Row>
-        <Row :gutter="32">
+        </Row> -->
+        <!-- <Row :gutter="32">
           <Col span="18">
             <FormItem label="能耗公摊单价" label-position="top" prop="energySharingPrice">
               <Input
@@ -57,7 +57,7 @@
               />
             </FormItem>
           </Col>
-        </Row>
+        </Row> -->
       </Form>
       <div class="demo-drawer-footer">
         <Button style="margin-right: 8px" @click="value2 = false">取消</Button>
@@ -65,8 +65,6 @@
       </div>
     </Drawer>
     <!-- 数据展示 -->
-    <Row>
-      <Col span="15">
         <Card class="div-center">
           <div slot="title">
             <div>
@@ -112,137 +110,136 @@
             </template>
           </Table>
         </Card>
-      </Col>
-    </Row>
+
   </div>
 </template>
 <script>
-import axios from "@/libs/api.request";
+import axios from '@/libs/api.request'
 export default {
-  data() {
+  data () {
     const validateAge = (rule, value, callback) => {
       if (!value) {
-        return callback(new Error("存在空值，请输入数字！"));
+        return callback(new Error('存在空值，请输入数字！'))
       }
       // 模拟异步验证效果
       setTimeout(() => {
         if (Number.isNaN(value)) {
-          callback(new Error("存在中英文，请重新输入！"));
+          callback(new Error('存在中英文，请重新输入！'))
         } else {
-          callback();
+          callback()
         }
-      }, 100);
-    };
+      }, 100)
+    }
     return {
       columns: [
         {
-          title: "水单价（元/吨）",
-          slot: "waterUnitPrice"
+          title: '水单价（元/吨）',
+          slot: 'waterUnitPrice'
         },
         {
-          title: "电单价（元/度）",
-          slot: "electricityUnitPrice"
+          title: '电单价（元/度）',
+          slot: 'electricityUnitPrice'
         },
+        // {
+        //   title: "管理单价（元/月/平米）",
+        //   slot: "leaseUnitPrice"
+        // },
+        // {
+        //   title: "能耗公摊单价（元）",
+        //   slot: "energySharingPrice"
+        // },
         {
-          title: "管理单价（元/月/平米）",
-          slot: "leaseUnitPrice"
-        },
-        {
-          title: "能耗公摊单价（元）",
-          slot: "energySharingPrice"
-        },
-        {
-          title: "操作",
-          slot: "action"
+          title: '操作',
+          slot: 'action'
         }
       ],
       data: [],
       valueBtn: false,
       value2: false,
       editIndex: -1, // 当前聚焦的输入框的行数
-      editWater: "",
-      editElectricity: "",
-      editLease: "",
-      editEnergySharingPrice: "",
+      editWater: '',
+      editElectricity: '',
+      editLease: '',
+      editEnergySharingPrice: '',
       styles: {
-        height: "calc(100% - 55px)",
-        overflow: "auto",
-        paddingBottom: "53px",
-        position: "static"
+        height: 'calc(100% - 55px)',
+        overflow: 'auto',
+        paddingBottom: '53px',
+        position: 'static'
       },
       formData: {
-        waterUnitPrice: "",
-        electricityUnitPrice: "",
-        leaseUnitPrice: "",
-        energySharingPrice: ""
+        waterUnitPrice: '',
+        electricityUnitPrice: '',
+        leaseUnitPrice: '',
+        energySharingPrice: ''
       },
       ruleformData: {
         waterUnitPrice: [
           {
             required: true,
             validator: validateAge,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         electricityUnitPrice: [
           {
             required: true,
             validator: validateAge,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         leaseUnitPrice: [
           {
             required: true,
             validator: validateAge,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         energySharingPrice: [
           {
             required: true,
             validator: validateAge,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ]
       }
-    };
+    }
   },
-  mounted() {
-    this.getHydropowerData();
+  mounted () {
+    this.getHydropowerData()
   },
   methods: {
-    //得到数据
-    getHydropowerData() {
+    // 得到数据
+    getHydropowerData () {
       axios
         .request({
-          url: "payment/getSystemInfoList",
-          method: "get"
+          url: 'payment/getSystemInfoList',
+          method: 'get'
         })
         .then(response => {
           if (response.data) {
-            this.data = response.data;
+            this.data = response.data
           }
-        });
+        })
       axios
         .request({
-          url: "payment/systemInfoIsNull",
-          method: "get"
+          url: 'payment/systemInfoIsNull',
+          method: 'get'
         })
         .then(response => {
           if (response.data < 1) {
-            this.valueBtn = true;
+            this.valueBtn = true
           }
-        });
+        })
     },
-    //修改
-    alter(index) {
+    // 修改
+    alter (index) {
       axios
         .request({
-          url: "payment/updateSystemInfo",
-          method: "post",
+          url: 'payment/updateSystemInfo',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json" //设置请求头请求格式为JSON
+            'Content-Type': 'application/json' // 设置请求头请求格式为JSON
           },
           data: {
             waterUnitPrice: this.data[index].waterUnitPrice,
@@ -253,69 +250,69 @@ export default {
         })
         .then(response => {
           if (response.data == 1) {
-            this.$Message.success("修改成功！");
+            this.$Message.success('修改成功！')
             axios
               .request({
-                url: "payment/getSystemInfoList",
-                method: "get"
+                url: 'payment/getSystemInfoList',
+                method: 'get'
               })
               .then(response => {
-                this.data = response.data;
-              });
+                this.data = response.data
+              })
           } else {
-            this.$Message.error("修改失败！");
+            this.$Message.error('修改失败！')
           }
-        });
+        })
     },
-    //新增
-    add(name) {
+    // 新增
+    add (name) {
       this.$refs[name].validate(valid => {
         if (valid) {
           axios
             .request({
-              url: "payment/addSystemInfo",
-              method: "post",
+              url: 'payment/addSystemInfo',
+              method: 'post',
               headers: {
-                "Content-Type": "application/json" //设置请求头请求格式为JSON
+                'Content-Type': 'application/json' // 设置请求头请求格式为JSON
               },
               data: this.formData
             })
             .then(response => {
               if (response.data == 1) {
-                this.$Message.success("添加成功！");
+                this.$Message.success('添加成功！')
                 axios
                   .request({
-                    url: "payment/getSystemInfoList",
-                    method: "get"
+                    url: 'payment/getSystemInfoList',
+                    method: 'get'
                   })
                   .then(response => {
-                    this.data = response.data;
-                    this.value2 = false;
-                    this.valueBtn = false;
-                  });
+                    this.data = response.data
+                    this.value2 = false
+                    this.valueBtn = false
+                  })
               } else {
-                this.$Message.error("添加失败！");
-                this.value2 = false;
+                this.$Message.error('添加失败！')
+                this.value2 = false
               }
-            });
+            })
         }
-      });
+      })
     },
-    handleEdit(row, index) {
-      this.editWater = row.waterUnitPrice;
-      this.editElectricity = row.electricityUnitPrice;
-      this.editLease = row.leaseUnitPrice;
-      this.editEnergySharingPrice = row.energySharingPrice;
-      this.editIndex = index;
+    handleEdit (row, index) {
+      this.editWater = row.waterUnitPrice
+      this.editElectricity = row.electricityUnitPrice
+      this.editLease = row.leaseUnitPrice
+      this.editEnergySharingPrice = row.energySharingPrice
+      this.editIndex = index
     },
-    handleSave(index) {
-      this.data[index].waterUnitPrice = this.editWater;
-      this.data[index].electricityUnitPrice = this.editElectricity;
-      this.data[index].leaseUnitPrice = this.editLease;
-      this.data[index].energySharingPrice = this.editEnergySharingPrice;
-      this.alter(index);
-      this.editIndex = -1;
+    handleSave (index) {
+      this.data[index].waterUnitPrice = this.editWater
+      this.data[index].electricityUnitPrice = this.editElectricity
+      this.data[index].leaseUnitPrice = this.editLease
+      this.data[index].energySharingPrice = this.editEnergySharingPrice
+      this.alter(index)
+      this.editIndex = -1
     }
   }
-};
+}
 </script>

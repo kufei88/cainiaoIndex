@@ -207,29 +207,33 @@
 </template>
 
 <script>
-import axios from "@/libs/api.request";
-import excel from "@/libs/excel";
+import axios from '@/libs/api.request'
+import excel from '@/libs/excel'
 export default {
-  data() {
+  data () {
     return {
       buildingTypeList: [
         {
-          value: "办公",
-          label: "办公"
+          value: '办公',
+          label: '办公'
         },
         {
-          value: "仓办",
-          label: "仓办"
+          value: '仓办',
+          label: '仓办'
         },
         {
-          value: "宿舍",
-          label: "宿舍"
+          value: '宿舍',
+          label: '宿舍'
+        },
+        {
+          value: '商业',
+          label: '商业'
         }
       ],
       // 表单数据设置
       formValidate: {
-        buildingName: "",
-        buildingType: "",
+        buildingName: '',
+        buildingType: '',
         insertTime: this.getFormatDate()
       },
       // 表单数据验证设置
@@ -237,15 +241,15 @@ export default {
         buildingName: [
           {
             required: true,
-            message: "楼栋名称不得为空",
-            trigger: "blur"
+            message: '楼栋名称不得为空',
+            trigger: 'blur'
           }
         ],
         buildingType: [
           {
             required: true,
-            message: "楼栋类型不得为空",
-            trigger: "change"
+            message: '楼栋类型不得为空',
+            trigger: 'change'
           }
         ]
       },
@@ -259,16 +263,16 @@ export default {
       // excel模板数据格式
       excelModel: [
         {
-          buildingName: "不能有特殊字符且不得为空，例如：1号楼",
-          buildingType: "不能有特殊字符且不得为空，例如：办公、仓办、宿舍"
+          buildingName: '不能有特殊字符且不得为空，例如：1号楼',
+          buildingType: '不能有特殊字符且不得为空，例如：办公、仓办、宿舍'
         }
       ],
 
-      searchData: "", // 搜索栏内容
+      searchData: '', // 搜索栏内容
 
       editIndex: -1, // 当前聚焦的输入框的行数
-      editBuildingName: "", // 编辑的楼栋名称
-      editBuildingType: "", // 编辑的楼栋类型
+      editBuildingName: '', // 编辑的楼栋名称
+      editBuildingType: '', // 编辑的楼栋类型
 
       pageCurrent: 1, // 当前页数
       pageStart: 0, // 记录开始位置
@@ -279,414 +283,414 @@ export default {
       // 表格显示的列名数据
       dataColumns: [
         {
-          type: "index",
+          type: 'index',
           width: 60,
-          align: "center",
-          indexMethod(row) {
-            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize;
+          align: 'center',
+          indexMethod (row) {
+            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize
           }
         },
         {
-          title: "楼栋名称",
-          key: "buildingName",
-          align: "center",
-          slot: "buildingName"
+          title: '楼栋名称',
+          key: 'buildingName',
+          align: 'center',
+          slot: 'buildingName'
         },
         {
-          title: "楼栋类型",
-          key: "buildingType",
-          align: "center",
-          slot: "buildingType"
+          title: '楼栋类型',
+          key: 'buildingType',
+          align: 'center',
+          slot: 'buildingType'
         },
         {
-          title: "添加时间",
-          key: "insertTime",
-          align: "center",
-          slot: "insertTime"
+          title: '添加时间',
+          key: 'insertTime',
+          align: 'center',
+          slot: 'insertTime'
         },
         {
-          title: "修改时间",
-          key: "updateTime",
-          align: "center",
-          slot: "updateTime"
+          title: '修改时间',
+          key: 'updateTime',
+          align: 'center',
+          slot: 'updateTime'
         },
         {
-          title: "操作",
-          slot: "action",
+          title: '操作',
+          slot: 'action',
           width: 180,
-          align: "center"
+          align: 'center'
         }
       ]
-    };
+    }
   },
   methods: {
     // 删除记录
-    handleDelete(index) {
+    handleDelete (index) {
       this.$Modal.confirm({
-        title: "删除提示",
-        content: "<p>是否确认删除该条记录？</p>",
+        title: '删除提示',
+        content: '<p>是否确认删除该条记录？</p>',
         onOk: () => {
-          let _this = this;
-          let _data = this.pageData[index];
+          let _this = this
+          let _data = this.pageData[index]
           axios
             .request({
-              url: "building/deleteBuildingList",
-              method: "post",
+              url: 'building/deleteBuildingList',
+              method: 'post',
               headers: {
-                "Content-Type": "application/json;charset=UTF-8"
+                'Content-Type': 'application/json;charset=UTF-8'
               },
               data: _data
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.data == 1) {
-                _this.$Message.success("删除成功");
+                _this.$Message.success('删除成功')
                 // 判断是否pageData的数据长度<=1,然后判断是否第1页,是则页数减1;
                 if (_this.pageData.length <= 1) {
                   if (_this.pageCurrent != 1) {
-                    _this.pageCurrent = _this.pageCurrent - 1;
+                    _this.pageCurrent = _this.pageCurrent - 1
                   }
                 }
-                _this.getRequestData(_this.pageCurrent);
+                _this.getRequestData(_this.pageCurrent)
               } else {
-                _this.$Message.error("删除失败");
+                _this.$Message.error('删除失败')
               }
-            });
+            })
         },
         onCancel: () => {}
-      });
+      })
 
-      this.editIndex = -1;
+      this.editIndex = -1
     },
 
     // 确认提交新增数据
-    handleSubmit(name) {
+    handleSubmit (name) {
       this.$refs[name].validate(valid => {
         // 通过表单验证
         if (valid) {
           // 开始向后台发送数据
-          let _this = this;
-          let _data = this.formValidate;
+          let _this = this
+          let _data = this.formValidate
           axios
             .request({
-              url: "building/insertBuildingList",
-              method: "post",
+              url: 'building/insertBuildingList',
+              method: 'post',
               headers: {
-                "Content-Type": "application/json;charset=UTF-8"
+                'Content-Type': 'application/json;charset=UTF-8'
               },
               data: _data
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.data == 1) {
-                _this.$Message.success("添加成功");
-                _this.isAddNewData = false;
-                _this.getRequestData(_this.pageCurrent);
+                _this.$Message.success('添加成功')
+                _this.isAddNewData = false
+                _this.getRequestData(_this.pageCurrent)
               } else if (response.data == -1) {
-                _this.$Message.error("已有该楼栋存在");
+                _this.$Message.error('已有该楼栋存在')
               } else {
-                _this.$Message.error("添加失败");
-                _this.isAddNewData = false;
+                _this.$Message.error('添加失败')
+                _this.isAddNewData = false
               }
             })
-            .then(function() {
+            .then(function () {
               if (!_this.isAddNewData) {
-                _this.$refs[name].resetFields();
+                _this.$refs[name].resetFields()
               }
-            });
+            })
         }
-      });
+      })
     },
     // 新增页面点击取消
-    handleReset(name) {
-      this.$refs[name].resetFields();
-      this.isAddNewData = false;
+    handleReset (name) {
+      this.$refs[name].resetFields()
+      this.isAddNewData = false
     },
 
     // Excel导入数据***
-    uploadExcelData(excelData) {
+    uploadExcelData (excelData) {
       // 1.先进行数据的处理，转化成符合后台读取的格式
       for (var key in excelData) {
-        excelData[key].buildingName = excelData[key].楼栋名称;
-        excelData[key].buildingType = excelData[key].楼栋类型;
-        excelData[key].insertTime = this.getFormatDate();
+        excelData[key].buildingName = excelData[key].楼栋名称
+        excelData[key].buildingType = excelData[key].楼栋类型
+        excelData[key].insertTime = this.getFormatDate()
 
-        delete excelData[key].楼栋名称;
-        delete excelData[key].楼栋类型;
+        delete excelData[key].楼栋名称
+        delete excelData[key].楼栋类型
       }
       // 验证空数据
-      let isDataEmpty = 0;
+      let isDataEmpty = 0
       for (var key in excelData) {
-        excelData[key].buildingName == "" ||
+        excelData[key].buildingName == '' ||
         excelData[key].buildingName == null ||
         excelData[key].buildingName == undefined
           ? (isDataEmpty += 1)
-          : (isDataEmpty += 0);
+          : (isDataEmpty += 0)
       }
       // 2.1 验证成功，上传后台数据库
       if (isDataEmpty == 0) {
-        let _this = this;
+        let _this = this
         axios
           .request({
-            url: "building/uploadBuildingList",
-            method: "post",
+            url: 'building/uploadBuildingList',
+            method: 'post',
             headers: {
-              "Content-Type": "application/json;charset=UTF-8"
+              'Content-Type': 'application/json;charset=UTF-8'
             },
             data: excelData
           })
-          .then(function(response) {
+          .then(function (response) {
             if (response.data == 0) {
-              _this.$Message.error("未知原因，导入失败");
+              _this.$Message.error('未知原因，导入失败')
             } else if (response.data == -1) {
-              _this.$Message.error("导入失败，表内无数据");
+              _this.$Message.error('导入失败，表内无数据')
             } else if (response.data == -2) {
-              _this.$Message.error("导入失败，数据全部存在");
+              _this.$Message.error('导入失败，数据全部存在')
             } else {
               if (response.data == excelData.length) {
-                _this.$Message.success("导入成功");
+                _this.$Message.success('导入成功')
               } else if (response.data < excelData.length) {
-                let num = excelData.length - response.data;
-                _this.$Message.info(num + "条数据因重复而未导入");
+                let num = excelData.length - response.data
+                _this.$Message.info(num + '条数据因重复而未导入')
               }
-              _this.getRequestData(_this.pageCurrent);
+              _this.getRequestData(_this.pageCurrent)
             }
-          });
+          })
       }
       // 2.2 验证失败，提示信息
       else {
-        this.$Message.error("该表内有" + isDataEmpty + "行数据有空项");
-        isDataEmpty = 0;
+        this.$Message.error('该表内有' + isDataEmpty + '行数据有空项')
+        isDataEmpty = 0
       }
     },
 
     // 对上传的数据初始化（excel上传）
-    initUpload() {
-      this.file = null;
-      this.uploadTableData = [];
+    initUpload () {
+      this.file = null
+      this.uploadTableData = []
     },
 
     // 点击上传按钮（excel上传）
-    handleUploadFile() {
-      this.initUpload();
+    handleUploadFile () {
+      this.initUpload()
     },
 
     // 上传前读取并验证数据（excel上传）
-    handleBeforeUpload(file) {
+    handleBeforeUpload (file) {
       const fileExt = file.name
-        .split(".")
+        .split('.')
         .pop()
-        .toLocaleLowerCase();
-      if (fileExt === "xlsx" || fileExt === "xls") {
-        this.readFile(file);
-        this.file = file;
+        .toLocaleLowerCase()
+      if (fileExt === 'xlsx' || fileExt === 'xls') {
+        this.readFile(file)
+        this.file = file
       } else {
         this.$Notice.warning({
-          title: "文件类型错误",
+          title: '文件类型错误',
           desc:
-            "文件：" +
+            '文件：' +
             file.name +
-            "不是EXCEL文件，请选择后缀为.xlsx或者.xls的EXCEL文件。"
-        });
+            '不是EXCEL文件，请选择后缀为.xlsx或者.xls的EXCEL文件。'
+        })
       }
-      return false;
+      return false
     },
 
     // 读取文件（excel上传）
-    readFile(file) {
-      const reader = new FileReader();
-      reader.readAsArrayBuffer(file);
+    readFile (file) {
+      const reader = new FileReader()
+      reader.readAsArrayBuffer(file)
       reader.onloadstart = e => {
-        this.uploadLoading = true;
-      };
+        this.uploadLoading = true
+      }
       reader.onprogress = e => {
-        this.progressPercent = Math.round((e.loaded / e.total) * 100);
-      };
+        this.progressPercent = Math.round((e.loaded / e.total) * 100)
+      }
       reader.onerror = e => {
-        this.$Message.error("文件读取出错");
-      };
+        this.$Message.error('文件读取出错')
+      }
       reader.onload = e => {
-        const data = e.target.result;
-        const { header, results } = excel.read(data, "array");
-        this.uploadTableData = results;
-        this.uploadLoading = false;
+        const data = e.target.result
+        const { header, results } = excel.read(data, 'array')
+        this.uploadTableData = results
+        this.uploadLoading = false
         // 上传数据到后台
-        this.uploadExcelData(this.uploadTableData);
-      };
+        this.uploadExcelData(this.uploadTableData)
+      }
     },
 
     // Excel导出
-    exportExcel() {
+    exportExcel () {
       if (this.pageData.length) {
-        this.exportLoading = true;
+        this.exportLoading = true
         const params = {
-          title: ["楼栋名称", "楼栋类型", "添加时间", "修改时间"],
-          key: ["buildingName", "buildingType", "insertTime", "updateTime"],
+          title: ['楼栋名称', '楼栋类型', '添加时间', '修改时间'],
+          key: ['buildingName', 'buildingType', 'insertTime', 'updateTime'],
           data: this.pageData,
           autoWidth: true,
-          filename: "楼栋管理表"
-        };
-        excel.export_array_to_excel(params);
-        this.exportLoading = false;
+          filename: '楼栋管理表'
+        }
+        excel.export_array_to_excel(params)
+        this.exportLoading = false
       } else {
-        this.$Message.info("表格数据不能为空！");
+        this.$Message.info('表格数据不能为空！')
       }
     },
 
     // Excel模板下载
-    exportExcelModel() {
+    exportExcelModel () {
       if (this.excelModel.length) {
-        this.exportLoading = true;
+        this.exportLoading = true
         const params = {
-          title: ["楼栋名称", "楼栋类型"],
-          key: ["buildingName", "buildingType"],
+          title: ['楼栋名称', '楼栋类型'],
+          key: ['buildingName', 'buildingType'],
           data: this.excelModel,
           autoWidth: true,
-          filename: "楼栋管理表模板"
-        };
-        excel.export_array_to_excel(params);
-        this.exportLoading = false;
+          filename: '楼栋管理表模板'
+        }
+        excel.export_array_to_excel(params)
+        this.exportLoading = false
       } else {
-        this.$Message.info("表格数据不能为空！");
+        this.$Message.info('表格数据不能为空！')
       }
     },
 
     // 查询按钮点击事件
-    searchButton(value) {
-      this.searchData = value;
-      this.pageCurrent = 1;
-      this.getRequestData(this.pageCurrent);
+    searchButton (value) {
+      this.searchData = value
+      this.pageCurrent = 1
+      this.getRequestData(this.pageCurrent)
     },
 
     // 改变每页条数
-    changePageNumber(index) {
-      this.pageSize = index;
+    changePageNumber (index) {
+      this.pageSize = index
       if (this.pageCurrent === 1) {
-        this.changePage(this.pageCurrent);
+        this.changePage(this.pageCurrent)
       }
     },
 
     // 分页
-    changePage(index) {
+    changePage (index) {
       // 获得当前页数，以及发送数据请求
-      this.pageCurrent = index;
-      this.getRequestData(index);
+      this.pageCurrent = index
+      this.getRequestData(index)
     },
 
     // 编辑修改记录
-    handleEdit(row, index) {
-      this.editBuildingName = row.buildingName;
-      this.editBuildingType = row.buildingType;
-      this.editIndex = index;
+    handleEdit (row, index) {
+      this.editBuildingName = row.buildingName
+      this.editBuildingType = row.buildingType
+      this.editIndex = index
     },
 
     // 取消修改记录
-    handleCancel(index) {
-      this.editIndex = -1;
+    handleCancel (index) {
+      this.editIndex = -1
     },
 
     // 保存记录
-    handleSave(index) {
-      let _this = this;
+    handleSave (index) {
+      let _this = this
       // 编辑栏赋值给需要保存的数据
-      this.pageData[index].buildingType = this.editBuildingType;
-      this.pageData[index].buildingName = this.editBuildingName;
+      this.pageData[index].buildingType = this.editBuildingType
+      this.pageData[index].buildingName = this.editBuildingName
       // 判断是否为空，为空不发送请求
       if (
-        this.pageData[index].buildingType == "" ||
+        this.pageData[index].buildingType == '' ||
         this.pageData[index].buildingType == null ||
         this.pageData[index].buildingType == undefined ||
-        this.pageData[index].buildingName == "" ||
+        this.pageData[index].buildingName == '' ||
         this.pageData[index].buildingName == null ||
         this.pageData[index].buildingName == undefined
       ) {
-        this.$Message.error("有内容未填写");
+        this.$Message.error('有内容未填写')
       } else {
-        let _data = this.pageData[index];
-        _data.updateTime = this.getFormatDate();
+        let _data = this.pageData[index]
+        _data.updateTime = this.getFormatDate()
         axios
           .request({
-            url: "building/updateBuildingList",
-            method: "post",
+            url: 'building/updateBuildingList',
+            method: 'post',
             headers: {
-              "Content-Type": "application/json;charset=UTF-8"
+              'Content-Type': 'application/json;charset=UTF-8'
             },
             data: _data
           })
-          .then(function(response) {
+          .then(function (response) {
             if (response.data == 1) {
-              _this.$Message.success("保存成功");
-              _this.getRequestData(_this.pageCurrent);
+              _this.$Message.success('保存成功')
+              _this.getRequestData(_this.pageCurrent)
             } else if (response.data == -1) {
-              _this.$Message.error("已有楼栋名称");
+              _this.$Message.error('已有楼栋名称')
             } else {
-              _this.$Message.error("保存失败");
+              _this.$Message.error('保存失败')
             }
           })
-          .then(function() {
-            _this.changePage(_this.pageCurrent);
-          });
-        this.editIndex = -1;
+          .then(function () {
+            _this.changePage(_this.pageCurrent)
+          })
+        this.editIndex = -1
       }
     },
 
     // 从后台查询数据
-    getRequestData(index) {
-      let _this = this;
-      this.pageStart = (index - 1) * this.pageSize;
+    getRequestData (index) {
+      let _this = this
+      this.pageStart = (index - 1) * this.pageSize
       axios
         .request({
-          url: "building/getSearchList",
-          method: "get",
+          url: 'building/getSearchList',
+          method: 'get',
           params: {
             search: this.searchData,
             dataStart: this.pageStart,
             dataSize: this.pageSize
           }
         })
-        .then(function(response) {
-          _this.pageData = response.data.buildingList;
-          _this.dataCount = response.data.dataCount;
-          _this.addPageCurrentAndPageSize(_this.pageData);
-        });
+        .then(function (response) {
+          _this.pageData = response.data.buildingList
+          _this.dataCount = response.data.dataCount
+          _this.addPageCurrentAndPageSize(_this.pageData)
+        })
     },
 
     // 获取当前系统时间
-    getFormatDate() {
-      var date = new Date();
-      var month = date.getMonth() + 1;
-      var strDate = date.getDate();
+    getFormatDate () {
+      var date = new Date()
+      var month = date.getMonth() + 1
+      var strDate = date.getDate()
       if (month >= 1 && month <= 9) {
-        month = "0" + month;
+        month = '0' + month
       }
       if (strDate >= 0 && strDate <= 9) {
-        strDate = "0" + strDate;
+        strDate = '0' + strDate
       }
       var currentDate =
         date.getFullYear() +
-        "-" +
+        '-' +
         month +
-        "-" +
+        '-' +
         strDate +
-        " " +
+        ' ' +
         date.getHours() +
-        ":" +
+        ':' +
         date.getMinutes() +
-        ":" +
-        date.getSeconds();
-      return currentDate;
+        ':' +
+        date.getSeconds()
+      return currentDate
     },
 
     // 添加当前页和页码数据
-    addPageCurrentAndPageSize(updatePageData) {
+    addPageCurrentAndPageSize (updatePageData) {
       for (var key in updatePageData) {
-        updatePageData[key].pageCurrent = this.pageCurrent;
-        updatePageData[key].pageSize = this.pageSize;
+        updatePageData[key].pageCurrent = this.pageCurrent
+        updatePageData[key].pageSize = this.pageSize
       }
     }
   },
-  mounted() {
-    this.getRequestData(this.pageCurrent);
+  mounted () {
+    this.getRequestData(this.pageCurrent)
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 </style>
