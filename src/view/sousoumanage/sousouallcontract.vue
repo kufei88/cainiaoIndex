@@ -12,6 +12,10 @@
     <Button type="primary" @click="showAddContract()" style="float:right;margin-left:10px">新增客户</Button>
     <Button type="primary" style="float:right;margin-left:10px" @click="showXuYue()">续约</Button>
     <Button type="primary" @click="showDetail()" style="float:right">合同详情</Button>
+    <!-- 过期合同按钮 -->
+    <Button type="primary" @click="getDeleteCount()" style="float:right;margin-left:10px">到期合同</Button>
+    <!-- 未到期合同 -->
+    <Button type="primary" @click="getBeforCount()" style="float:right;margin-left:10px">未到期合同</Button>
     <div style="clear:both"></div>
     <!-- 意向客户表格展示 -->
     <Table
@@ -357,85 +361,85 @@
 }
 </style>
 <script>
-import axios from "@/libs/api.request";
-import excel from "@/libs/excel";
+import axios from '@/libs/api.request'
+import excel from '@/libs/excel'
 export default {
-  data() {
-    var tel = /^[0-9]*$/;
+  data () {
+    var tel = /^[0-9]*$/
     var validateCompanyName = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("公司名称不能为空"));
+      if (value === '') {
+        callback(new Error('公司名称不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateZsFuZeRen = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("招商负责人不能为空"));
+      if (value === '') {
+        callback(new Error('招商负责人不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateTag = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("标签不能为空"));
+      if (value === '') {
+        callback(new Error('标签不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateTeamSize = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("团队人数不能为空"));
+      if (value === '') {
+        callback(new Error('团队人数不能为空'))
       } else if (!tel.test(value)) {
-        callback(new Error("请输入正确的格式"));
+        callback(new Error('请输入正确的格式'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateJyFangShi = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("经营方式不能为空"));
+      if (value === '') {
+        callback(new Error('经营方式不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validatePingPai = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("产品品牌不能为空"));
+      if (value === '') {
+        callback(new Error('产品品牌不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateSno = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("学号不能为空"));
+      if (value === '') {
+        callback(new Error('学号不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validatePaymeny = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("缴费金额不能为空"));
+      if (value === '') {
+        callback(new Error('缴费金额不能为空'))
       } else if (!tel.test(value)) {
-        callback(new Error("请输入正确的缴费金额"));
+        callback(new Error('请输入正确的缴费金额'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateStartTime = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("起始日期不能为空"));
+      if (value === '') {
+        callback(new Error('起始日期不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     var validateEndTime = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("截至日期不能为空"));
+      if (value === '') {
+        callback(new Error('截至日期不能为空'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     return {
       showIndex: -1,
       showTableData: [],
@@ -449,270 +453,284 @@ export default {
       selectContract: {}, // 选中行信息
       souContractCounts: 0, // 合同总条数
       souContractData: [], // 合同信息
-      year: "", // 年
-      month: "", // 月
-      day: "", // 日
+      year: '', // 年
+      month: '', // 月
+      day: '', // 日
       editdata: {
-        sno: "", // 学号
-        advantage: "" // 优势
+        sno: '', // 学号
+        advantage: '' // 优势
       },
       souContractPage: {
-        name: "", // 搜索信息
+        name: '', // 搜索信息
         startPage: 1, // 页码
-        pageSize: 10 // 当前页显示的信息条数
+        pageSize: 10, // 当前页显示的信息条数
+        isDelete: false
       },
       // 新增表单验证规则匹配与触发条件
       ruleContract: {
-        companyName: [{ validator: validateCompanyName, trigger: "onchange" }], // 公司名匹配
-        tag: [{ validator: validateTag, trigger: "blur" }], // 标签匹配
-        zsFuZeRen: [{ validator: validateZsFuZeRen, trigger: "blur" }], // 标签匹配
-        payment: [{ validator: validatePaymeny, trigger: "blur" }], // 缴费金额匹配
-        sno: [{ validator: validateSno, trigger: "blur" }], // 学号匹配
-        teamSize: [{ validator: validateTeamSize, trigger: "blur" }], // 团队人数匹配
-        pingPai: [{ validator: validatePingPai, trigger: "blur" }], // 产品品牌匹配
-        jyFangShi: [{ validator: validateJyFangShi, trigger: "onchange" }], // 经营方式匹配
-        htStartTime: [{ validator: validateStartTime, trigger: "blur" }], // 合同起租日匹配
-        htEndTime: [{ validator: validateEndTime, trigger: "blur" }] // 合同截止日匹配
+        companyName: [{ validator: validateCompanyName, trigger: 'onchange' }], // 公司名匹配
+        tag: [{ validator: validateTag, trigger: 'blur' }], // 标签匹配
+        zsFuZeRen: [{ validator: validateZsFuZeRen, trigger: 'blur' }], // 标签匹配
+        payment: [{ validator: validatePaymeny, trigger: 'blur' }], // 缴费金额匹配
+        sno: [{ validator: validateSno, trigger: 'blur' }], // 学号匹配
+        teamSize: [{ validator: validateTeamSize, trigger: 'blur' }], // 团队人数匹配
+        pingPai: [{ validator: validatePingPai, trigger: 'blur' }], // 产品品牌匹配
+        jyFangShi: [{ validator: validateJyFangShi, trigger: 'onchange' }], // 经营方式匹配
+        htStartTime: [{ validator: validateStartTime, trigger: 'blur' }], // 合同起租日匹配
+        htEndTime: [{ validator: validateEndTime, trigger: 'blur' }] // 合同截止日匹配
       },
       ruleXuYue: {
-        payment: [{ validator: validatePaymeny, trigger: "blur" }], // 缴费金额匹配
-        htStartTime: [{ validator: validateStartTime, trigger: "blur" }], // 合同起租日匹配
-        htEndTime: [{ validator: validateEndTime, trigger: "blur" }] // 合同截止日匹配
+        payment: [{ validator: validatePaymeny, trigger: 'blur' }], // 缴费金额匹配
+        htStartTime: [{ validator: validateStartTime, trigger: 'blur' }], // 合同起租日匹配
+        htEndTime: [{ validator: validateEndTime, trigger: 'blur' }] // 合同截止日匹配
       },
       addXuYueData: {
-        id: "",
-        zsFuZeRen: "", // 招商负责人
-        companyName: "", // 公司名
-        payment: "", // 缴费金额
-        sno: "", // 学号
-        city: "", // 城市
-        contactPerson: "", // 联系人
-        zhiWei: "", // 职位
-        phoneNumber: "", // 联系电话
-        category: "", // 类目
-        pingTai: "", // 平台
-        sales: "", // 销售额
-        teamSize: "", // 团队人数
-        pingPai: "", // 产品品牌
-        jyFangShi: "", // 经营方式
-        htStartTime: "", // 合同起始日
-        htEndTime: "", // 合同截止日
-        tag: "", // 标签
-        advantage: "", // 优势
-        createTime: "", // 创建时间
-        lsHtEndTime: "" // 临时存放合同截至日期
+        id: '',
+        zsFuZeRen: '', // 招商负责人
+        companyName: '', // 公司名
+        payment: '', // 缴费金额
+        sno: '', // 学号
+        city: '', // 城市
+        contactPerson: '', // 联系人
+        zhiWei: '', // 职位
+        phoneNumber: '', // 联系电话
+        category: '', // 类目
+        pingTai: '', // 平台
+        sales: '', // 销售额
+        teamSize: '', // 团队人数
+        pingPai: '', // 产品品牌
+        jyFangShi: '', // 经营方式
+        htStartTime: '', // 合同起始日
+        htEndTime: '', // 合同截止日
+        tag: '', // 标签
+        advantage: '', // 优势
+        createTime: '', // 创建时间
+        lsHtEndTime: '' // 临时存放合同截至日期
       },
       // 新增数据
       addContractData: {
-        zsFuZeRen: "", // 招商负责人
-        companyName: "", // 公司名
-        payment: "", // 缴费金额
-        sno: "", // 学号
-        city: "", // 城市
-        contactPerson: "", // 联系人
-        zhiWei: "", // 职位
-        phoneNumber: "", // 联系电话
-        category: "", // 类目
-        pingTai: "", // 平台
-        sales: "", // 销售额
-        teamSize: "", // 团队人数
-        pingPai: "", // 产品品牌
-        jyFangShi: "", // 经营方式
-        htStartTime: "", // 合同起始日
-        htEndTime: "", // 合同截止日
-        tag: "", // 标签
-        advantage: "", // 优势
-        createTime: "" // 创建时间
+        zsFuZeRen: '', // 招商负责人
+        companyName: '', // 公司名
+        payment: '', // 缴费金额
+        sno: '', // 学号
+        city: '', // 城市
+        contactPerson: '', // 联系人
+        zhiWei: '', // 职位
+        phoneNumber: '', // 联系电话
+        category: '', // 类目
+        pingTai: '', // 平台
+        sales: '', // 销售额
+        teamSize: '', // 团队人数
+        pingPai: '', // 产品品牌
+        jyFangShi: '', // 经营方式
+        htStartTime: '', // 合同起始日
+        htEndTime: '', // 合同截止日
+        tag: '', // 标签
+        advantage: '', // 优势
+        createTime: '' // 创建时间
       },
       jyFangShiList: [
         {
-          value: "自产",
-          label: "自产"
+          value: '自产',
+          label: '自产'
         },
         {
-          value: "代理",
-          label: "代理"
+          value: '代理',
+          label: '代理'
         },
         {
-          value: "贴牌加工",
-          label: "贴牌加工"
+          value: '贴牌加工',
+          label: '贴牌加工'
         }
       ],
       showColumns: [
         {
-          type: "index",
+          type: 'index',
           width: 100,
-          align: "center",
-          indexMethod(row) {
-            return row._index + 1;
+          align: 'center',
+          indexMethod (row) {
+            return row._index + 1
           }
         },
         {
-          title: "公司名",
-          key: "companyName"
+          title: '公司名',
+          key: 'companyName'
         },
         {
-          title: "合同起始日",
-          key: "htStartTime"
+          title: '合同起始日',
+          key: 'htStartTime'
         },
         {
-          title: "合同截止日",
-          key: "htEndTime"
+          title: '合同截止日',
+          key: 'htEndTime'
         },
         {
-          title: "缴费金额",
-          key: "payment"
+          title: '缴费金额',
+          key: 'payment'
         },
         {
-          title: "录入时间",
-          key: "createTime"
+          title: '录入时间',
+          key: 'createTime'
         },
         {
-          title: "是否到期",
-          slot: "delete",
-          key: "delete"
+          title: '是否到期',
+          slot: 'delete',
+          key: 'delete'
         }
       ],
       souContractColumns: [
         {
-          type: "index",
+          type: 'index',
           width: 60,
-          align: "center",
-          fixed: "left",
-          indexMethod(row) {
-            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize;
+          align: 'center',
+          fixed: 'left',
+          indexMethod (row) {
+            return row._index + 1 + (row.pageCurrent - 1) * row.pageSize
           }
         },
         {
-          title: "公司名",
-          slot: "companyName",
-          fixed: "left",
-          key: "companyName",
+          title: '公司名',
+          slot: 'companyName',
+          fixed: 'left',
+          key: 'companyName',
           width: 120
         },
         {
-          title: "学号",
-          slot: "sno",
-          key: "sno",
+          title: '学号',
+          slot: 'sno',
+          key: 'sno',
           width: 100
         },
         {
-          title: "合同起始日",
-          slot: "htStartTime",
-          key: "htStartTime",
+          title: '合同起始日',
+          slot: 'htStartTime',
+          key: 'htStartTime',
           width: 200
         },
         {
-          title: "合同截止日",
-          slot: "htEndTime",
-          key: "htEndTime",
+          title: '合同截止日',
+          slot: 'htEndTime',
+          key: 'htEndTime',
           width: 200
         },
         {
-          title: "缴费金额",
-          slot: "payment",
-          key: "payment",
+          title: '缴费金额',
+          slot: 'payment',
+          key: 'payment',
           width: 120
         },
         {
-          title: "标签",
-          slot: "tag",
-          key: "tag",
+          title: '标签',
+          slot: 'tag',
+          key: 'tag',
           width: 120
         },
         {
-          title: "经营方式",
-          slot: "jyFangShi",
-          key: "jyFangShi",
+          title: '经营方式',
+          slot: 'jyFangShi',
+          key: 'jyFangShi',
           width: 120
         },
         {
-          title: "产品品牌",
-          slot: "pingPai",
-          key: "pingPai",
+          title: '产品品牌',
+          slot: 'pingPai',
+          key: 'pingPai',
           width: 160
         },
         {
-          title: "运营团队人数",
-          slot: "teamSize",
-          key: "teamSize",
+          title: '运营团队人数',
+          slot: 'teamSize',
+          key: 'teamSize',
           width: 120
         },
         {
-          title: "招商负责人",
-          slot: "zsFuZeRen",
-          key: "zsFuZeRen",
+          title: '招商负责人',
+          slot: 'zsFuZeRen',
+          key: 'zsFuZeRen',
           width: 160
         },
         {
-          title: "优势",
-          slot: "advantage",
-          key: "advantage",
+          title: '优势',
+          slot: 'advantage',
+          key: 'advantage',
           width: 160
         },
         {
-          title: "录入时间",
-          slot: "createTime",
-          key: "createTime",
+          title: '录入时间',
+          slot: 'createTime',
+          key: 'createTime',
           width: 200
         },
         {
-          title: "操作",
-          slot: "action",
-          fixed: "right",
+          title: '操作',
+          slot: 'action',
+          fixed: 'right',
           width: 180,
-          align: "center"
+          align: 'center'
         }
       ]
-    };
+    }
   },
   methods: {
+    // 获取到期期合同信息
+    getDeleteCount () {
+      this.ResetSelect()
+      this.souContractPage.name = '',
+      this.souContractPage.isDelete = true
+      this.getsouContractCount()
+    },
+    getBeforCount () {
+      this.ResetSelect()
+      this.souContractPage.name = '',
+      this.souContractPage.isDelete = false
+      this.getsouContractCount()
+    },
     // 点击到期
-    deleteSouHt(row) {
+    deleteSouHt (row) {
       this.$Modal.confirm({
-        title: "删除提示",
-        content: "<p>是否确认删除该条记录？</p>",
+        title: '删除提示',
+        content: '<p>是否确认删除该条记录？</p>',
         onOk: () => {
-          this.deleteContract(row);
+          this.deleteContract(row)
         },
         onCancel: () => {}
-      });
+      })
     },
 
-    deleteContract(row) {
-      let _this = this;
+    deleteContract (row) {
+      let _this = this
       axios
         .request({
-          url: "SouContract/deleteContract",
-          method: "post",
+          url: 'SouContract/deleteContract',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json;charset=UTF-8"
+            'Content-Type': 'application/json;charset=UTF-8'
           },
           data: row
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.data == 1) {
-            _this.$Message.success("删除成功");
+            _this.$Message.success('删除成功')
             if (
               _this.souContractPage.startPage > 1 &&
               _this.souContractData.length == 1
             ) {
-              _this.souContractPage.startPage -= 1;
-              _this.ResetSelect();
+              _this.souContractPage.startPage -= 1
+              _this.ResetSelect()
             }
-            _this.getsouContractCount();
+            _this.getsouContractCount()
           } else {
-            _this.$Message.error("删除失败");
+            _this.$Message.error('删除失败')
           }
-        });
+        })
     },
     // 为即将到期的合同添加颜色作为提醒
-    rowClassName(row, index) {
-      this.getFormatDate();
-      var datearr = row.htEndTime.toString().split("-");
-      var eyear = parseInt(datearr[0]) * 360;
-      var emonth = parseInt(datearr[1]) * 30;
-      var eday = parseInt(datearr[2]);
+    rowClassName (row, index) {
+      this.getFormatDate()
+      var datearr = row.htEndTime.toString().split('-')
+      var eyear = parseInt(datearr[0]) * 360
+      var emonth = parseInt(datearr[1]) * 30
+      var eday = parseInt(datearr[2])
 
       var d = (
         eyear -
@@ -721,384 +739,384 @@ export default {
         this.month +
         eday -
         this.day
-      ).toString();
+      ).toString()
 
       if (d > 0 && d <= 30) {
         if (this.showIndex == index) {
-          return "";
+          return ''
         } else {
-          return "demo-table-error-row";
+          return 'demo-table-error-row'
         }
       } else if (d <= 0) {
         if (this.showIndex == index) {
-          return "";
+          return ''
         } else {
-          return "table-overTime";
+          return 'table-overTime'
         }
       }
-      return "";
+      return ''
     },
     // 合同详情
-    showDetail() {
-      let _this = this;
-      let sno = this.selectContract.sno;
+    showDetail () {
+      let _this = this
+      let sno = this.selectContract.sno
       if (this.isSelect == false) {
-        this.$Message.error("请选择合同");
-        return false;
+        this.$Message.error('请选择合同')
+        return false
       }
       axios
         .request({
-          url: "SouContract/getContractBySno",
-          method: "post",
+          url: 'SouContract/getContractBySno',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json" // 设置请求头请求格式为JSON
+            'Content-Type': 'application/json' // 设置请求头请求格式为JSON
           },
           data: sno
         })
-        .then(function(response) {
-          _this.showTableData = response.data;
-          _this.isDetailed = true;
-        });
+        .then(function (response) {
+          _this.showTableData = response.data
+          _this.isDetailed = true
+        })
     },
     // 续约数据提交
-    pushAddXuYue(refName) {
-      this.addXuYueData.htStartTime = this.addXuYueData.lsHtEndTime;
-      let _this = this;
+    pushAddXuYue (refName) {
+      this.addXuYueData.htStartTime = this.addXuYueData.lsHtEndTime
+      let _this = this
       this.$refs[refName].validate(valid => {
         if (valid) {
-          _this.addXuYueData.createTime = _this.getFormatDate();
-          _this.insertXuYueContract(_this.addXuYueData);
+          _this.addXuYueData.createTime = _this.getFormatDate()
+          _this.insertXuYueContract(_this.addXuYueData)
         }
-      });
+      })
     },
     // 插入续约合同
-    insertXuYueContract(addXuYueData) {
-      let _this = this;
+    insertXuYueContract (addXuYueData) {
+      let _this = this
       axios
         .request({
-          url: "SouContract/insertXuYueContract",
-          method: "post",
+          url: 'SouContract/insertXuYueContract',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json" // 设置请求头请求格式为JSON
+            'Content-Type': 'application/json' // 设置请求头请求格式为JSON
           },
           data: addXuYueData
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.data == 1) {
-            _this.$Message.success("续约成功");
-            _this.isAddXuYue = false;
-            _this.getsouContractList();
+            _this.$Message.success('续约成功')
+            _this.isAddXuYue = false
+            _this.getsouContractList()
           } else {
-            _this.$Message.error("续约失败");
+            _this.$Message.error('续约失败')
           }
-        });
+        })
     },
     // 点击续约
-    showXuYue() {
+    showXuYue () {
       if (this.isSelect == false) {
-        this.$Message.error("请选择合同");
-        return false;
+        this.$Message.error('请选择合同')
+        return false
       }
-      this.$refs["addXuYueCustom"].resetFields();
-      this.addXuYueData.htStartTime = this.addXuYueData.lsHtEndTime;
-      this.isAddXuYue = true;
+      this.$refs['addXuYueCustom'].resetFields()
+      this.addXuYueData.htStartTime = this.addXuYueData.lsHtEndTime
+      this.isAddXuYue = true
     },
     // 取消续约
-    cancelXuYue() {
-      this.isAddXuYue = false;
+    cancelXuYue () {
+      this.isAddXuYue = false
     },
     // 单选合同
-    currentChange(currentRow, index) {
-      this.showIndex = index;
-      this.isSelect = true;
-      this.selectContract = currentRow;
-      this.addXuYueData.id = currentRow.id;
-      this.addXuYueData.zsFuZeRen = currentRow.zsFuZeRen;
-      this.addXuYueData.pingTai = currentRow.pingTai;
-      this.addXuYueData.sales = currentRow.sales;
-      this.addXuYueData.teamSize = currentRow.teamSize;
-      this.addXuYueData.pingPai = currentRow.pingPai;
-      this.addXuYueData.jyFangShi = currentRow.jyFangShi;
-      this.addXuYueData.lsHtEndTime = currentRow.htEndTime;
-      this.addXuYueData.tag = currentRow.tag;
-      this.addXuYueData.advantage = currentRow.advantage;
-      this.addXuYueData.companyName = currentRow.companyName;
-      this.addXuYueData.sno = currentRow.sno;
-      this.addXuYueData.city = currentRow.city;
-      this.addXuYueData.contactPerson = currentRow.contactPerson;
-      this.addXuYueData.zhiWei = currentRow.zhiWei;
-      this.addXuYueData.phoneNumber = currentRow.phoneNumber;
-      this.addXuYueData.category = currentRow.category;
+    currentChange (currentRow, index) {
+      this.showIndex = index
+      this.isSelect = true
+      this.selectContract = currentRow
+      this.addXuYueData.id = currentRow.id
+      this.addXuYueData.zsFuZeRen = currentRow.zsFuZeRen
+      this.addXuYueData.pingTai = currentRow.pingTai
+      this.addXuYueData.sales = currentRow.sales
+      this.addXuYueData.teamSize = currentRow.teamSize
+      this.addXuYueData.pingPai = currentRow.pingPai
+      this.addXuYueData.jyFangShi = currentRow.jyFangShi
+      this.addXuYueData.lsHtEndTime = currentRow.htEndTime
+      this.addXuYueData.tag = currentRow.tag
+      this.addXuYueData.advantage = currentRow.advantage
+      this.addXuYueData.companyName = currentRow.companyName
+      this.addXuYueData.sno = currentRow.sno
+      this.addXuYueData.city = currentRow.city
+      this.addXuYueData.contactPerson = currentRow.contactPerson
+      this.addXuYueData.zhiWei = currentRow.zhiWei
+      this.addXuYueData.phoneNumber = currentRow.phoneNumber
+      this.addXuYueData.category = currentRow.category
     },
     // 提交新增信息
-    pushAddContract(refName) {
-      let _this = this;
+    pushAddContract (refName) {
+      let _this = this
       this.$refs[refName].validate(valid => {
         if (valid) {
-          _this.addContractData.createTime = _this.getFormatDate();
-          _this.insertAddContract(_this.addContractData);
+          _this.addContractData.createTime = _this.getFormatDate()
+          _this.insertAddContract(_this.addContractData)
         }
-      });
+      })
     },
-    insertAddContract(addContractData) {
-      let _this = this;
+    insertAddContract (addContractData) {
+      let _this = this
       axios
         .request({
-          url: "SouContract/insertContract",
-          method: "post",
+          url: 'SouContract/insertContract',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json" // 设置请求头请求格式为JSON
+            'Content-Type': 'application/json' // 设置请求头请求格式为JSON
           },
           data: addContractData
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.data == 1) {
-            _this.$Message.success("新增成功");
-            _this.isAddContract = false;
-            _this.getsouContractCount();
+            _this.$Message.success('新增成功')
+            _this.isAddContract = false
+            _this.getsouContractCount()
           } else if (response.data == -1) {
-            _this.$Message.error("该学号已存在");
+            _this.$Message.error('该学号已存在')
           } else if (response.data == -2) {
-            _this.$Message.error("该公司仍存在未到期合同");
+            _this.$Message.error('该公司仍存在未到期合同')
           } else if (response.data == -3) {
-            _this.$Message.error("当前学号与该公司学号不一致");
+            _this.$Message.error('当前学号与该公司学号不一致')
           } else {
-            _this.$Message.error("新增失败");
+            _this.$Message.error('新增失败')
           }
-        });
+        })
     },
     // 选择客户获取具体信息
-    chioce(client) {
-      this.addContractData.sales = client.sales;
-      this.addContractData.pingTai = client.pingTai;
-      this.addContractData.contactPerson = client.contactPerson;
-      this.addContractData.city = client.city;
-      this.addContractData.zhiWei = client.zhiWei;
-      this.addContractData.phoneNumber = client.phoneNumber;
-      this.addContractData.category = client.category;
-      if (client.sno != null && client.sno != "" && client != undefined) {
-        this.addContractData.sno = client.sno;
+    chioce (client) {
+      this.addContractData.sales = client.sales
+      this.addContractData.pingTai = client.pingTai
+      this.addContractData.contactPerson = client.contactPerson
+      this.addContractData.city = client.city
+      this.addContractData.zhiWei = client.zhiWei
+      this.addContractData.phoneNumber = client.phoneNumber
+      this.addContractData.category = client.category
+      if (client.sno != null && client.sno != '' && client != undefined) {
+        this.addContractData.sno = client.sno
       }
     },
     // 获取意向客户数据
-    getAllClient(query) {
-      let _this = this;
-      let name = query;
-      if (query != "" && query != undefined && query != null) {
+    getAllClient (query) {
+      let _this = this
+      let name = query
+      if (query != '' && query != undefined && query != null) {
         axios
           .request({
-            url: "SouSouClient/getAllClient",
-            method: "post",
+            url: 'SouSouClient/getAllClient',
+            method: 'post',
             headers: {
-              "Content-Type": "application/json;charset=UTF-8"
+              'Content-Type': 'application/json;charset=UTF-8'
             },
             data: name
           })
-          .then(function(response) {
-            _this.clientData = response.data;
-          });
+          .then(function (response) {
+            _this.clientData = response.data
+          })
       }
     },
     // 新增窗口弹出
-    showAddContract() {
-      this.$refs["addContractCustom"].resetFields();
-      this.resetAddContract();
-      this.isAddContract = true;
+    showAddContract () {
+      this.$refs['addContractCustom'].resetFields()
+      this.resetAddContract()
+      this.isAddContract = true
     },
     // 取消新增
-    concelAdd() {
-      this.isAddContract = false;
+    concelAdd () {
+      this.isAddContract = false
     },
     // 起始时间格式转换
-    startChange(date) {
-      this.addContractData.htStartTime = date.toString();
+    startChange (date) {
+      this.addContractData.htStartTime = date.toString()
     },
     // 结束时间格式转换
-    endChange(date) {
-      this.addContractData.htEndTime = date.toString();
+    endChange (date) {
+      this.addContractData.htEndTime = date.toString()
     },
     // 续约起始时间格式转换
-    startChange2(date) {
-      this.addXuYueData.htStartTime = date.toString();
+    startChange2 (date) {
+      this.addXuYueData.htStartTime = date.toString()
     },
     // 续约结束时间格式转换
-    endChange2(date) {
-      this.addXuYueData.htEndTime = date.toString();
+    endChange2 (date) {
+      this.addXuYueData.htEndTime = date.toString()
     },
     // 修改
-    handleEdit(row, index) {
-      this.editIndex = index;
-      this.editdata.advantage = row.advantage;
-      this.editdata.sno = row.sno;
+    handleEdit (row, index) {
+      this.editIndex = index
+      this.editdata.advantage = row.advantage
+      this.editdata.sno = row.sno
       // console.log(row.htStartTime);
     },
     // 保存编辑验证
-    saveEdit(editRow) {
-      this.updataEdit();
+    saveEdit (editRow) {
+      this.updataEdit()
     },
     // 更新修改
-    updataEdit() {
-      let _this = this;
+    updataEdit () {
+      let _this = this
       axios
         .request({
-          url: "SouContract/updateAdvantage",
-          method: "post",
+          url: 'SouContract/updateAdvantage',
+          method: 'post',
           headers: {
-            "Content-Type": "application/json" // 设置请求头请求格式为JSON
+            'Content-Type': 'application/json' // 设置请求头请求格式为JSON
           },
           data: {
             advantage: _this.editdata.advantage,
             sno: _this.editdata.sno.toString()
           }
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.data == 1) {
-            _this.$Message.success("修改成功");
-            _this.getsouContractList();
+            _this.$Message.success('修改成功')
+            _this.getsouContractList()
           } else {
-            _this.$Message.error("修改失败");
+            _this.$Message.error('修改失败')
           }
-        });
-      _this.editIndex = -1;
+        })
+      _this.editIndex = -1
     },
     // 换页
-    handlePage(val) {
-      this.souContractPage.startPage = val;
-      this.getsouContractList();
-      this.editIndex = -1;
-      this.ResetSelect();
+    handlePage (val) {
+      this.souContractPage.startPage = val
+      this.getsouContractList()
+      this.editIndex = -1
+      this.ResetSelect()
     },
     // 更换每页显示条数
-    handlePageSize(val) {
-      this.souContractPage.startPage = 1;
-      this.souContractPage.pageSize = val;
-      this.editIndex = -1;
-      this.getsouContractList();
-      this.ResetSelect();
+    handlePageSize (val) {
+      this.souContractPage.startPage = 1
+      this.souContractPage.pageSize = val
+      this.editIndex = -1
+      this.getsouContractList()
+      this.ResetSelect()
     },
     // 取消编辑
-    cancelEdit() {
-      this.editIndex = -1;
-      this.getsouContractList();
+    cancelEdit () {
+      this.editIndex = -1
+      this.getsouContractList()
     },
     // 确定优势信息
-    saveContext() {
-      this.souContractData[this.editIndex].advantage = this.editdata.advantage;
-      this.isEditAdvantage = false;
+    saveContext () {
+      this.souContractData[this.editIndex].advantage = this.editdata.advantage
+      this.isEditAdvantage = false
     },
     // 取消更新优势信息
-    cancelContext() {
-      this.isEditAdvantage = false;
-      this.editdata.advantage = this.souContractData[this.editIndex].advantage;
+    cancelContext () {
+      this.isEditAdvantage = false
+      this.editdata.advantage = this.souContractData[this.editIndex].advantage
     },
     // 更新备注
-    editContext(value) {
-      this.isEditAdvantage = true;
+    editContext (value) {
+      this.isEditAdvantage = true
     },
     // 获取客户信息
-    getsouContractList() {
-      let _this = this;
+    getsouContractList () {
+      let _this = this
       axios
         .request({
-          url: "SouContract/getContractList",
-          method: "get",
+          url: 'SouContract/getContractList',
+          method: 'get',
           params: _this.souContractPage
         })
-        .then(function(response) {
-          _this.souContractData = response.data;
-          _this.addPageCurrentAndPageSize(_this.souContractData);
-        });
+        .then(function (response) {
+          _this.souContractData = response.data
+          _this.addPageCurrentAndPageSize(_this.souContractData)
+        })
     },
     // 搜索
-    getSearchCount() {
-      this.souContractPage.startPage = 1;
-      this.getsouContractCount();
+    getSearchCount () {
+      this.souContractPage.startPage = 1
+      this.getsouContractCount()
     },
     // 获取客户信息总条数
-    getsouContractCount() {
-      let _this = this;
+    getsouContractCount () {
+      let _this = this
       axios
         .request({
-          url: "SouContract/getContractCount",
-          method: "get",
+          url: 'SouContract/getContractCount',
+          method: 'get',
           params: _this.souContractPage
         })
-        .then(function(response) {
-          _this.souContractCounts = response.data;
-          _this.getsouContractList();
-        });
+        .then(function (response) {
+          _this.souContractCounts = response.data
+          _this.getsouContractList()
+        })
     },
     // 沟通信息省略显示
-    showOtherLess(value) {
-      var str = "";
-      if (value != "" && value != undefined && value != null) {
-        str = value.substring(0, 6);
+    showOtherLess (value) {
+      var str = ''
+      if (value != '' && value != undefined && value != null) {
+        str = value.substring(0, 6)
         if (value.length > 6) {
-          str += "...";
+          str += '...'
         }
       }
-      return str;
+      return str
     },
-    addPageCurrentAndPageSize(updatePageData) {
+    addPageCurrentAndPageSize (updatePageData) {
       for (var key in updatePageData) {
-        updatePageData[key].pageCurrent = this.souContractPage.startPage;
-        updatePageData[key].pageSize = this.souContractPage.pageSize;
+        updatePageData[key].pageCurrent = this.souContractPage.startPage
+        updatePageData[key].pageSize = this.souContractPage.pageSize
       }
     },
     // 重置新增数据容器
-    resetAddContract() {
-      this.addContractData.zsFuZeRen = "";
-      this.addContractData.companyName = "";
-      this.addContractData.teamSize = "";
-      this.addContractData.pingPai = "";
-      this.addContractData.jyFangShi = "";
-      this.addContractData.htStartTime = "";
-      this.addContractData.htEndTime = "";
-      this.addContractData.tag = "";
-      this.addContractData.advantage = "";
-      this.addContractData.createTime = "";
-      this.addContractData.payment = "";
-      this.addContractData.sno = "";
+    resetAddContract () {
+      this.addContractData.zsFuZeRen = ''
+      this.addContractData.companyName = ''
+      this.addContractData.teamSize = ''
+      this.addContractData.pingPai = ''
+      this.addContractData.jyFangShi = ''
+      this.addContractData.htStartTime = ''
+      this.addContractData.htEndTime = ''
+      this.addContractData.tag = ''
+      this.addContractData.advantage = ''
+      this.addContractData.createTime = ''
+      this.addContractData.payment = ''
+      this.addContractData.sno = ''
     },
     // 获取当前时间
-    getFormatDate() {
-      var date = new Date();
-      this.year = date.getFullYear() * 360;
-      var month = date.getMonth() + 1;
-      this.month = month * 30;
-      var strDate = date.getDate();
-      this.day = date.getDate();
+    getFormatDate () {
+      var date = new Date()
+      this.year = date.getFullYear() * 360
+      var month = date.getMonth() + 1
+      this.month = month * 30
+      var strDate = date.getDate()
+      this.day = date.getDate()
       if (month >= 1 && month <= 9) {
-        month = "0" + month;
+        month = '0' + month
       }
       if (strDate >= 0 && strDate <= 9) {
-        strDate = "0" + strDate;
+        strDate = '0' + strDate
       }
       var currentDate =
         date.getFullYear() +
-        "-" +
+        '-' +
         month +
-        "-" +
+        '-' +
         strDate +
-        " " +
+        ' ' +
         date.getHours() +
-        ":" +
+        ':' +
         date.getMinutes() +
-        ":" +
-        date.getSeconds();
-      return currentDate;
+        ':' +
+        date.getSeconds()
+      return currentDate
     },
     // 清除选择
-    ResetSelect() {
-      this.$refs.contractTable.clearCurrentRow();
-      this.showIndex = -1;
-      this.isSelect = false;
+    ResetSelect () {
+      this.$refs.contractTable.clearCurrentRow()
+      this.showIndex = -1
+      this.isSelect = false
     }
   },
-  mounted() {
-    this.getsouContractCount();
+  mounted () {
+    this.getsouContractCount()
   }
-};
+}
 </script>
 <style lang="scss" scoped>
 </style>
