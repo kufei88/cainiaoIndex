@@ -162,7 +162,7 @@
       :columns="dataColumns"
       :data="pageData"
       ref="table"
-      height="522"
+      :height="tableHeight"
     >
 
       <template
@@ -381,6 +381,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
+      tableHeight:0,
       saveOther: '', // 暂存编辑修改备注内容
       isUpdateOther: false, // 是否修改备注信息
       // 登记状态下拉列表
@@ -1075,6 +1076,7 @@ export default {
   },
   mounted () {
     this.getRequestData(this.pageCurrent)
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
   }
 }
 </script>

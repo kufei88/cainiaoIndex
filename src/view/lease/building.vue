@@ -109,7 +109,7 @@
       :columns="dataColumns"
       :data="pageData"
       ref="table"
-      height="522"
+      :height="tableHeight"
     >
       <!-- 楼栋名称 -->
       <template
@@ -145,14 +145,14 @@
       </template>
       <!-- 添加时间 -->
       <template
-        slot-scope="{ row, index }"
+        slot-scope="{ row }"
         slot="insertTime"
       >
         <span>{{ row.insertTime }}</span>
       </template>
       <!-- 修改时间 -->
       <template
-        slot-scope="{ row, index }"
+        slot-scope="{ row }"
         slot="updateTime"
       >
         <span>{{ row.updateTime }}</span>
@@ -212,6 +212,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
+      tableHeight:0,
       buildingTypeList: [
         {
           value: '办公',
@@ -689,6 +690,7 @@ export default {
   },
   mounted () {
     this.getRequestData(this.pageCurrent)
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
   }
 }
 </script>

@@ -13,7 +13,7 @@
     <Button type="primary" @click="showAddClient()"  style="float:right">新增意向客户</Button>
     <div style="clear:both"></div>
     <!-- 意向客户表格展示 -->
-    <Table border :columns="clientColumns" :data="clientData" ref="table" height="540">
+    <Table border :columns="clientColumns" :data="clientData" ref="table" :height="tableHeight">
       <!-- 公司名 -->
       <template slot-scope="{ row, index }" slot="companyName">
         <span>{{ clientData[index].companyName }}</span>
@@ -335,6 +335,8 @@ export default {
       }
     }
     return {
+      //表格高度
+      tableHeight:0,
       // 新增表单验证规则匹配与触发条件
       ruleCustom: {
         companyName: [{validator: validateCompanyName, trigger: 'blur'}], // 公司名匹配
@@ -372,15 +374,18 @@ export default {
         {
           value: '美妆个护',
           label: '美妆个护'
-        },
+        },
+
         {
           value: '运动户外',
           label: '运动户外'
-        },
+        },
+
         {
           value: '母婴玩具',
           label: '母婴玩具'
-        },
+        },
+
         {
           value: '数码家电',
           label: '数码家电'
@@ -767,7 +772,8 @@ export default {
     }
   },
   mounted () {
-    this.getClientCount()
+    this.getClientCount();
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
   }
 }
 </script>

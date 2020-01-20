@@ -218,7 +218,7 @@
       :columns="dataColumns"
       :data="pageData"
       ref="table"
-      height="522"
+      :height="tableHeight"
     >
       <template
         slot-scope="{ row }"
@@ -228,7 +228,7 @@
       </template>
 
       <template
-        slot-scope="{ row, index }"
+        slot-scope="{ row }"
         slot="buildingName"
       >
         <!-- <Select
@@ -375,6 +375,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
+      tableHeight:0,
       // 房间类型
       dataType: '仓办',
 
@@ -1017,6 +1018,7 @@ export default {
   mounted () {
     this.getRequestData(this.pageCurrent)
     this.getBuildingData()
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
   }
 }
 </script>

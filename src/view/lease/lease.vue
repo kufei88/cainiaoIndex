@@ -415,7 +415,7 @@
       :columns="dataColumns"
       :data="pageData"
       ref="currentRowTable"
-      height="522"
+      :height="tableHeight"
       @on-row-click="currentChange"
     ></Table>
 
@@ -440,6 +440,7 @@ import axios from "@/libs/api.request";
 export default {
   data() {
     return {
+      tableHeight:0,
       ownerInfo: {}, // 获取的公司信息
 
       companyData: [], // 获取的公司名称
@@ -1641,6 +1642,7 @@ export default {
   },
   mounted() {
     this.getRequestData(this.pageCurrent);
+    this.tableHeight = window.innerHeight - this.$refs.currentRowTable.$el.offsetTop - 75;
   }
 };
 </script>

@@ -25,7 +25,7 @@
       highlight-row
       :data="souContractData"
       ref="contractTable"
-      height="540"
+      :height="tableHeight"
       @on-row-click="currentChange"
     >
       <!-- 公司名 -->
@@ -441,6 +441,7 @@ export default {
       }
     }
     return {
+      tableHeight:0,
       showIndex: -1,
       showTableData: [],
       isDetailed: false, // 合同详情弹框标识
@@ -1114,7 +1115,8 @@ export default {
     }
   },
   mounted () {
-    this.getsouContractCount()
+    this.getsouContractCount(),
+    this.tableHeight = window.innerHeight - this.$refs.contractTable.$el.offsetTop - 75;
   }
 }
 </script>

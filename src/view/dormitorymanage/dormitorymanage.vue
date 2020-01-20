@@ -219,7 +219,7 @@
       :columns="accountColumns"
       :data="accountData"
       ref="currentRowTable"
-      height="520"
+      :height="tableHeight"
       highlight-row
       @on-row-click="rowSelect"
     >
@@ -343,7 +343,7 @@ export default {
     };
     return {
       showIndex: -1, // 被选中的行数据序号
-
+      tableHeight:0,
       ownerdata: {
         enterprisePerson: "",
         contactNumber: ""
@@ -553,6 +553,7 @@ export default {
     this.getdormCount();
 
     this.getRoomType();
+    this.tableHeight = window.innerHeight-this.$refs.currentRowTable.$el.offsetTop - 75;
   },
 
   methods: {

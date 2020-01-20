@@ -146,7 +146,7 @@
       :columns="dataColumns"
       :data="pageData"
       ref="table"
-      height="522"
+      :height="tableHeight"
     >
       <template
         slot-scope="{ row }"
@@ -266,6 +266,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
+      tableHeight:0,
       // 房间类型
       dataType: '宿舍',
 
@@ -791,6 +792,7 @@ export default {
     this.getRequestData(this.pageCurrent)
     this.getBuildingData()
     this.getRoomType()
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
   }
 }
 </script>
