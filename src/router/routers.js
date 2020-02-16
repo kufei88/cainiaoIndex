@@ -185,6 +185,16 @@ export default [{
                 },
                 component: () =>
                     import ('@/view/sousoumanage/sousouallcontract.vue')
+            },
+            {
+                path: 'sousouactive',
+                name: '嗖嗖鸟活动',
+                meta: {
+                    icon: 'md-arrow-dropdown-circle',
+                    title: '嗖嗖鸟活动'
+                },
+                component: () =>
+                    import ('@/view/sousoumanage/sousouactive.vue')
             }
         ]
 

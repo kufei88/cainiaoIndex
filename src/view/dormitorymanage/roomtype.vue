@@ -64,7 +64,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
-      tableHeight:0,
+      tableHeight: 0,
       dataType: '宿舍', //
       // 表单数据设置
       formValidate: {
@@ -259,7 +259,7 @@ export default {
   },
   mounted () {
     this.getRoomType()
-    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75
   }
 }
 </script>

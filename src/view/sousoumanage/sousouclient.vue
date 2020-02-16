@@ -335,8 +335,8 @@ export default {
       }
     }
     return {
-      //表格高度
-      tableHeight:0,
+      // 表格高度
+      tableHeight: 0,
       // 新增表单验证规则匹配与触发条件
       ruleCustom: {
         companyName: [{validator: validateCompanyName, trigger: 'blur'}], // 公司名匹配
@@ -772,8 +772,8 @@ export default {
     }
   },
   mounted () {
-    this.getClientCount();
-    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
+    this.getClientCount()
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75
   }
 }
 </script>

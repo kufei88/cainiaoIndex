@@ -11,7 +11,7 @@
     />
     <Button type="primary" @click="showAddContract()" style="float:right;margin-left:10px">新增客户</Button>
     <Button type="primary" style="float:right;margin-left:10px" @click="showXuYue()">续约</Button>
-    <Button type="primary" @click="showDetail()" style="float:right">合同详情</Button>
+    <Button type="primary" @click="showDetail()" style="float:right;margin-left:10px">合同详情</Button>
     <!-- 过期合同按钮 -->
     <Button type="primary" @click="getDeleteCount()" style="float:right;margin-left:10px">到期合同</Button>
     <!-- 未到期合同 -->
@@ -441,7 +441,7 @@ export default {
       }
     }
     return {
-      tableHeight:0,
+      tableHeight: 0,
       showIndex: -1,
       showTableData: [],
       isDetailed: false, // 合同详情弹框标识
@@ -1116,7 +1116,7 @@ export default {
   },
   mounted () {
     this.getsouContractCount(),
-    this.tableHeight = window.innerHeight - this.$refs.contractTable.$el.offsetTop - 75;
+    this.tableHeight = window.innerHeight - this.$refs.contractTable.$el.offsetTop - 75
   }
 }
 </script>

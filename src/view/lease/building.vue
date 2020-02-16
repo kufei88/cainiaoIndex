@@ -212,7 +212,7 @@ import excel from '@/libs/excel'
 export default {
   data () {
     return {
-      tableHeight:0,
+      tableHeight: 0,
       buildingTypeList: [
         {
           value: '办公',
@@ -690,7 +690,7 @@ export default {
   },
   mounted () {
     this.getRequestData(this.pageCurrent)
-    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75;
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 75
   }
 }
 </script>
